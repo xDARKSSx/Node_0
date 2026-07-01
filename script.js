@@ -1,4 +1,6 @@
-const targetDate = new Date("2026-07-08T00:00:00").getTime();
+// NODE_0 - Countdown vers NODE_1 (1 mois + système glitch)
+
+const targetDate = new Date("2026-08-08T00:00:00").getTime();
 
 const glitchMessages = [
   "NODE_0: observation unstable...",
@@ -8,7 +10,10 @@ const glitchMessages = [
   "NODE_0: //signal corrupted//"
 ];
 
-// TIMER
+// mémoire simple du joueur
+let memory = parseInt(localStorage.getItem("node0_memory") || "0");
+
+// TIMER + GLITCH LOOP
 const x = setInterval(function () {
 
   const now = new Date().getTime();
@@ -18,16 +23,25 @@ const x = setInterval(function () {
   let hidden = document.getElementById("hidden");
   let glitch = document.getElementById("glitchText");
 
+  // sécurité
   if (!timer || !hidden || !glitch) return;
 
+  // incrément mémoire
+  memory++;
+  localStorage.setItem("node0_memory", memory);
+
+  // FIN DU TIMER
   if (distance <= 0) {
     clearInterval(x);
+
     timer.innerText = "";
     hidden.style.display = "block";
     glitch.innerText = "NODE_0: connection lost.";
+
     return;
   }
 
+  // calcul temps restant
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
   let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -36,9 +50,14 @@ const x = setInterval(function () {
   timer.innerText =
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-  // GLITCH aléatoire
-  if (Math.random() < 0.05) {
+  // GLITCH ALÉATOIRE (paranoïa légère)
+  if (Math.random() < 0.08) {
     glitch.innerText = glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
+  }
+
+  // glitch basé sur comportement (petit effet “IA”)
+  if (memory % 50 === 0) {
+    glitch.innerText = "NODE_0: stop repeating.";
   }
 
 }, 1000);
