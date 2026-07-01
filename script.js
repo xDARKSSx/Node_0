@@ -37,7 +37,7 @@ const x = setInterval(function () {
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
   // GLITCH aléatoire
-  if (Math.random() < 0.05) {
+  if (Math.random() < 0.09) {
     glitch.innerText = glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
   }
 
