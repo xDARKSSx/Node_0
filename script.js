@@ -1,6 +1,6 @@
-// 🎯 Countdown NODE_0 -> NODE_1 (7 jours)
+// NODE_0 - Countdown vers NODE_1 (version stable)
 
-const targetDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime();
+const targetDate = new Date("2026-07-08T00:00:00").getTime();
 
 const x = setInterval(function () {
 
@@ -10,10 +10,10 @@ const x = setInterval(function () {
   let timer = document.getElementById("timer");
   let hidden = document.getElementById("hidden");
 
-  // sécurité si éléments absents
+  // sécurité (si éléments pas encore chargés)
   if (!timer || !hidden) return;
 
-  // quand le temps est écoulé
+  // si le temps est écoulé
   if (distance <= 0) {
     clearInterval(x);
 
