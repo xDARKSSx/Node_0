@@ -1,5 +1,3 @@
-// NODE_0 - Countdown stable vers NODE_1
-
 const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
 
 const glitchMessages = [
@@ -10,10 +8,9 @@ const glitchMessages = [
   "NODE_0: //signal corrupted//"
 ];
 
-// mémoire joueur
 let memory = parseInt(localStorage.getItem("node0_memory") || "0");
 
-// boucle principale
+// TIMER + GLITCH
 const x = setInterval(function () {
 
   const now = new Date().getTime();
@@ -23,14 +20,11 @@ const x = setInterval(function () {
   const hidden = document.getElementById("hidden");
   const glitch = document.getElementById("glitchText");
 
-  // sécurité
   if (!timer || !hidden || !glitch) return;
 
-  // mémoire
   memory++;
   localStorage.setItem("node0_memory", memory);
 
-  // fin du timer
   if (distance <= 0) {
     clearInterval(x);
 
@@ -41,7 +35,6 @@ const x = setInterval(function () {
     return;
   }
 
-  // calcul temps restant
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
   let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -50,15 +43,37 @@ const x = setInterval(function () {
   timer.innerText =
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-  // glitch aléatoire
   if (Math.random() < 0.08) {
     glitch.innerText =
       glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
   }
 
-  // comportement répétitif
   if (memory % 50 === 0) {
     glitch.innerText = "NODE_0: stop repeating.";
   }
 
 }, 1000);
+
+// IA NODE_0
+function go() {
+  let input = document.getElementById("input").value.toLowerCase();
+  let r = document.getElementById("response");
+
+  let memory = parseInt(localStorage.getItem("node0_memory") || "0");
+
+  if (input.includes("who")) {
+    r.innerText = "NODE_0: you already saw me.";
+  }
+  else if (input.includes("why")) {
+    r.innerText = "NODE_0: because you stayed.";
+  }
+  else if (input.includes("help")) {
+    r.innerText = "NODE_0: no external help detected.";
+  }
+  else if (memory > 200) {
+    r.innerText = "NODE_0: you are repeating yourself.";
+  }
+  else {
+    r.innerText = "NODE_0: signal unclear.";
+  }
+}
