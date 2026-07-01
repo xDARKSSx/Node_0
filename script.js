@@ -1,6 +1,6 @@
-// NODE_0 - Countdown vers NODE_1 (1 mois + système glitch)
+// NODE_0 - Countdown stable vers NODE_1
 
-const targetDate = new Date("2026-08-08T00:00:00").getTime();
+const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
 
 const glitchMessages = [
   "NODE_0: observation unstable...",
@@ -10,27 +10,27 @@ const glitchMessages = [
   "NODE_0: //signal corrupted//"
 ];
 
-// mémoire simple du joueur
+// mémoire joueur
 let memory = parseInt(localStorage.getItem("node0_memory") || "0");
 
-// TIMER + GLITCH LOOP
+// boucle principale
 const x = setInterval(function () {
 
   const now = new Date().getTime();
   const distance = targetDate - now;
 
-  let timer = document.getElementById("timer");
-  let hidden = document.getElementById("hidden");
-  let glitch = document.getElementById("glitchText");
+  const timer = document.getElementById("timer");
+  const hidden = document.getElementById("hidden");
+  const glitch = document.getElementById("glitchText");
 
   // sécurité
   if (!timer || !hidden || !glitch) return;
 
-  // incrément mémoire
+  // mémoire
   memory++;
   localStorage.setItem("node0_memory", memory);
 
-  // FIN DU TIMER
+  // fin du timer
   if (distance <= 0) {
     clearInterval(x);
 
@@ -50,12 +50,13 @@ const x = setInterval(function () {
   timer.innerText =
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-  // GLITCH ALÉATOIRE (paranoïa légère)
+  // glitch aléatoire
   if (Math.random() < 0.08) {
-    glitch.innerText = glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
+    glitch.innerText =
+      glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
   }
 
-  // glitch basé sur comportement (petit effet “IA”)
+  // comportement répétitif
   if (memory % 50 === 0) {
     glitch.innerText = "NODE_0: stop repeating.";
   }
