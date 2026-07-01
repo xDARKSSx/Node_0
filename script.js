@@ -1,5 +1,6 @@
 // =========================
-// NODE_0 CORE SYSTEM
+// NODE_0 CORE SYSTEM V2
+// (temps + IA + présence)
 // =========================
 
 const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
@@ -12,14 +13,25 @@ const glitchMessages = [
   "NODE_0: //signal corrupted//"
 ];
 
-// mémoire globale
+const idleMessages = [
+  "NODE_0: still here.",
+  "NODE_0: listening...",
+  "NODE_0: why are you waiting?",
+  "NODE_0: connection remains open.",
+  "NODE_0: you did not close me."
+];
+
+// mémoire joueur
 let memory = parseInt(localStorage.getItem("node0_memory") || "0");
+
+// temps passé sur la page
+let startTime = Date.now();
 
 // historique utilisateur
 let userHistory = JSON.parse(localStorage.getItem("node0_history") || "[]");
 
 // =========================
-// ANALYSE IA
+// IA INPUT
 // =========================
 function analyzeInput(text) {
   userHistory.push(text);
@@ -72,9 +84,9 @@ function go() {
 }
 
 // =========================
-// TIMER + GLITCH LOOP
+// TIMER + GLITCH + PRESENCE
 // =========================
-const x = setInterval(function () {
+setInterval(function () {
 
   const now = new Date().getTime();
   const distance = targetDate - now;
@@ -89,18 +101,18 @@ const x = setInterval(function () {
   memory++;
   localStorage.setItem("node0_memory", memory);
 
-  // fin du timer
-  if (distance <= 0) {
-    clearInterval(x);
+  // temps passé sur page
+  let timeOnPage = (Date.now() - startTime) / 1000;
 
+  // FIN TIMER
+  if (distance <= 0) {
     timer.innerText = "";
     hidden.style.display = "block";
     glitch.innerText = "NODE_0: connection lost.";
-
     return;
   }
 
-  // calcul temps
+  // affichage timer
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
   let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -118,6 +130,22 @@ const x = setInterval(function () {
   // comportement répétitif
   if (memory % 50 === 0) {
     glitch.innerText = "NODE_0: stop repeating.";
+  }
+
+  // =========================
+  // PRESENCE (NODE_0 "vivant")
+  // =========================
+
+  if (timeOnPage > 30 && Math.random() < 0.05) {
+    glitch.innerText = idleMessages[Math.floor(Math.random() * idleMessages.length)];
+  }
+
+  if (timeOnPage > 120 && Math.random() < 0.08) {
+    glitch.innerText = "NODE_0: you are not leaving.";
+  }
+
+  if (timeOnPage > 300) {
+    glitch.innerText = "NODE_0: still connected.";
   }
 
 }, 1000);
