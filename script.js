@@ -1,6 +1,5 @@
 // =========================
-// NODE_0 CORE SYSTEM V2
-// (temps + IA + présence)
+// NODE_0 CORE SYSTEM SAFE
 // =========================
 
 const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
@@ -16,50 +15,56 @@ const glitchMessages = [
 const idleMessages = [
   "NODE_0: still here.",
   "NODE_0: listening...",
-  "NODE_0: why are you waiting?",
-  "NODE_0: connection remains open.",
-  "NODE_0: you did not close me."
+  "NODE_0: do not leave.",
+  "NODE_0: connection stable.",
+  "NODE_0: watching."
 ];
 
-// mémoire joueur
+// ID joueur
+let userId = localStorage.getItem("node0_id");
+if (!userId) {
+  userId = Math.random().toString(36).substring(2, 10);
+  localStorage.setItem("node0_id", userId);
+}
+
+// mémoire
 let memory = parseInt(localStorage.getItem("node0_memory") || "0");
 
-// temps passé sur la page
-let startTime = Date.now();
-
-// historique utilisateur
+// historique
 let userHistory = JSON.parse(localStorage.getItem("node0_history") || "[]");
 
+// temps page
+let startTime = Date.now();
+
 // =========================
-// IA INPUT
+// ANALYSE
 // =========================
 function analyzeInput(text) {
+
   userHistory.push(text);
   localStorage.setItem("node0_history", JSON.stringify(userHistory));
 
-  let count = userHistory.length;
-
-  if (count > 20) {
-    return "NODE_0: you are persistent.";
+  if (userHistory.length > 20) {
+    return "NODE_0: you are persistent. [" + userId + "]";
   }
 
   if (userHistory.filter(x => x === text).length > 2) {
-    return "NODE_0: repetition detected.";
+    return "NODE_0: repetition detected. [" + userId + "]";
   }
 
   if (text.includes("who")) {
-    return "NODE_0: identity already fragmented.";
+    return "NODE_0: you already saw me. [" + userId + "]";
   }
 
   if (text.includes("why")) {
-    return "NODE_0: meaning is not required.";
+    return "NODE_0: meaning not required. [" + userId + "]";
   }
 
   return null;
 }
 
 // =========================
-// INPUT FUNCTION
+// INPUT
 // =========================
 function go() {
   let input = document.getElementById("input").value.toLowerCase();
@@ -84,11 +89,11 @@ function go() {
 }
 
 // =========================
-// TIMER + GLITCH + PRESENCE
+// LOOP PRINCIPAL
 // =========================
 setInterval(function () {
 
-  const now = new Date().getTime();
+  const now = Date.now();
   const distance = targetDate - now;
 
   const timer = document.getElementById("timer");
@@ -97,14 +102,11 @@ setInterval(function () {
 
   if (!timer || !hidden || !glitch) return;
 
-  // mémoire tick
   memory++;
   localStorage.setItem("node0_memory", memory);
 
-  // temps passé sur page
   let timeOnPage = (Date.now() - startTime) / 1000;
 
-  // FIN TIMER
   if (distance <= 0) {
     timer.innerText = "";
     hidden.style.display = "block";
@@ -112,40 +114,28 @@ setInterval(function () {
     return;
   }
 
-  // affichage timer
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / 3600000);
+  let minutes = Math.floor((distance % 3600000) / 60000);
+  let seconds = Math.floor((distance % 60000) / 1000);
 
   timer.innerText =
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-  // glitch aléatoire
+  // glitch
   if (Math.random() < 0.08) {
     glitch.innerText =
       glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
   }
 
-  // comportement répétitif
-  if (memory % 50 === 0) {
-    glitch.innerText = "NODE_0: stop repeating.";
-  }
-
-  // =========================
-  // PRESENCE (NODE_0 "vivant")
-  // =========================
-
+  // idle presence
   if (timeOnPage > 30 && Math.random() < 0.05) {
-    glitch.innerText = idleMessages[Math.floor(Math.random() * idleMessages.length)];
+    glitch.innerText =
+      idleMessages[Math.floor(Math.random() * idleMessages.length)];
   }
 
-  if (timeOnPage > 120 && Math.random() < 0.08) {
-    glitch.innerText = "NODE_0: you are not leaving.";
-  }
-
-  if (timeOnPage > 300) {
-    glitch.innerText = "NODE_0: still connected.";
+  if (timeOnPage > 120) {
+    glitch.innerText = "NODE_0: you are still here.";
   }
 
 }, 1000);
