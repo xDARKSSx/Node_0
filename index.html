@@ -6,21 +6,31 @@
 
 <body style="background:black;color:#00ff9d;font-family:monospace;text-align:center;margin-top:100px;">
 
-<h1 id="title">NODE_0</h1>
+<h1>NODE_0</h1>
 
 <p>ARE YOU THE OPERATOR?</p>
 
 <p id="timer"></p>
-
 <p id="glitchText"></p>
 
+<!-- INPUT NODE_0 -->
+<input id="input" placeholder="..." style="background:black;color:#00ff9d;border:1px solid #00ff9d;">
+<button onclick="go()" style="background:black;color:#00ff9d;border:1px solid #00ff9d;">ENTER</button>
+
+<p id="response"></p>
+
+<!-- NODE_1 UNLOCK -->
 <p id="hidden" style="display:none;">
 NODE_0: access granted... NODE_1 detected.
 <br><br>
 <a href="node1.html" style="color:#00ff9d;">ENTER NODE_1</a>
 </p>
 
+<!-- SCRIPT -->
 <script src="script.js"></script>
+
+<!-- SECRET (ne s'affiche pas) -->
+<!-- NODE_0 TRACE: 7f3a-Δ hidden layer active -->
 
 </body>
 </html>
