@@ -1,14 +1,25 @@
 function go() {
-  let input = document.getElementById("input").value;
+  let input = document.getElementById("input").value.toLowerCase();
   let r = document.getElementById("response");
 
-  let rand = Math.random();
+  // petit “effet mémoire”
+  let memory = localStorage.getItem("node0_memory") || 0;
+  memory = parseInt(memory);
 
-  if (rand < 0.3) {
-    r.innerText = "NODE_0: you are not the first.";
-  } else if (rand < 0.6) {
+  memory++;
+
+  localStorage.setItem("node0_memory", memory);
+
+  if (input.includes("who")) {
+    r.innerText = "NODE_0: you already know.";
+  }
+  else if (memory % 7 === 0) {
+    r.innerText = "NODE_0: stop repeating.";
+  }
+  else if (Math.random() < 0.4) {
     r.innerText = "NODE_0: observation continues.";
-  } else {
+  }
+  else {
     r.innerText = "NODE_0: pattern unclear.";
   }
 }
