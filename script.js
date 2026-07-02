@@ -180,3 +180,34 @@ const x = setInterval(function () {
   }
 
 }, 1000);
+
+// =========================
+// NODE_0 - DATA LEAK SYSTEM
+// =========================
+
+const leakMessages = [
+  "NODE_0: //fragment stored in NODE_2//",
+  "NODE_0: memory reference: NODE_1 denied access",
+  "NODE_0: file corrupted: truth_index_??",
+  "NODE_0: do not parse line 7",
+  "NODE_0: hidden structure detected in system"
+];
+
+const secretTriggers = [
+  "error",
+  "help",
+  "system",
+  "node",
+  "why"
+];
+
+function checkForLeaks(input) {
+
+  for (let trigger of secretTriggers) {
+    if (input.includes(trigger)) {
+      return leakMessages[Math.floor(Math.random() * leakMessages.length)];
+    }
+  }
+
+  return null;
+}
