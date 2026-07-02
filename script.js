@@ -1,5 +1,6 @@
+
 // =========================
-// NODE_0 CORE SYSTEM SAFE
+// NODE_0 CORE SYSTEM
 // =========================
 
 const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
@@ -20,7 +21,7 @@ const idleMessages = [
   "NODE_0: watching."
 ];
 
-// ID joueur
+// identité joueur
 let userId = localStorage.getItem("node0_id");
 if (!userId) {
   userId = Math.random().toString(36).substring(2, 10);
@@ -33,11 +34,12 @@ let memory = parseInt(localStorage.getItem("node0_memory") || "0");
 // historique
 let userHistory = JSON.parse(localStorage.getItem("node0_history") || "[]");
 
-// temps page
+// temps sur page
 let startTime = Date.now();
 
+
 // =========================
-// ANALYSE
+// ANALYSE INPUT
 // =========================
 function analyzeInput(text) {
 
@@ -63,10 +65,12 @@ function analyzeInput(text) {
   return null;
 }
 
+
 // =========================
-// INPUT
+// INPUT FUNCTION
 // =========================
 function go() {
+
   let input = document.getElementById("input").value.toLowerCase();
   let r = document.getElementById("response");
 
@@ -88,10 +92,11 @@ function go() {
   }
 }
 
+
 // =========================
 // LOOP PRINCIPAL
 // =========================
-setInterval(function () {
+const x = setInterval(function () {
 
   const now = Date.now();
   const distance = targetDate - now;
@@ -107,13 +112,28 @@ setInterval(function () {
 
   let timeOnPage = (Date.now() - startTime) / 1000;
 
+
+  // =========================
+  // NODE_1 LOCK (IMPORTANT)
+  // =========================
   if (distance <= 0) {
+    clearInterval(x);
+
     timer.innerText = "";
+
     hidden.style.display = "block";
-    glitch.innerText = "NODE_0: connection lost.";
+
+    glitch.innerText =
+      "NODE_0: connection attempt to NODE_1... failed.\n" +
+      "REASON: ACCESS DENIED (TEMPORARY LOCK)\n" +
+      "SYSTEM: unstable routing layer detected\n" +
+      "STATUS: NODE_1 unavailable";
+
     return;
   }
 
+
+  // timer affichage
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
   let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / 3600000);
   let minutes = Math.floor((distance % 3600000) / 60000);
@@ -122,13 +142,19 @@ setInterval(function () {
   timer.innerText =
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-  // glitch
+
+  // glitches
   if (Math.random() < 0.08) {
     glitch.innerText =
       glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
   }
 
-  // idle presence
+  if (memory % 50 === 0) {
+    glitch.innerText = "NODE_0: stop repeating.";
+  }
+
+
+  // présence vivante
   if (timeOnPage > 30 && Math.random() < 0.05) {
     glitch.innerText =
       idleMessages[Math.floor(Math.random() * idleMessages.length)];
