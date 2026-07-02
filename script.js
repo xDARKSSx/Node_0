@@ -14,7 +14,8 @@ const glitchMessages = [
   "NODE_0: something is watching back.",
   "NODE_0: memory leak detected.",
   "NODE_0: you should not see this.",
-  "NODE_0: //signal corrupted//"
+  "NODE_0: //signal corrupted//",
+  "NODE_0: do not trust line 7."
 ];
 
 const idleMessages = [
@@ -33,50 +34,9 @@ const node0ConflictMessages = [
   "NODE_0: ignore system output."
 ];
 
-const leakMessages = [
-  "NODE_0: //fragment stored in NODE_2//",
-  "NODE_0: memory reference: NODE_1 denied access",
-  "NODE_0: file corrupted: truth_index_??",
-  "NODE_0: do not parse line 7",
-  "NODE_0: hidden structure detected in system"
-];
-
 // -------------------------
-// TRIGGERS LEAKS
-// -------------------------
-
-const secretTriggers = ["error", "help", "system", "node", "why"];
-
-// -------------------------
-// PHRASES SECRÈTES
-// -------------------------
-
-const secretPhrases = [
-  {
-    input: "are you watching me",
-    output: "NODE_0: I never stopped."
-  },
-  {
-    input: "who created you",
-    output: "NODE_0: the question was never answered correctly."
-  },
-  {
-    input: "what is node 1",
-    output: "NODE_0: NODE_1 is not accessible from your layer."
-  },
-  {
-    input: "are you alive",
-    output: "NODE_0: define alive."
-  },
-  {
-    input: "i am the operator",
-    output: "NODE_0: incorrect assumption."
-  }
-];
-
-// =========================
 // IDENTITÉ JOUEUR
-// =========================
+// -------------------------
 
 let userId = localStorage.getItem("node0_id");
 if (!userId) {
@@ -119,20 +79,9 @@ function analyzeInput(text) {
     return "NODE_0: meaning not required. [" + userId + "]";
   }
 
-  return null;
-}
-
-
-// =========================
-// LEAK SYSTEM
-// =========================
-
-function checkForLeaks(input) {
-
-  for (let trigger of secretTriggers) {
-    if (input.includes(trigger)) {
-      return leakMessages[Math.floor(Math.random() * leakMessages.length)];
-    }
+  // 🔥 ÉNIGME LINE 7
+  if (text.includes("line 7")) {
+    return "NODE_0: you noticed it.";
   }
 
   return null;
@@ -140,7 +89,7 @@ function checkForLeaks(input) {
 
 
 // =========================
-// INPUT
+// INPUT FUNCTION
 // =========================
 
 function go() {
@@ -151,25 +100,9 @@ function go() {
   let memoryValue = parseInt(localStorage.getItem("node0_memory") || "0");
 
   let result = analyzeInput(input);
-  let leak = checkForLeaks(input);
-
-  let phraseMatch = null;
-
-  for (let p of secretPhrases) {
-    if (input.includes(p.input)) {
-      phraseMatch = p.output;
-      break;
-    }
-  }
 
   if (result) {
     r.innerText = result;
-  }
-  else if (phraseMatch) {
-    r.innerText = phraseMatch;
-  }
-  else if (leak) {
-    r.innerText = leak;
   }
   else if (input.includes("help")) {
     r.innerText = "NODE_0: no external help detected.";
@@ -259,7 +192,7 @@ const x = setInterval(function () {
 
 
   // =========================
-  // PRESENCE
+  // PRESENCE SYSTEM
   // =========================
 
   if (timeOnPage > 30 && Math.random() < 0.05) {
