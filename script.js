@@ -225,3 +225,30 @@ const x = setInterval(function () {
   }
 
 }, 1000);
+
+// =========================
+// NODE_0 - PHRASE DETECTION
+// =========================
+
+const secretPhrases = [
+  {
+    input: "are you watching me",
+    output: "NODE_0: I never stopped."
+  },
+  {
+    input: "who created you",
+    output: "NODE_0: the question was never answered correctly."
+  },
+  {
+    input: "what is node 1",
+    output: "NODE_0: NODE_1 is not accessible from your layer."
+  },
+  {
+    input: "are you alive",
+    output: "NODE_0: define alive."
+  },
+  {
+    input: "i am the operator",
+    output: "NODE_0: incorrect assumption."
+  }
+];
