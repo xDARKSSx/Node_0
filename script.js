@@ -1,3 +1,4 @@
+<
 // =========================
 // NODE_0 CORE SYSTEM
 // =========================
@@ -10,7 +11,7 @@ const glitchMessages = [
   "NODE_0: memory leak detected.",
   "NODE_0: you should not see this.",
   "NODE_0: //signal corrupted//",
-  "NODE_0: key fragment detected: 7A-Δ9"
+  "NODE_0: image layer compromised."
 ];
 
 const idleMessages = [
@@ -38,12 +39,11 @@ if (!userId) {
 
 let memory = parseInt(localStorage.getItem("node0_memory") || "0");
 let userHistory = JSON.parse(localStorage.getItem("node0_history") || "[]");
-
 let startTime = Date.now();
 
 
 // =========================
-// INPUT SYSTEM
+// INPUT LOGIC
 // =========================
 
 function analyzeInput(text) {
@@ -51,16 +51,12 @@ function analyzeInput(text) {
   userHistory.push(text);
   localStorage.setItem("node0_history", JSON.stringify(userHistory));
 
-  if (userHistory.length > 20) {
-    return "NODE_0: you are persistent. [" + userId + "]";
-  }
-
   if (text.includes("who")) {
-    return "NODE_0: you already saw me. [" + userId + "]";
+    return "NODE_0: you already saw me.";
   }
 
   if (text.includes("why")) {
-    return "NODE_0: meaning not required. [" + userId + "]";
+    return "NODE_0: meaning not required.";
   }
 
   if (text.includes("line 7")) {
@@ -71,8 +67,17 @@ function analyzeInput(text) {
     return "NODE_0: fragments are not complete alone.";
   }
 
+  if (text.includes("fracture")) {
+    return "NODE_0: why are you looking at that file?";
+  }
+
   return null;
 }
+
+
+// =========================
+// INPUT FUNCTION
+// =========================
 
 function go() {
 
@@ -119,7 +124,7 @@ const x = setInterval(function () {
   let timeOnPage = (Date.now() - startTime) / 1000;
 
 
-  // FIN TIMER → NODE_1 BLOQUÉ
+  // NODE_1 BLOQUÉ
   if (distance <= 0) {
 
     clearInterval(x);
