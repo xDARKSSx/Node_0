@@ -1,13 +1,8 @@
-
 // =========================
 // NODE_0 CORE SYSTEM
 // =========================
 
 const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
-
-// -------------------------
-// MESSAGES
-// -------------------------
 
 const glitchMessages = [
   "NODE_0: observation unstable...",
@@ -15,7 +10,7 @@ const glitchMessages = [
   "NODE_0: memory leak detected.",
   "NODE_0: you should not see this.",
   "NODE_0: //signal corrupted//",
-  "NODE_0: do not trust line 7."
+  "NODE_0: key fragment detected: 7A-Δ9"
 ];
 
 const idleMessages = [
@@ -34,28 +29,21 @@ const node0ConflictMessages = [
   "NODE_0: ignore system output."
 ];
 
-// -------------------------
-// IDENTITÉ JOUEUR
-// -------------------------
-
+// identité joueur
 let userId = localStorage.getItem("node0_id");
 if (!userId) {
   userId = Math.random().toString(36).substring(2, 10);
   localStorage.setItem("node0_id", userId);
 }
 
-// mémoire
 let memory = parseInt(localStorage.getItem("node0_memory") || "0");
-
-// historique
 let userHistory = JSON.parse(localStorage.getItem("node0_history") || "[]");
 
-// temps session
 let startTime = Date.now();
 
 
 // =========================
-// ANALYSE INPUT
+// INPUT SYSTEM
 // =========================
 
 function analyzeInput(text) {
@@ -67,10 +55,6 @@ function analyzeInput(text) {
     return "NODE_0: you are persistent. [" + userId + "]";
   }
 
-  if (userHistory.filter(x => x === text).length > 2) {
-    return "NODE_0: repetition detected. [" + userId + "]";
-  }
-
   if (text.includes("who")) {
     return "NODE_0: you already saw me. [" + userId + "]";
   }
@@ -79,18 +63,16 @@ function analyzeInput(text) {
     return "NODE_0: meaning not required. [" + userId + "]";
   }
 
-  // 🔥 ÉNIGME LINE 7
   if (text.includes("line 7")) {
     return "NODE_0: you noticed it.";
   }
 
+  if (text.includes("key")) {
+    return "NODE_0: fragments are not complete alone.";
+  }
+
   return null;
 }
-
-
-// =========================
-// INPUT FUNCTION
-// =========================
 
 function go() {
 
@@ -137,10 +119,7 @@ const x = setInterval(function () {
   let timeOnPage = (Date.now() - startTime) / 1000;
 
 
-  // =========================
-  // NODE_1 LOCK
-  // =========================
-
+  // FIN TIMER → NODE_1 BLOQUÉ
   if (distance <= 0) {
 
     clearInterval(x);
@@ -164,10 +143,7 @@ const x = setInterval(function () {
   }
 
 
-  // =========================
   // TIMER
-  // =========================
-
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
   let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / 3600000);
   let minutes = Math.floor((distance % 3600000) / 60000);
@@ -177,10 +153,7 @@ const x = setInterval(function () {
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
 
-  // =========================
-  // GLITCH SYSTEM
-  // =========================
-
+  // GLITCH
   if (Math.random() < 0.08) {
     glitch.innerText =
       glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
@@ -191,10 +164,7 @@ const x = setInterval(function () {
   }
 
 
-  // =========================
-  // PRESENCE SYSTEM
-  // =========================
-
+  // PRESENCE
   if (timeOnPage > 30 && Math.random() < 0.05) {
     glitch.innerText =
       idleMessages[Math.floor(Math.random() * idleMessages.length)];
