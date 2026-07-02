@@ -21,6 +21,14 @@ const idleMessages = [
   "NODE_0: watching."
 ];
 
+const node0ConflictMessages = [
+  "NODE_0: that was not a failure.",
+  "NODE_0: NODE_1 should not respond.",
+  "NODE_0: the lock is not mine.",
+  "NODE_0: something interfered.",
+  "NODE_0: ignore system output."
+];
+
 // identité joueur
 let userId = localStorage.getItem("node0_id");
 if (!userId) {
@@ -67,7 +75,7 @@ function analyzeInput(text) {
 
 
 // =========================
-// INPUT FUNCTION
+// INPUT
 // =========================
 function go() {
 
@@ -114,20 +122,27 @@ const x = setInterval(function () {
 
 
   // =========================
-  // NODE_1 LOCK (IMPORTANT)
+  // FIN TIMER (NODE_1 BLOQUÉ)
   // =========================
   if (distance <= 0) {
+
     clearInterval(x);
 
     timer.innerText = "";
 
     hidden.style.display = "block";
 
-    glitch.innerText =
-      "NODE_0: connection attempt to NODE_1... failed.\n" +
-      "REASON: ACCESS DENIED (TEMPORARY LOCK)\n" +
-      "SYSTEM: unstable routing layer detected\n" +
-      "STATUS: NODE_1 unavailable";
+    if (Math.random() < 0.5) {
+      glitch.innerText =
+        node0ConflictMessages[
+          Math.floor(Math.random() * node0ConflictMessages.length)
+        ];
+    } else {
+      glitch.innerText =
+        "NODE_0: connection attempt to NODE_1 failed.\n" +
+        "REASON: ACCESS DENIED\n" +
+        "STATUS: locked";
+    }
 
     return;
   }
@@ -143,7 +158,7 @@ const x = setInterval(function () {
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
 
-  // glitches
+  // glitch random
   if (Math.random() < 0.08) {
     glitch.innerText =
       glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
