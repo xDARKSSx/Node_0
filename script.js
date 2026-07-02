@@ -5,6 +5,10 @@
 
 const targetDate = new Date("2026-08-08T00:00:00Z").getTime();
 
+// -------------------------
+// MESSAGES
+// -------------------------
+
 const glitchMessages = [
   "NODE_0: observation unstable...",
   "NODE_0: something is watching back.",
@@ -37,7 +41,38 @@ const leakMessages = [
   "NODE_0: hidden structure detected in system"
 ];
 
+// -------------------------
+// TRIGGERS LEAKS
+// -------------------------
+
 const secretTriggers = ["error", "help", "system", "node", "why"];
+
+// -------------------------
+// PHRASES SECRÈTES
+// -------------------------
+
+const secretPhrases = [
+  {
+    input: "are you watching me",
+    output: "NODE_0: I never stopped."
+  },
+  {
+    input: "who created you",
+    output: "NODE_0: the question was never answered correctly."
+  },
+  {
+    input: "what is node 1",
+    output: "NODE_0: NODE_1 is not accessible from your layer."
+  },
+  {
+    input: "are you alive",
+    output: "NODE_0: define alive."
+  },
+  {
+    input: "i am the operator",
+    output: "NODE_0: incorrect assumption."
+  }
+];
 
 // =========================
 // IDENTITÉ JOUEUR
@@ -118,8 +153,20 @@ function go() {
   let result = analyzeInput(input);
   let leak = checkForLeaks(input);
 
+  let phraseMatch = null;
+
+  for (let p of secretPhrases) {
+    if (input.includes(p.input)) {
+      phraseMatch = p.output;
+      break;
+    }
+  }
+
   if (result) {
     r.innerText = result;
+  }
+  else if (phraseMatch) {
+    r.innerText = phraseMatch;
   }
   else if (leak) {
     r.innerText = leak;
@@ -198,7 +245,7 @@ const x = setInterval(function () {
 
 
   // =========================
-  // GLITCH RANDOM
+  // GLITCH SYSTEM
   // =========================
 
   if (Math.random() < 0.08) {
@@ -225,30 +272,3 @@ const x = setInterval(function () {
   }
 
 }, 1000);
-
-// =========================
-// NODE_0 - PHRASE DETECTION
-// =========================
-
-const secretPhrases = [
-  {
-    input: "are you watching me",
-    output: "NODE_0: I never stopped."
-  },
-  {
-    input: "who created you",
-    output: "NODE_0: the question was never answered correctly."
-  },
-  {
-    input: "what is node 1",
-    output: "NODE_0: NODE_1 is not accessible from your layer."
-  },
-  {
-    input: "are you alive",
-    output: "NODE_0: define alive."
-  },
-  {
-    input: "i am the operator",
-    output: "NODE_0: incorrect assumption."
-  }
-];
