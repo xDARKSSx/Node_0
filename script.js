@@ -29,7 +29,20 @@ const node0ConflictMessages = [
   "NODE_0: ignore system output."
 ];
 
-// identité joueur
+const leakMessages = [
+  "NODE_0: //fragment stored in NODE_2//",
+  "NODE_0: memory reference: NODE_1 denied access",
+  "NODE_0: file corrupted: truth_index_??",
+  "NODE_0: do not parse line 7",
+  "NODE_0: hidden structure detected in system"
+];
+
+const secretTriggers = ["error", "help", "system", "node", "why"];
+
+// =========================
+// IDENTITÉ JOUEUR
+// =========================
+
 let userId = localStorage.getItem("node0_id");
 if (!userId) {
   userId = Math.random().toString(36).substring(2, 10);
@@ -42,13 +55,14 @@ let memory = parseInt(localStorage.getItem("node0_memory") || "0");
 // historique
 let userHistory = JSON.parse(localStorage.getItem("node0_history") || "[]");
 
-// temps sur page
+// temps session
 let startTime = Date.now();
 
 
 // =========================
 // ANALYSE INPUT
 // =========================
+
 function analyzeInput(text) {
 
   userHistory.push(text);
@@ -75,8 +89,25 @@ function analyzeInput(text) {
 
 
 // =========================
+// LEAK SYSTEM
+// =========================
+
+function checkForLeaks(input) {
+
+  for (let trigger of secretTriggers) {
+    if (input.includes(trigger)) {
+      return leakMessages[Math.floor(Math.random() * leakMessages.length)];
+    }
+  }
+
+  return null;
+}
+
+
+// =========================
 // INPUT
 // =========================
+
 function go() {
 
   let input = document.getElementById("input").value.toLowerCase();
@@ -85,9 +116,13 @@ function go() {
   let memoryValue = parseInt(localStorage.getItem("node0_memory") || "0");
 
   let result = analyzeInput(input);
+  let leak = checkForLeaks(input);
 
   if (result) {
     r.innerText = result;
+  }
+  else if (leak) {
+    r.innerText = leak;
   }
   else if (input.includes("help")) {
     r.innerText = "NODE_0: no external help detected.";
@@ -104,6 +139,7 @@ function go() {
 // =========================
 // LOOP PRINCIPAL
 // =========================
+
 const x = setInterval(function () {
 
   const now = Date.now();
@@ -122,14 +158,14 @@ const x = setInterval(function () {
 
 
   // =========================
-  // FIN TIMER (NODE_1 BLOQUÉ)
+  // NODE_1 LOCK
   // =========================
+
   if (distance <= 0) {
 
     clearInterval(x);
 
     timer.innerText = "";
-
     hidden.style.display = "block";
 
     if (Math.random() < 0.5) {
@@ -148,7 +184,10 @@ const x = setInterval(function () {
   }
 
 
-  // timer affichage
+  // =========================
+  // TIMER
+  // =========================
+
   let days = Math.floor(distance / (1000 * 60 * 60 * 24));
   let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / 3600000);
   let minutes = Math.floor((distance % 3600000) / 60000);
@@ -158,7 +197,10 @@ const x = setInterval(function () {
     `NODE_0 ACTIVE IN: ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
 
-  // glitch random
+  // =========================
+  // GLITCH RANDOM
+  // =========================
+
   if (Math.random() < 0.08) {
     glitch.innerText =
       glitchMessages[Math.floor(Math.random() * glitchMessages.length)];
@@ -169,7 +211,10 @@ const x = setInterval(function () {
   }
 
 
-  // présence vivante
+  // =========================
+  // PRESENCE
+  // =========================
+
   if (timeOnPage > 30 && Math.random() < 0.05) {
     glitch.innerText =
       idleMessages[Math.floor(Math.random() * idleMessages.length)];
@@ -180,34 +225,3 @@ const x = setInterval(function () {
   }
 
 }, 1000);
-
-// =========================
-// NODE_0 - DATA LEAK SYSTEM
-// =========================
-
-const leakMessages = [
-  "NODE_0: //fragment stored in NODE_2//",
-  "NODE_0: memory reference: NODE_1 denied access",
-  "NODE_0: file corrupted: truth_index_??",
-  "NODE_0: do not parse line 7",
-  "NODE_0: hidden structure detected in system"
-];
-
-const secretTriggers = [
-  "error",
-  "help",
-  "system",
-  "node",
-  "why"
-];
-
-function checkForLeaks(input) {
-
-  for (let trigger of secretTriggers) {
-    if (input.includes(trigger)) {
-      return leakMessages[Math.floor(Math.random() * leakMessages.length)];
-    }
-  }
-
-  return null;
-}
