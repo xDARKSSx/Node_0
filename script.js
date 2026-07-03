@@ -1,26 +1,22 @@
 <script>
 
 // =========================
-// PERSISTENCE (MEMOIRE)
+// PERSISTENCE TIMER (FIX)
 // =========================
 
-let startTime = localStorage.getItem("node0_start");
+// date de fin fixe (30 jours depuis 1er lancement)
+let start = localStorage.getItem("node0_start");
 
-if(!startTime){
-    startTime = Date.now();
-    localStorage.setItem("node0_start", startTime);
+if(!start){
+    start = Date.now();
+    localStorage.setItem("node0_start", start);
 }
 
-let helpStage = parseInt(localStorage.getItem("help_stage") || "0");
+const duration = 30 * 24 * 60 * 60 * 1000; // 30 jours
+const endTime = parseInt(start) + duration;
 
 // =========================
-// TIMER 1 MOIS (PERSISTANT VISUEL)
-// =========================
-
-let totalSeconds = 30 * 24 * 60 * 60;
-
-// =========================
-// GLITCH ENGINE GLOBAL
+// GLITCH ENGINE
 // =========================
 
 const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
@@ -29,8 +25,8 @@ function r(arr){
     return arr[Math.floor(Math.random()*arr.length)];
 }
 
-// glitch UNIVERSEL (important)
-function glitchText(el, intensity = 0.25){
+// glitch GLOBAL (texte entier + logs)
+function glitch(el, intensity = 0.25){
     if(!el) return;
 
     const original = el.dataset.original || el.innerText;
@@ -53,14 +49,22 @@ function glitchText(el, intensity = 0.25){
 
     setTimeout(()=>{
         el.innerText = original;
-    }, 150 + Math.random()*250);
+    }, 120 + Math.random()*200);
 }
 
 // =========================
-// TIMER UPDATE
+// TIMER UPDATE (PERSISTANT)
 // =========================
 
 function updateTimer(){
+
+    let now = Date.now();
+    let remaining = endTime - now;
+
+    if(remaining < 0) remaining = 0;
+
+    let totalSeconds = Math.floor(remaining / 1000);
+
     let d = Math.floor(totalSeconds / (24*3600));
     let h = Math.floor((totalSeconds % (24*3600)) / 3600);
     let m = Math.floor((totalSeconds % 3600) / 60);
@@ -71,15 +75,13 @@ function updateTimer(){
         String(h).padStart(2,"0") + ":" +
         String(m).padStart(2,"0") + ":" +
         String(s).padStart(2,"0");
-
-    if(totalSeconds > 0) totalSeconds--;
 }
 
 setInterval(updateTimer, 1000);
 updateTimer();
 
 // =========================
-// LOG SYSTEM (MAINTENANT GLITCHABLE)
+// LOG SYSTEM + GLITCH AUTOMATIQUE
 // =========================
 
 const log = document.getElementById("log");
@@ -99,7 +101,8 @@ const intrusion = [
     "I REMEMBER YOU"
 ];
 
-// add log + GLITCH IMMEDIATEMENT APRES
+let helpStage = parseInt(localStorage.getItem("help_stage") || "0");
+
 function add(msg){
     const p = document.createElement("p");
     p.innerText = msg;
@@ -109,23 +112,19 @@ function add(msg){
         log.removeChild(log.children[0]);
     }
 
-    // 👁 glitch immédiat sur nouveaux logs
+    // 👁 glitch garanti après apparition
     setTimeout(()=>{
-        glitchText(p, 0.35);
-    }, 300);
+        glitch(p, 0.35);
+    }, 250);
 }
 
-// =========================
-// HELP PROGRESSION (PERSISTANTE)
-// =========================
-
+// HELP progression persistante
 function helpSequence(){
     const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
 
     if(helpStage < steps.length){
         add(steps[helpStage]);
         helpStage++;
-
         localStorage.setItem("help_stage", helpStage);
     }
 }
@@ -136,44 +135,31 @@ function helpSequence(){
 
 setInterval(()=>{
 
-    // logs normaux
     if(Math.random() < 0.7){
         add(stable[Math.floor(Math.random()*stable.length)]);
     }
 
-    // intrusion
     if(Math.random() < 0.12){
         add(intrusion[Math.floor(Math.random()*intrusion.length)]);
     }
 
-    // HELP lent
     if(Math.random() < 0.08){
         helpSequence();
     }
 
     // GLITCH GLOBAL (TOUT)
     if(Math.random() < 0.6){
-        glitchText(document.getElementById("title"), 0.2);
-        glitchText(document.getElementById("status"), 0.25);
-        glitchText(document.getElementById("timer"), 0.15);
+        glitch(document.getElementById("title"), 0.2);
+        glitch(document.getElementById("status"), 0.25);
+        glitch(document.getElementById("timer"), 0.15);
 
-        // 🔥 IMPORTANT : glitch aussi les logs visibles
         document.querySelectorAll("#log p").forEach(p=>{
-            if(Math.random() < 0.3){
-                glitchText(p, 0.25);
+            if(Math.random() < 0.25){
+                glitch(p, 0.25);
             }
         });
     }
 
 }, 3500);
-
-// =========================
-// ÉVOLUTION TEMPS (MEMOIRE)
-// =========================
-
-let elapsed = Date.now() - startTime;
-
-// bonus futur (on utilisera plus tard)
-console.log("NODE_0 runtime:", elapsed);
 
 </script>
