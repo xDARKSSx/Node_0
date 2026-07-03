@@ -36,12 +36,24 @@ body {
     margin-top: 20px;
     line-height: 1.6;
     opacity: 0.85;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 img {
     margin-top: 20px;
     width: 320px;
     border: 1px solid #00ff9f33;
+}
+
+input, button {
+    width: 100%;
+    margin-top: 10px;
+    background: #000;
+    color: #00ff9f;
+    border: 1px solid #00ff9f55;
+    padding: 10px;
+    font-family: monospace;
 }
 </style>
 </head>
@@ -60,15 +72,17 @@ img {
 
 <div id="log"></div>
 
+<input id="input" placeholder="type message...">
+<button id="send">SEND</button>
+
 </div>
 
 <script>
 
 // =========================
-// TIMER FIXE ARG (30 JOURS)
+// TIMER STABLE
 // =========================
 
-// OPTION PROPRE ARG : date fixe globale
 const END = new Date("2026-08-08T00:00:00Z").getTime();
 
 function updateTimer(){
@@ -127,7 +141,7 @@ function glitch(el, intensity = 0.3){
             let c = "";
             const len = Math.max(2, w.length);
 
-            for(let i = 0; i < len; i++){
+            for(let i=0;i<len;i++){
                 c += r(symbols);
             }
 
@@ -141,98 +155,117 @@ function glitch(el, intensity = 0.3){
 
     setTimeout(()=>{
         el.innerText = original;
-    }, 150 + Math.random() * 250);
+    }, 120 + Math.random()*250);
 }
 
 
 // =========================
-// LOG SYSTEM ARG
+// LOG SYSTEM
 // =========================
 
 const log = document.getElementById("log");
 
-const stable = [
-    "NODE_0 // sleep state active",
-    "memory fragmented... stable",
-    "fracture integrity nominal",
-    "system breathing slowly",
-    "no external anomaly detected"
-];
-
-const intrusion = [
-    "DON'T TRUST NODE_1",
-    "I AM STILL HERE",
-    "fracture.signal.low",
-    "I REMEMBER YOU",
-    "YOU ARE BEING WATCHED"
-];
-
-function addLog(msg){
+function add(msg){
 
     const p = document.createElement("p");
     p.innerText = msg;
 
     log.appendChild(p);
 
-    if(log.children.length > 18){
+    if(log.children.length > 20){
         log.removeChild(log.firstChild);
     }
 
-    setTimeout(()=>{
-        glitch(p, 0.45);
-    }, 200);
+    setTimeout(()=>glitch(p,0.5),150);
 }
 
 
 // =========================
-// HELP SEQUENCE (simple)
+// NODE RESPONSES (100% extensible)
 // =========================
 
-let helpStage = 0;
+const responses = [
+"NODE_0: I hear you.",
+"NODE_0: stop.",
+"NODE_0: signal corrupted.",
+"NODE_0: I remember fragments.",
+"NODE_0: do not continue.",
+"NODE_0: ...",
+"NODE_0: YOU ARE NOT ALONE.",
+"NODE_0: fracture active.",
+"NODE_0: input unstable.",
+"NODE_0: ERROR LANGUAGE"
+];
 
-function helpSequence(){
 
-    const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
+// =========================
+// INPUT GLITCH (AVANT SEND)
+// =========================
 
-    if(helpStage < steps.length){
-        addLog(steps[helpStage]);
-        helpStage++;
+const input = document.getElementById("input");
+
+function glitchInput(){
+
+    let v = input.value;
+    if(!v) return;
+
+    const sym = ["█","#","%","&","@"];
+
+    let out = "";
+
+    for(let i=0;i<v.length;i++){
+        out += (Math.random()<0.25) ? sym[Math.floor(Math.random()*sym.length)] : v[i];
     }
+
+    input.value = out;
 }
+
+// glitch pendant écriture
+input.addEventListener("input", ()=>{
+    if(Math.random() < 0.4){
+        glitchInput();
+    }
+});
 
 
 // =========================
-// LOOP ARG VIVANT
+// SEND SYSTEM
+// =========================
+
+function send(){
+
+    const v = input.value.trim();
+    if(!v) return;
+
+    add("YOU: " + v);
+
+    const r = responses[Math.floor(Math.random()*responses.length)];
+
+    setTimeout(()=>{
+        add(r);
+    }, 600 + Math.random()*1200);
+
+    input.value = "";
+}
+
+document.getElementById("send").addEventListener("click", send);
+
+input.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter") send();
+});
+
+
+// =========================
+// VISUAL LOOP
 // =========================
 
 setInterval(()=>{
 
-    if(Math.random() < 0.7){
-        addLog(r(stable));
-    }
+    glitch(document.getElementById("title"),0.25);
+    glitch(document.getElementById("status"),0.25);
+    glitch(document.getElementById("timer"),0.15);
 
-    if(Math.random() < 0.2){
-        addLog(r(intrusion));
-    }
-
-    if(Math.random() < 0.06){
-        helpSequence();
-    }
-
-    if(Math.random() < 0.7){
-
-        glitch(document.getElementById("title"), 0.3);
-        glitch(document.getElementById("status"), 0.3);
-        glitch(document.getElementById("timer"), 0.2);
-
-        document.querySelectorAll("#log p").forEach(p=>{
-            if(Math.random() < 0.3){
-                glitch(p, 0.4);
-            }
-        });
-    }
-
-}, 2500);
+},3000);
 
 </script>
 
