@@ -6,40 +6,24 @@
 
 <body style="background:black;color:#00ff9d;font-family:monospace;text-align:center;margin-top:100px;">
 
-<h1 id="title">NODE_0</h1>
+<h1>NODE_0</h1>
 
 <p>ARE YOU THE OPERATOR?</p>
 
-<!-- IMAGE FRACTURE -->
-<br>
-<img
-  id="fractureImage"
-  src="fracture.png"
-  width="320"
-  style="margin-top:25px;border:1px solid #00ff9d;cursor:pointer;opacity:0.9;">
+<img id="fractureImage" src="fracture.png" width="300" style="margin-top:20px;opacity:0.9;">
 
 <p id="timer"></p>
-
 <p id="glitchText"></p>
 
-<!-- INPUT -->
-<input id="input" type="text" style="padding:8px;width:300px;background:black;color:#00ff9d;border:1px solid #00ff9d;">
-<button onclick="go()" style="padding:8px 15px;background:black;color:#00ff9d;border:1px solid #00ff9d;cursor:pointer;">
-SEND
-</button>
+<input id="input" style="padding:8px;width:250px;background:black;color:#00ff9d;border:1px solid #00ff9d;">
+<button onclick="go()">SEND</button>
 
 <p id="response" style="margin-top:20px;"></p>
 
-<!-- NODE_1 BLOQUÉ -->
 <p id="hidden" style="display:none;">
 NODE_0: access denied... NODE_1 locked.
 <br><br>
 <a href="node1.html" style="color:#00ff9d;">ENTER NODE_1</a>
-</p>
-
-<!-- INDICE CACHE -->
-<p style="opacity:0.02;font-size:10px;">
-KEY_FRAGMENT: 7A-Δ9
 </p>
 
 <script src="script.js"></script>
