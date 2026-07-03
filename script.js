@@ -1,95 +1,100 @@
 <script>
 
 // =========================
-// PERSISTENCE (ARG MEMORY)
+// NODE_0 PERSISTENCE CORE
 // =========================
 
-let startTime = localStorage.getItem("node0_start");
+const KEY = "node0_start_fixed";
 
-if(!startTime){
+// startTime stable (NE CHANGE JAMAIS après création)
+let startTime = localStorage.getItem(KEY);
+
+if (!startTime) {
     startTime = Date.now();
-    localStorage.setItem("node0_start", startTime);
+    localStorage.setItem(KEY, startTime);
+} else {
+    startTime = parseInt(startTime);
 }
 
 // HELP progression persistante
 let helpStage = parseInt(localStorage.getItem("node0_help") || "0");
 
 // =========================
-// TIMER FIXE (30 JOURS RÉELS)
+// TIMER FIXE 30 JOURS
 // =========================
 
-const duration = 30 * 24 * 60 * 60 * 1000;
-const endTime = parseInt(startTime) + duration;
+const END_TIME = startTime + (30 * 24 * 60 * 60 * 1000);
 
-function updateTimer(){
+function updateTimer() {
+
     let now = Date.now();
-    let remaining = endTime - now;
+    let remaining = END_TIME - now;
 
-    if(remaining < 0) remaining = 0;
+    if (remaining < 0) remaining = 0;
 
     let totalSeconds = Math.floor(remaining / 1000);
 
-    let d = Math.floor(totalSeconds / (24*3600));
-    let h = Math.floor((totalSeconds % (24*3600)) / 3600);
+    let d = Math.floor(totalSeconds / 86400);
+    let h = Math.floor((totalSeconds % 86400) / 3600);
     let m = Math.floor((totalSeconds % 3600) / 60);
     let s = totalSeconds % 60;
 
     document.getElementById("timer").innerText =
         d + "d " +
-        String(h).padStart(2,"0") + ":" +
-        String(m).padStart(2,"0") + ":" +
-        String(s).padStart(2,"0");
+        String(h).padStart(2, "0") + ":" +
+        String(m).padStart(2, "0") + ":" +
+        String(s).padStart(2, "0");
 }
 
 setInterval(updateTimer, 1000);
 updateTimer();
 
 // =========================
-// GLITCH ENGINE GLOBAL
+// GLITCH ENGINE (VIVANT)
 // =========================
 
-const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
+const symbols = ["█", "#", "%", "&", "@", "Ø", "Ξ", "Δ"];
 
-function r(arr){
-    return arr[Math.floor(Math.random()*arr.length)];
+function r(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// GLITCH VIVANT (mots + chaos)
-function glitch(el, intensity = 0.3){
+// glitch mot-par-mot (ARG style)
+function glitch(el, intensity = 0.3) {
 
-    if(!el) return;
+    if (!el) return;
 
     const original = el.dataset.original || el.innerText;
     el.dataset.original = original;
 
     const words = original.split(" ");
 
-    let out = words.map(w => {
+    let out = words.map(word => {
 
-        if(Math.random() < intensity){
+        if (Math.random() < intensity) {
 
             let corrupted = "";
-            let len = Math.max(2, w.length);
+            let len = Math.max(2, word.length);
 
-            for(let i=0;i<len;i++){
+            for (let i = 0; i < len; i++) {
                 corrupted += r(symbols);
             }
 
             return corrupted;
         }
 
-        return w;
+        return word;
     });
 
     el.innerText = out.join(" ");
 
-    setTimeout(()=>{
+    setTimeout(() => {
         el.innerText = original;
-    }, 120 + Math.random()*250);
+    }, 120 + Math.random() * 250);
 }
 
 // =========================
-// LOG SYSTEM (VIVANT)
+// LOG SYSTEM
 // =========================
 
 const log = document.getElementById("log");
@@ -110,68 +115,69 @@ const intrusion = [
     "YOU ARE BEING WATCHED"
 ];
 
-function add(msg){
+function add(msg) {
 
     const p = document.createElement("p");
     p.innerText = msg;
 
     log.appendChild(p);
 
-    if(log.children.length > 18){
+    if (log.children.length > 18) {
         log.removeChild(log.children[0]);
     }
 
-    // 👁 glitch AUTOMATIQUE après apparition
-    setTimeout(()=>{
+    // glitch automatique sur chaque nouveau message
+    setTimeout(() => {
         glitch(p, 0.45);
-    }, 200 + Math.random()*300);
+    }, 200);
 }
 
 // =========================
 // HELP SEQUENCE (persistante)
 // =========================
 
-function helpSequence(){
+function helpSequence() {
 
-    const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
+    const steps = ["H", "HE", "HEL", "HELP", "HELP M", "HELP ME"];
 
-    if(helpStage < steps.length){
+    if (helpStage < steps.length) {
         add(steps[helpStage]);
         helpStage++;
+
         localStorage.setItem("node0_help", helpStage);
     }
 }
 
 // =========================
-// LOOP PRINCIPAL (ARG VIVANT)
+// LOOP ARG VIVANT
 // =========================
 
-setInterval(()=>{
+setInterval(() => {
 
-    // logs normaux
-    if(Math.random() < 0.7){
-        add(stable[Math.floor(Math.random()*stable.length)]);
+    // messages normaux
+    if (Math.random() < 0.7) {
+        add(stable[Math.floor(Math.random() * stable.length)]);
     }
 
     // intrusions
-    if(Math.random() < 0.2){
-        add(intrusion[Math.floor(Math.random()*intrusion.length)]);
+    if (Math.random() < 0.18) {
+        add(intrusion[Math.floor(Math.random() * intrusion.length)]);
     }
 
     // HELP lent
-    if(Math.random() < 0.07){
+    if (Math.random() < 0.07) {
         helpSequence();
     }
 
-    // GLITCH GLOBAL (TOUT PEUT CASSER)
-    if(Math.random() < 0.75){
+    // GLITCH GLOBAL (TOUT PEUT VIVRE)
+    if (Math.random() < 0.75) {
 
         glitch(document.getElementById("title"), 0.25);
         glitch(document.getElementById("status"), 0.25);
-        glitch(document.getElementById("timer"), 0.18);
+        glitch(document.getElementById("timer"), 0.15);
 
-        document.querySelectorAll("#log p").forEach(p=>{
-            if(Math.random() < 0.4){
+        document.querySelectorAll("#log p").forEach(p => {
+            if (Math.random() < 0.35) {
                 glitch(p, 0.4);
             }
         });
