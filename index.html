@@ -10,19 +10,22 @@ body {
     color: #00ff9f;
     font-family: monospace;
 
-    /* CENTRAGE GLOBAL FIX */
     margin: 0;
     display: flex;
     justify-content: center;
 }
 
 #container {
-    width: 700px;
+    width: 720px;
     margin-top: 60px;
 }
 
 .glitch {
     display: inline-block;
+}
+
+#status {
+    margin-top: 10px;
 }
 
 #timer {
@@ -63,7 +66,7 @@ img {
 <script>
 
 // =========================
-// TIMER 1 MOIS (FIX PROPRE)
+// TIMER 1 MOIS (STABLE)
 // =========================
 
 let totalSeconds = 30 * 24 * 60 * 60;
@@ -75,10 +78,10 @@ function updateTimer(){
     let s = totalSeconds % 60;
 
     document.getElementById("timer").innerText =
-    d + "d " +
-    String(h).padStart(2,"0") + ":" +
-    String(m).padStart(2,"0") + ":" +
-    String(s).padStart(2,"0");
+        d + "d " +
+        String(h).padStart(2,"0") + ":" +
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0");
 
     if(totalSeconds > 0) totalSeconds--;
 }
@@ -87,38 +90,46 @@ setInterval(updateTimer, 1000);
 updateTimer();
 
 // =========================
-// GLITCH SYSTEM (STABLE)
+// GLITCH ENGINE (LENT + SALE)
 // =========================
 
 const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
 
-function r(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function r(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+}
 
-function glitch(el, intensity=0.12){
+// glitch MOTS COMPLETS (important pour effet "vivant")
+function glitch(el, intensity = 0.22){
     if(!el) return;
 
     const original = el.dataset.original || el.innerText;
     el.dataset.original = original;
 
-    let out = "";
+    const words = original.split(" ");
 
-    for(let i=0;i<original.length;i++){
-        if(Math.random() < intensity && original[i] !== " "){
-            out += r(symbols);
-        } else {
-            out += original[i];
+    let out = words.map(w => {
+        if(Math.random() < intensity){
+            let c = "";
+            let len = Math.max(2, w.length);
+
+            for(let i=0;i<len;i++){
+                c += r(symbols);
+            }
+            return c;
         }
-    }
+        return w;
+    });
 
-    el.innerText = out;
+    el.innerText = out.join(" ");
 
     setTimeout(()=>{
         el.innerText = original;
-    }, 120 + Math.random()*200);
+    }, 180 + Math.random()*250);
 }
 
 // =========================
-// LORE NODE_0 (STABLE)
+// LORE NODE_0
 // =========================
 
 const log = document.getElementById("log");
@@ -135,12 +146,15 @@ const intrusion = [
     "DON'T TRUST NODE_1",
     "I AM STILL HERE",
     "fracture.signal.low",
+    "I REMEMBER YOU"
 ];
 
+// HELP progression lente
 let helpStage = 0;
 
-function help(){
+function helpSequence(){
     const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
+
     if(helpStage < steps.length){
         add(steps[helpStage]);
         helpStage++;
@@ -158,26 +172,31 @@ function add(msg){
 }
 
 // =========================
-// LOOP LENT
+// LOOP PRINCIPAL (LENT)
 // =========================
 
 setInterval(()=>{
 
+    // logs normaux
     if(Math.random() < 0.7){
         add(r(stable));
     }
 
+    // intrusion
     if(Math.random() < 0.12){
         add(r(intrusion));
     }
 
+    // HELP lent
     if(Math.random() < 0.08){
-        help();
+        helpSequence();
     }
 
-    if(Math.random() < 0.4){
+    // glitch VISUEL global
+    if(Math.random() < 0.5){
         glitch(document.getElementById("title"));
         glitch(document.getElementById("status"));
+        glitch(document.getElementById("timer"));
     }
 
 }, 4000);
