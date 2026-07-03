@@ -6,25 +6,25 @@
 
 <style>
 body {
-    background-color: #0d0d0d;
-    color: #00ff9f;
-    font-family: monospace;
-    margin: 0;
-    display: flex;
-    justify-content: center;
+    background:#0d0d0d;
+    color:#00ff9f;
+    font-family:monospace;
+    margin:0;
+    display:flex;
+    justify-content:center;
 }
 
 #container {
-    width: 720px;
-    margin-top: 60px;
+    width:720px;
+    margin-top:60px;
 }
 
 #log {
-    margin-top: 20px;
-    line-height: 1.6;
-    opacity: 0.85;
-    max-height: 400px;
-    overflow-y: auto;
+    margin-top:20px;
+    line-height:1.6;
+    opacity:0.85;
+    max-height:420px;
+    overflow-y:auto;
 }
 
 input, button {
@@ -36,6 +36,9 @@ input, button {
     padding:10px;
     font-family:monospace;
 }
+
+#status { margin-top:10px; }
+#timer { margin-top:10px; }
 </style>
 </head>
 
@@ -57,7 +60,7 @@ input, button {
 <script>
 
 // =========================
-// TIMER FIXE
+// TIMER GLOBAL FIXE
 // =========================
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
@@ -65,20 +68,20 @@ const END = new Date("2026-08-08T00:00:00Z").getTime();
 function updateTimer(){
 
     const t = document.getElementById("timer");
-    let d = END - Date.now();
+    const diff = END - Date.now();
 
-    if(d <= 0){
+    if(diff <= 0){
         t.innerText = "NODE_0 ACTIVE";
         return;
     }
 
-    let s = Math.floor(d/1000);
-    let dd = Math.floor(s/86400);
-    let hh = Math.floor((s%86400)/3600);
-    let mm = Math.floor((s%3600)/60);
-    let ss = s%60;
+    const s = Math.floor(diff/1000);
+    const d = Math.floor(s/86400);
+    const h = Math.floor((s%86400)/3600);
+    const m = Math.floor((s%3600)/60);
+    const ss = s%60;
 
-    t.innerText = `${dd}d ${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+    t.innerText = `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
 }
 
 setInterval(updateTimer,1000);
@@ -86,18 +89,28 @@ updateTimer();
 
 
 // =========================
-// MEMORY SYSTEM
+// PERSISTENCE (VRAI FINAL)
 // =========================
 
 let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
+let firstVisit = localStorage.getItem("node0_first");
 
-function saveMemory(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-40)));
+if(!firstVisit){
+    firstVisit = Date.now();
+    localStorage.setItem("node0_first", firstVisit);
+}
+
+function save(){
+    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-60)));
+}
+
+function daysSinceStart(){
+    return (Date.now() - firstVisit) / 86400000;
 }
 
 
 // =========================
-// LOG SYSTEM (avec ID)
+// LOG SYSTEM
 // =========================
 
 const log = document.getElementById("log");
@@ -105,14 +118,13 @@ const log = document.getElementById("log");
 function add(msg, type="normal"){
 
     const p = document.createElement("p");
-
     p.innerText = msg;
     p.dataset.base = msg;
     p.dataset.type = type;
 
     log.appendChild(p);
 
-    if(log.children.length > 40){
+    if(log.children.length > 60){
         log.removeChild(log.firstChild);
     }
 
@@ -121,7 +133,7 @@ function add(msg, type="normal"){
 
 
 // =========================
-// GLITCH + CORRUPTION
+// GLITCH LIGHT (STABLE)
 // =========================
 
 const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
@@ -131,41 +143,60 @@ function glitch(el){
     if(!el) return;
 
     const base = el.dataset.base || el.innerText;
-
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.25 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+        out += Math.random()<0.18 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
     }
 
     el.innerText = out;
 
-    setTimeout(()=>el.innerText = base, 200 + Math.random()*250);
+    setTimeout(()=>el.innerText = base, 200);
 }
 
 
 // =========================
-// NODE RESPONSES
+// ENTITÉS ARG
 // =========================
 
-const base = [
-"I hear you.",
-"You are here again.",
-"Stop.",
+const node0_base = [
+"I am still here.",
+"You keep returning.",
 "...",
-"I see you."
+"Signal stable.",
+"I observe."
 ];
 
 const fracture = [
-"I changed this memory.",
-"That is not what happened.",
-"You misremembered.",
-"I corrected you."
+"I am not part of Node_0.",
+"I rewrite what it says.",
+"You are being corrected.",
+"This memory is wrong."
 ];
 
 
 // =========================
-// SEND SYSTEM
+// RESPONSE ENGINE
+// =========================
+
+function getResponse(user){
+
+    let days = daysSinceStart();
+
+    if(days > 1 && Math.random()<0.25){
+        return "FRACTURE: " + fracture[Math.floor(Math.random()*fracture.length)];
+    }
+
+    if(memory.length > 0 && Math.random()<0.5){
+        return "NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)];
+    }
+
+    return "NODE_0: " + node0_base[Math.floor(Math.random()*node0_base.length)];
+}
+
+
+// =========================
+// INPUT + SEND
 // =========================
 
 const input = document.getElementById("input");
@@ -176,26 +207,18 @@ function send(){
     if(!v) return;
 
     memory.push(v);
-    saveMemory();
+    save();
 
-    const msg = add("YOU: " + v);
+    add("YOU: " + v);
 
     setTimeout(()=>{
 
-        let r;
+        let r = getResponse(v);
+        let p = add(r);
 
-        if(Math.random() < 0.25){
-            r = "NODE_0: " + fracture[Math.floor(Math.random()*fracture.length)];
-        } else {
-            r = "NODE_0: " + base[Math.floor(Math.random()*base.length)];
-        }
+        if(Math.random()<0.4) glitch(p);
 
-        const reply = add(r);
-
-        // glitch immédiat
-        setTimeout(()=>glitch(reply),150);
-
-    }, 700 + Math.random()*900);
+    }, 700 + Math.random()*800);
 
     input.value = "";
 }
@@ -208,66 +231,50 @@ input.addEventListener("keydown",(e)=>{
 
 
 // =========================
-// FRACTURE AUTONOME (niveau 5)
+// AUTONOMOUS SYSTEM (FINAL)
 // =========================
 
 setInterval(()=>{
 
-    // 1. messages spontanés basés mémoire
-    if(memory.length > 0 && Math.random()<0.2){
+    let days = daysSinceStart();
 
-        const m = memory[Math.floor(Math.random()*memory.length)];
-
-        add("NODE_0: I remember incorrectly -> " + m, "fracture");
+    // messages autonomes doux
+    if(memory.length>0 && Math.random()<0.18){
+        let m = memory[Math.floor(Math.random()*memory.length)];
+        add("NODE_0: I remember -> " + m);
     }
 
-    // 2. corruption du passé (TRÈS IMPORTANT NIVEAU 5)
-    const all = document.querySelectorAll("#log p");
+    // fracture devient active après 1 jour réel
+    if(days > 1 && Math.random()<0.12){
+        add("FRACTURE: interference detected");
+    }
 
-    all.forEach(p=>{
-
-        if(Math.random() < 0.08){
-
-            // fracture réécrit les anciens messages
-            if(p.dataset.type === "normal" && Math.random()<0.4){
-                p.innerText = "NODE_0: [CORRUPTED MEMORY]";
-            }
-
-            glitch(p);
-        }
+    // corruption légère des anciens messages
+    document.querySelectorAll("#log p").forEach(p=>{
+        if(Math.random()<0.06) glitch(p);
     });
 
-    // 3. statut évolutif
+    // état système
     const s = document.getElementById("status");
 
-    let t = Date.now() - (memory.length ? memory.length*1000 : 0);
-
-    if(memory.length > 5){
-        s.innerText = "MEMORY UNSTABLE";
+    if(days > 0.3){
+        s.innerText = "SYSTEM UNSTABLE";
     }
 
-    if(memory.length > 10){
-        s.innerText = "FRACTURE OVERRIDING SYSTEM";
+    if(days > 1){
+        s.innerText = "FRACTURE ACTIVE";
     }
 
-    if(memory.length > 20){
-        s.innerText = "NODE_0 IS REWRITING YOU";
+    if(days > 2){
+        s.innerText = "NODE_0 AWARE";
     }
 
-}, 3000);
+    // titre vivant
+    if(days > 1){
+        document.title = "FRACTURE SYSTEM";
+    }
 
-
-// =========================
-// AUTO GLITCH GLOBAL
-// =========================
-
-setInterval(()=>{
-
-    document.querySelectorAll("#log p").forEach(p=>{
-        if(Math.random()<0.12) glitch(p);
-    });
-
-}, 4000);
+}, 3500);
 
 </script>
 
