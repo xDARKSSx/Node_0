@@ -9,9 +9,9 @@ body {
     background:#0d0d0d;
     color:#00ff9f;
     font-family:monospace;
-    margin:0;
     display:flex;
     justify-content:center;
+    margin:0;
 }
 
 #container {
@@ -21,30 +21,24 @@ body {
 
 #log {
     margin-top:20px;
-    max-height:420px;
-    overflow-y:auto;
+    max-height:380px;
+    overflow:auto;
     opacity:0.85;
 }
 
 input, button {
     width:100%;
     margin-top:10px;
-    background:#000;
+    padding:10px;
+    background:black;
     color:#00ff9f;
     border:1px solid #00ff9f55;
-    padding:10px;
     font-family:monospace;
-    cursor:pointer;
-}
-
-#fractureWrap {
-    margin-top:20px;
-    width:320px;
-    position:relative;
 }
 
 #fracture {
-    width:100%;
+    width:320px;
+    margin-top:20px;
     border:1px solid #00ff9f33;
 }
 </style>
@@ -55,12 +49,11 @@ input, button {
 <div id="container">
 
 <h1 id="title">NODE_0</h1>
+
 <p id="status">SYSTEM READY</p>
 <p id="timer"></p>
 
-<div id="fractureWrap">
-    <img id="fracture" src="./fracture.png">
-</div>
+<img id="fracture" src="fracture.png">
 
 <div id="log"></div>
 
@@ -70,198 +63,151 @@ input, button {
 </div>
 
 <script>
-(() => {
 
 // =========================
-// SAFE GET ELEMENT
-// =========================
-
-const $ = (id) => document.getElementById(id);
-
-// =========================
-// ELEMENTS SAFE
-// =========================
-
-const log = $("log");
-const input = $("input");
-const btn = $("send");
-const timerEl = $("timer");
-const statusEl = $("status");
-const img = $("fracture");
-
-// =========================
-// MEMORY SAFE
-// =========================
-
-let memory = [];
-try {
-    memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
-} catch(e){
-    memory = [];
-}
-
-function save(){
-    try {
-        localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-60)));
-    } catch(e){}
-}
-
-// =========================
-// LOG SAFE
-// =========================
-
-function add(msg){
-    if(!log) return;
-
-    const p = document.createElement("p");
-    p.innerText = msg;
-
-    log.appendChild(p);
-
-    if(log.children.length > 60){
-        log.removeChild(log.firstChild);
-    }
-}
-
-// =========================
-// TIMER (NE PEUT PAS CRASH)
+// SAFE TIMER (GitHub safe)
 // =========================
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
 
-function updateTimer(){
+function updateTimer() {
+    const el = document.getElementById("timer");
+    if (!el) return;
 
-    if(!timerEl) return;
+    const diff = END - Date.now();
 
-    try {
+    const totalSeconds = Math.floor(diff / 1000);
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor((totalSeconds % 86400) / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
 
-        const diff = END - Date.now();
+    el.innerText = `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
 
-        const s = Math.floor(diff/1000);
-        const d = Math.floor(s/86400);
-        const h = Math.floor((s%86400)/3600);
-        const m = Math.floor((s%3600)/60);
-        const ss = s%60;
+setInterval(updateTimer, 1000);
+updateTimer();
 
-        timerEl.innerText =
-        `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
 
-    } catch(e){
-        timerEl.innerText = "ERROR";
+// =========================
+// LOG SYSTEM
+// =========================
+
+const log = document.getElementById("log");
+
+function add(msg){
+    const p = document.createElement("p");
+    p.innerText = msg;
+    log.appendChild(p);
+
+    if(log.children.length > 50){
+        log.removeChild(log.firstChild);
     }
 }
 
-setInterval(updateTimer,1000);
 
 // =========================
-// GLITCH SAFE
+// GLITCH (SAFE LIGHT VERSION)
 // =========================
 
-const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
+const symbols = ["█","#","%","&","@","Ξ","Δ","?"];
 
 function glitch(el){
     if(!el) return;
 
-    try {
-        const base = el.innerText;
-        let out = "";
+    const base = el.innerText;
+    let out = "";
 
-        for(let i=0;i<base.length;i++){
-            out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
-        }
+    for(let i=0;i<base.length;i++){
+        out += Math.random() < 0.15
+            ? symbols[Math.floor(Math.random()*symbols.length)]
+            : base[i];
+    }
 
-        el.innerText = out;
+    el.innerText = out;
 
-        setTimeout(()=>el.innerText = base, 180);
-    } catch(e){}
+    setTimeout(() => {
+        el.innerText = base;
+    }, 200);
 }
 
+
 // =========================
-// RESPONSE ENGINE
+// RESPONSES
 // =========================
+
+const responses = [
+"I am still here.",
+"...",
+"Signal stable.",
+"You are observed.",
+"NODE_0 active."
+];
 
 function getResponse(){
-    if(memory.length > 0 && Math.random()<0.5){
-        return "NODE_0: " + memory[Math.floor(Math.random()*memory.length)];
-    }
-    return "NODE_0: I am still here.";
+    return "NODE_0: " + responses[Math.floor(Math.random()*responses.length)];
 }
 
+
 // =========================
-// SEND (100% STABLE)
+// SEND (100% SAFE)
 // =========================
 
-function send(){
+document.getElementById("send").addEventListener("click", () => {
 
-    if(!input) return;
+    const input = document.getElementById("input");
 
-    const v = input.value.trim();
-    if(!v) return;
+    if (!input || !input.value.trim()) return;
 
-    memory.push(v);
-    save();
+    const msg = input.value.trim();
 
-    add("YOU: " + v);
+    add("YOU: " + msg);
 
-    setTimeout(()=>{
-
-        const reply = getResponse();
+    setTimeout(() => {
+        const r = getResponse();
         const p = document.createElement("p");
-        p.innerText = reply;
+        p.innerText = r;
 
         log.appendChild(p);
 
-        if(Math.random()<0.4) glitch(p);
+        if (Math.random() < 0.3) glitch(p);
 
     }, 600);
 
     input.value = "";
-}
+});
+
+
+// ENTER SUPPORT
+document.getElementById("input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        document.getElementById("send").click();
+    }
+});
+
 
 // =========================
-// EVENTS (FORCÉS)
+// AUTONOMOUS ARG LITE
 // =========================
 
-if(btn) btn.addEventListener("click", send);
+setInterval(() => {
 
-if(input){
-    input.addEventListener("keydown",(e)=>{
-        if(e.key === "Enter") send();
-    });
-}
-
-// =========================
-// MAIN LOOP SAFE
-// =========================
-
-setInterval(()=>{
-
-    try {
-
-        if(memory.length > 0 && Math.random()<0.12){
-            add("NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)]);
-        }
-
-        document.querySelectorAll("#log p").forEach(p=>{
-            if(Math.random()<0.06) glitch(p);
-        });
-
-        if(img){
-            img.style.opacity = 0.85 + Math.random()*0.2;
-            img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
-        }
-
-        if(statusEl && memory.length > 5){
-            statusEl.innerText = "SYSTEM UNSTABLE";
-        }
-
-    } catch(e){
-        // jamais crash
+    if (Math.random() < 0.15) {
+        add("NODE_0: echo detected...");
     }
 
-}, 1200);
+    document.querySelectorAll("#log p").forEach(p => {
+        if (Math.random() < 0.05) glitch(p);
+    });
 
-})();
+    const img = document.getElementById("fracture");
+    if (img) {
+        img.style.opacity = 0.85 + Math.random() * 0.15;
+        img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
+    }
+
+}, 2000);
+
 </script>
 
 </body>
