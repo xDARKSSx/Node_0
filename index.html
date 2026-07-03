@@ -16,15 +16,37 @@ body {
     display: inline-block;
 }
 
+#container {
+    max-width: 700px;
+}
+
+#timer {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+#status {
+    margin-top: 10px;
+}
+
 #log {
     margin-top: 20px;
-    opacity: 0.8;
-    line-height: 1.6;
+    opacity: 0.85;
+    line-height: 1.5;
+}
+
+img {
+    margin-top: 20px;
+    width: 320px;
+    opacity: 0.9;
+    border: 1px solid #00ff9f33;
 }
 </style>
 </head>
 
 <body>
+
+<div id="container">
 
 <h1 class="glitch" id="title">NODE_0</h1>
 
@@ -32,19 +54,20 @@ body {
 
 <p id="timer">01:00:00</p>
 
+<img src="fracture.png" id="fracture" alt="fracture">
+
 <div id="log"></div>
+
+</div>
 
 <script>
 // =======================
-// GLITCH ENGINE v1 FIXED
-// + NODE_0 "SLEEP STATE"
+// GLITCH ENGINE (SAFE V2)
 // =======================
 
 const symbols = ["█", "#", "%", "&", "@", "Ø", "Ξ", "Δ"];
 
-function rand(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
+function r(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 function glitchText(el, intensity = 0.2) {
     if (!el) return;
@@ -56,7 +79,7 @@ function glitchText(el, intensity = 0.2) {
 
     for (let i = 0; i < original.length; i++) {
         if (Math.random() < intensity && original[i] !== " ") {
-            out += rand(symbols);
+            out += r(symbols);
         } else {
             out += original[i];
         }
@@ -66,61 +89,85 @@ function glitchText(el, intensity = 0.2) {
 
     setTimeout(() => {
         el.innerText = original;
-    }, 60 + Math.random() * 120);
+    }, 80 + Math.random() * 120);
 }
 
-// -----------------------
-// NODE_0 “SLEEP LOGIC”
-// -----------------------
+// =======================
+// TIMER RÉEL (IMPORTANT)
+// =======================
+
+// 1h countdown (réel)
+let totalSeconds = 60 * 60;
+
+function updateTimer() {
+    let h = Math.floor(totalSeconds / 3600);
+    let m = Math.floor((totalSeconds % 3600) / 60);
+    let s = totalSeconds % 60;
+
+    document.getElementById("timer").innerText =
+        String(h).padStart(2,"0") + ":" +
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0");
+
+    if (totalSeconds > 0) totalSeconds--;
+}
+
+setInterval(updateTimer, 1000);
+
+// =======================
+// NODE_0 LORE RESTAURÉ
+// =======================
 
 const log = document.getElementById("log");
 
-const baseMessages = [
-    "NODE_0 // idle state confirmed",
-    "memory fragment stable",
-    "no external signal detected",
+const messages = [
+    "NODE_0 // sleep state active",
+    "fracture integrity: stable",
+    "memory loop engaged",
+    "no external interference detected",
     "system breathing... slow",
-    "waiting for trigger event"
+    "waiting for anomaly"
 ];
 
-const glitchMessages = [
+const glitches = [
     "H",
     "HE",
     "HEL",
     "HELP",
     "DON'T TRUST NODE_1",
     "IT IS NOT SLEEPING",
-    "I CAN SEE YOU"
+    "fracture.signal.detected",
+    "I REMEMBER YOU"
 ];
 
-let tick = 0;
-
-function addLog(msg) {
+function add(msg){
     const p = document.createElement("p");
     p.innerText = msg;
     log.appendChild(p);
 
-    if (log.children.length > 8) {
+    if(log.children.length > 10){
         log.removeChild(log.children[0]);
     }
 }
 
-// base “sleep chatter”
+// =======================
+// LOOP PRINCIPAL
+// =======================
+
 setInterval(() => {
-    tick++;
 
-    // normal whispers
-    if (Math.random() < 0.6) {
-        addLog(rand(baseMessages));
+    // logs normaux
+    if(Math.random() < 0.6){
+        add(r(messages));
     }
 
-    // rare intrusion (glitch entity)
-    if (Math.random() < 0.15) {
-        addLog(rand(glitchMessages));
+    // intrusion
+    if(Math.random() < 0.2){
+        add(r(glitches));
     }
 
-    // visual glitch on UI
-    if (Math.random() < 0.4) {
+    // glitch visuel
+    if(Math.random() < 0.5){
         glitchText(document.getElementById("title"), 0.12);
         glitchText(document.getElementById("status"), 0.18);
     }
