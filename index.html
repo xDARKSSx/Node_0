@@ -12,34 +12,33 @@ body {
     padding: 40px;
 }
 
-.glitch {
-    display: inline-block;
-}
-
 #container {
     max-width: 700px;
 }
 
-#timer {
-    font-size: 20px;
-    margin-top: 10px;
+.glitch {
+    display: inline-block;
 }
 
-#status {
+#timer {
     margin-top: 10px;
+    font-size: 18px;
 }
 
 #log {
     margin-top: 20px;
+    line-height: 1.6;
     opacity: 0.85;
-    line-height: 1.5;
 }
 
 img {
     margin-top: 20px;
     width: 320px;
-    opacity: 0.9;
     border: 1px solid #00ff9f33;
+}
+
+.small-glitch {
+    display:inline-block;
 }
 </style>
 </head>
@@ -52,33 +51,53 @@ img {
 
 <p id="status">SYSTEM READY</p>
 
-<p id="timer">01:00:00</p>
+<p id="timer"></p>
 
-<img src="fracture.png" id="fracture" alt="fracture">
+<img src="./fracture.png" id="fracture" alt="fracture" onerror="this.style.display='none'">
 
 <div id="log"></div>
 
 </div>
 
 <script>
-// =======================
-// GLITCH ENGINE (SAFE V2)
-// =======================
+// =========================
+// NODE_0 ARG ENGINE v3
+// LENT / PERSISTENT / LIVING
+// =========================
 
-const symbols = ["█", "#", "%", "&", "@", "Ø", "Ξ", "Δ"];
+// ---------- TIMER 1 MOIS ----------
+let totalSeconds = 30 * 24 * 60 * 60; // 1 mois
+
+function updateTimer(){
+    let d = Math.floor(totalSeconds / (24*3600));
+    let h = Math.floor((totalSeconds % (24*3600)) / 3600);
+    let m = Math.floor((totalSeconds % 3600) / 60);
+    let s = totalSeconds % 60;
+
+    document.getElementById("timer").innerText =
+    d + "d " + String(h).padStart(2,"0") + ":" +
+    String(m).padStart(2,"0") + ":" +
+    String(s).padStart(2,"0");
+
+    if(totalSeconds > 0) totalSeconds--;
+}
+setInterval(updateTimer, 1000);
+
+// ---------- GLITCH SYSTEM ----------
+const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
 
 function r(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-function glitchText(el, intensity = 0.2) {
-    if (!el) return;
+function glitch(el, intensity=0.15){
+    if(!el) return;
 
     const original = el.dataset.original || el.innerText;
     el.dataset.original = original;
 
     let out = "";
 
-    for (let i = 0; i < original.length; i++) {
-        if (Math.random() < intensity && original[i] !== " ") {
+    for(let i=0;i<original.length;i++){
+        if(Math.random() < intensity && original[i] !== " "){
             out += r(symbols);
         } else {
             out += original[i];
@@ -87,92 +106,86 @@ function glitchText(el, intensity = 0.2) {
 
     el.innerText = out;
 
-    setTimeout(() => {
+    setTimeout(()=>{
         el.innerText = original;
-    }, 80 + Math.random() * 120);
+    }, 120 + Math.random()*200);
 }
 
-// =======================
-// TIMER RÉEL (IMPORTANT)
-// =======================
-
-// 1h countdown (réel)
-let totalSeconds = 60 * 60;
-
-function updateTimer() {
-    let h = Math.floor(totalSeconds / 3600);
-    let m = Math.floor((totalSeconds % 3600) / 60);
-    let s = totalSeconds % 60;
-
-    document.getElementById("timer").innerText =
-        String(h).padStart(2,"0") + ":" +
-        String(m).padStart(2,"0") + ":" +
-        String(s).padStart(2,"0");
-
-    if (totalSeconds > 0) totalSeconds--;
-}
-
-setInterval(updateTimer, 1000);
-
-// =======================
-// NODE_0 LORE RESTAURÉ
-// =======================
-
+// ---------- LOGIC LENT ----------
 const log = document.getElementById("log");
 
-const messages = [
+// messages stables (NODE endormi)
+const stable = [
     "NODE_0 // sleep state active",
-    "fracture integrity: stable",
-    "memory loop engaged",
-    "no external interference detected",
-    "system breathing... slow",
-    "waiting for anomaly"
+    "memory fragmented... stable",
+    "fracture integrity nominal",
+    "system breathing slowly",
+    "no external anomaly detected"
 ];
 
-const glitches = [
-    "H",
-    "HE",
-    "HEL",
-    "HELP",
+// évolution lente HELP (très important)
+let helpStage = 0;
+
+function helpSequence(){
+    const steps = [
+        "H",
+        "HE",
+        "HEL",
+        "HELP",
+        "HELP M",
+        "HELP ME"
+    ];
+
+    if(helpStage < steps.length){
+        add(steps[helpStage]);
+        helpStage++;
+    }
+}
+
+// messages intrusion
+const intrusion = [
     "DON'T TRUST NODE_1",
-    "IT IS NOT SLEEPING",
-    "fracture.signal.detected",
-    "I REMEMBER YOU"
+    "I AM STILL HERE",
+    "YOU ARE OBSERVING ME",
+    "fracture.signal.low",
 ];
 
+// add log
 function add(msg){
     const p = document.createElement("p");
     p.innerText = msg;
     log.appendChild(p);
 
-    if(log.children.length > 10){
+    if(log.children.length > 12){
         log.removeChild(log.children[0]);
     }
 }
 
-// =======================
-// LOOP PRINCIPAL
-// =======================
+// ---------- LOOP PRINCIPAL (LENT) ----------
+setInterval(()=>{
 
-setInterval(() => {
-
-    // logs normaux
-    if(Math.random() < 0.6){
-        add(r(messages));
+    // log normal lent
+    if(Math.random() < 0.7){
+        add(r(stable));
     }
 
-    // intrusion
-    if(Math.random() < 0.2){
-        add(r(glitches));
+    // intrusion rare
+    if(Math.random() < 0.12){
+        add(r(intrusion));
     }
 
-    // glitch visuel
-    if(Math.random() < 0.5){
-        glitchText(document.getElementById("title"), 0.12);
-        glitchText(document.getElementById("status"), 0.18);
+    // HELP progression TRÈS lente
+    if(Math.random() < 0.08){
+        helpSequence();
     }
 
-}, 2500);
+    // glitch visuel léger (pas agressif)
+    if(Math.random() < 0.4){
+        glitch(document.getElementById("title"), 0.10);
+        glitch(document.getElementById("status"), 0.12);
+    }
+
+}, 4000);
 
 </script>
 
