@@ -1,26 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>NODE_0</title>
+<meta charset="UTF-8">
+<title>NODE_0</title>
+<style>
+body {
+    background-color: #0d0d0d;
+    color: #00ff9f;
+    font-family: monospace;
+    padding: 40px;
+}
+
+.glitch {
+    display: inline-block;
+}
+
+.hidden {
+    visibility: hidden;
+}
+</style>
 </head>
 
-<body style="background:black;color:#00ff9d;font-family:monospace;text-align:center;margin-top:100px;">
+<body>
 
-<h1>NODE_0</h1>
+<h1 class="glitch" id="title">NODE_0</h1>
 
-<p>ARE YOU THE OPERATOR?</p>
+<p id="status">SYSTEM READY</p>
 
-<img id="fractureImage" src="fracture.png" width="280" style="margin-top:20px;">
+<p id="timer">01:00:00</p>
 
-<p id="timer"></p>
-<p id="glitchText"></p>
+<script>
+// =====================
+// GLITCH ENGINE v1
+// =====================
 
-<input id="input" style="padding:8px;width:250px;background:black;color:#00ff9d;border:1px solid #00ff9d;">
-<button onclick="go()">SEND</button>
+const symbols = ["█", "#", "%", "&", "@", "Ø", "Ξ", "Δ"];
 
-<p id="response" style="margin-top:20px;"></p>
+function randomChar() {
+    return symbols[Math.floor(Math.random() * symbols.length)];
+}
 
-<script src="script.js"></script>
+function glitchText(element, intensity = 0.2) {
+    const original = element.dataset.original || element.innerText;
+    element.dataset.original = original;
+
+    let glitched = "";
+
+    for (let i = 0; i < original.length; i++) {
+        if (Math.random() < intensity && original[i] !== " ") {
+            glitched += randomChar();
+        } else {
+            glitched += original[i];
+        }
+    }
+
+    element.innerText = glitched;
+
+    setTimeout(() => {
+        element.innerText = original;
+    }, 80 + Math.random() * 120);
+}
+
+// Glitch loop (soft at start)
+function startGlitch() {
+    const targets = [
+        document.getElementById("title"),
+        document.getElementById("status")
+    ];
+
+    setInterval(() => {
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        glitchText(target, 0.15);
+    }, 2000);
+}
+
+startGlitch();
+</script>
 
 </body>
 </html>
