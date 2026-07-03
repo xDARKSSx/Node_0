@@ -23,9 +23,9 @@ let helpStage = parseInt(localStorage.getItem("node0_help") || "0");
 // TIMER FIXE 30 JOURS
 // =========================
 
-const END_TIME = startTime + (30 * 24 * 60 * 60 * 1000);
+const END_TIME = Date.now() + (30 * 24 * 60 * 60 * 1000);
 
-function updateTimer() {
+setInterval(() => {
 
     let now = Date.now();
     let remaining = END_TIME - now;
@@ -41,14 +41,11 @@ function updateTimer() {
 
     document.getElementById("timer").innerText =
         d + "d " +
-        String(h).padStart(2, "0") + ":" +
-        String(m).padStart(2, "0") + ":" +
-        String(s).padStart(2, "0");
-}
+        String(h).padStart(2,"0") + ":" +
+        String(m).padStart(2,"0") + ":" +
+        String(s).padStart(2,"0");
 
-setInterval(updateTimer, 1000);
-updateTimer();
-
+}, 1000);
 // =========================
 // GLITCH ENGINE (VIVANT)
 // =========================
