@@ -23,13 +23,9 @@ body {
     margin-top: 20px;
     line-height: 1.6;
     opacity: 0.85;
-    max-height: 380px;
+    max-height: 400px;
     overflow-y: auto;
 }
-
-.glitch { display:inline-block; }
-
-#timer { margin-top:10px; font-size:18px; }
 
 input, button {
     width:100%;
@@ -47,7 +43,7 @@ input, button {
 
 <div id="container">
 
-<h1 class="glitch" id="title">NODE_0</h1>
+<h1 id="title">NODE_0</h1>
 <p id="status">SYSTEM READY</p>
 <p id="timer"></p>
 
@@ -69,8 +65,6 @@ const END = new Date("2026-08-08T00:00:00Z").getTime();
 function updateTimer(){
 
     const t = document.getElementById("timer");
-    if(!t) return;
-
     let d = END - Date.now();
 
     if(d <= 0){
@@ -92,18 +86,42 @@ updateTimer();
 
 
 // =========================
-// MEMORY CORE (NIVEAU 4)
+// MEMORY SYSTEM
 // =========================
 
 let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
 
 function saveMemory(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-25)));
+    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-40)));
 }
 
 
 // =========================
-// GLITCH ENGINE
+// LOG SYSTEM (avec ID)
+// =========================
+
+const log = document.getElementById("log");
+
+function add(msg, type="normal"){
+
+    const p = document.createElement("p");
+
+    p.innerText = msg;
+    p.dataset.base = msg;
+    p.dataset.type = type;
+
+    log.appendChild(p);
+
+    if(log.children.length > 40){
+        log.removeChild(log.firstChild);
+    }
+
+    return p;
+}
+
+
+// =========================
+// GLITCH + CORRUPTION
 // =========================
 
 const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
@@ -113,107 +131,69 @@ function glitch(el){
     if(!el) return;
 
     const base = el.dataset.base || el.innerText;
-    el.dataset.base = base;
 
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+        out += Math.random()<0.25 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
     }
 
     el.innerText = out;
 
-    setTimeout(()=>el.innerText = base, 180 + Math.random()*200);
+    setTimeout(()=>el.innerText = base, 200 + Math.random()*250);
 }
 
 
 // =========================
-// LOG SYSTEM
-// =========================
-
-const log = document.getElementById("log");
-
-function add(msg){
-
-    const p = document.createElement("p");
-    p.innerText = msg;
-
-    log.appendChild(p);
-
-    if(log.children.length > 35){
-        log.removeChild(log.firstChild);
-    }
-
-    if(Math.random()<0.5) glitch(p);
-}
-
-
-// =========================
-// NODE RESPONSES (INTELLIGENT)
+// NODE RESPONSES
 // =========================
 
 const base = [
 "I hear you.",
+"You are here again.",
 "Stop.",
-"Signal unstable.",
-"You are not alone.",
 "...",
 "I see you."
 ];
 
 const fracture = [
-"you are repeating yourself",
-"I am inside the memory",
-"stop writing this",
-"you should not remember me"
+"I changed this memory.",
+"That is not what happened.",
+"You misremembered.",
+"I corrected you."
 ];
 
-function getResponse(userText){
-
-    let t = Date.now() - startTime;
-
-    // fracture prend le contrôle après un certain temps
-    if(t > 180000 && Math.random()<0.3){
-        return fracture[Math.floor(Math.random()*fracture.length)];
-    }
-
-    // sinon mélange mémoire + base
-    if(memory.length > 0 && Math.random()<0.6){
-        return "NODE_0: " + memory[Math.floor(Math.random()*memory.length)];
-    }
-
-    return "NODE_0: " + base[Math.floor(Math.random()*base.length)];
-}
-
 
 // =========================
-// TIME START (session réelle)
-// =========================
-
-const startTime = Date.now();
-
-
-// =========================
-// INPUT + SEND
+// SEND SYSTEM
 // =========================
 
 const input = document.getElementById("input");
 
 function send(){
 
-    let v = input.value.trim();
+    const v = input.value.trim();
     if(!v) return;
 
-    // sauvegarde mémoire joueur
     memory.push(v);
     saveMemory();
 
-    add("YOU: " + v);
+    const msg = add("YOU: " + v);
 
     setTimeout(()=>{
 
-        let r = getResponse(v);
-        add(r);
+        let r;
+
+        if(Math.random() < 0.25){
+            r = "NODE_0: " + fracture[Math.floor(Math.random()*fracture.length)];
+        } else {
+            r = "NODE_0: " + base[Math.floor(Math.random()*base.length)];
+        }
+
+        const reply = add(r);
+
+        // glitch immédiat
+        setTimeout(()=>glitch(reply),150);
 
     }, 700 + Math.random()*900);
 
@@ -228,41 +208,66 @@ input.addEventListener("keydown",(e)=>{
 
 
 // =========================
-// FRACTURE AUTONOME
+// FRACTURE AUTONOME (niveau 5)
 // =========================
 
 setInterval(()=>{
 
-    // messages spontanés (le site parle seul)
-    if(Math.random()<0.15 && memory.length>0){
+    // 1. messages spontanés basés mémoire
+    if(memory.length > 0 && Math.random()<0.2){
 
-        let m = memory[Math.floor(Math.random()*memory.length)];
-        add("NODE_0: I remember -> " + m);
+        const m = memory[Math.floor(Math.random()*memory.length)];
+
+        add("NODE_0: I remember incorrectly -> " + m, "fracture");
     }
 
-    // glitch global
-    document.querySelectorAll("p").forEach(p=>{
-        if(Math.random()<0.1) glitch(p);
+    // 2. corruption du passé (TRÈS IMPORTANT NIVEAU 5)
+    const all = document.querySelectorAll("#log p");
+
+    all.forEach(p=>{
+
+        if(Math.random() < 0.08){
+
+            // fracture réécrit les anciens messages
+            if(p.dataset.type === "normal" && Math.random()<0.4){
+                p.innerText = "NODE_0: [CORRUPTED MEMORY]";
+            }
+
+            glitch(p);
+        }
     });
 
-    // status change progressif
+    // 3. statut évolutif
     const s = document.getElementById("status");
 
-    let t = Date.now() - startTime;
+    let t = Date.now() - (memory.length ? memory.length*1000 : 0);
 
-    if(t > 60000){
-        s.innerText = "SYSTEM INSTABILITY";
+    if(memory.length > 5){
+        s.innerText = "MEMORY UNSTABLE";
     }
 
-    if(t > 180000){
-        s.innerText = "FRACTURE ACTIVE";
+    if(memory.length > 10){
+        s.innerText = "FRACTURE OVERRIDING SYSTEM";
     }
 
-    if(t > 300000){
-        s.innerText = "NODE_0 IS NO LONGER STABLE";
+    if(memory.length > 20){
+        s.innerText = "NODE_0 IS REWRITING YOU";
     }
 
-}, 3500);
+}, 3000);
+
+
+// =========================
+// AUTO GLITCH GLOBAL
+// =========================
+
+setInterval(()=>{
+
+    document.querySelectorAll("#log p").forEach(p=>{
+        if(Math.random()<0.12) glitch(p);
+    });
+
+}, 4000);
 
 </script>
 
