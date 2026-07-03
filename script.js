@@ -1,10 +1,9 @@
 <script>
 
 // =========================
-// NODE_0 PERSISTENCE CORE
+// PERSISTENCE (ARG MEMORY)
 // =========================
 
-// mémorise le début UNE SEULE FOIS
 let startTime = localStorage.getItem("node0_start");
 
 if(!startTime){
@@ -12,18 +11,17 @@ if(!startTime){
     localStorage.setItem("node0_start", startTime);
 }
 
-// progression HELP persistante
+// HELP progression persistante
 let helpStage = parseInt(localStorage.getItem("node0_help") || "0");
 
 // =========================
-// TIMER 30 JOURS FIXE
+// TIMER FIXE (30 JOURS RÉELS)
 // =========================
 
 const duration = 30 * 24 * 60 * 60 * 1000;
 const endTime = parseInt(startTime) + duration;
 
 function updateTimer(){
-
     let now = Date.now();
     let remaining = endTime - now;
 
@@ -56,8 +54,8 @@ function r(arr){
     return arr[Math.floor(Math.random()*arr.length)];
 }
 
-// glitch INTELLIGENT (mots complets + chaos)
-function glitch(el, intensity = 0.25){
+// GLITCH VIVANT (mots + chaos)
+function glitch(el, intensity = 0.3){
 
     if(!el) return;
 
@@ -66,12 +64,12 @@ function glitch(el, intensity = 0.25){
 
     const words = original.split(" ");
 
-    let out = words.map(word => {
+    let out = words.map(w => {
 
         if(Math.random() < intensity){
 
             let corrupted = "";
-            let len = Math.max(2, word.length);
+            let len = Math.max(2, w.length);
 
             for(let i=0;i<len;i++){
                 corrupted += r(symbols);
@@ -80,18 +78,18 @@ function glitch(el, intensity = 0.25){
             return corrupted;
         }
 
-        return word;
+        return w;
     });
 
     el.innerText = out.join(" ");
 
     setTimeout(()=>{
         el.innerText = original;
-    }, 120 + Math.random()*220);
+    }, 120 + Math.random()*250);
 }
 
 // =========================
-// LOG SYSTEM + GLITCH AUTOMATIQUE
+// LOG SYSTEM (VIVANT)
 // =========================
 
 const log = document.getElementById("log");
@@ -108,7 +106,8 @@ const intrusion = [
     "DON'T TRUST NODE_1",
     "I AM STILL HERE",
     "fracture.signal.low",
-    "I REMEMBER YOU"
+    "I REMEMBER YOU",
+    "YOU ARE BEING WATCHED"
 ];
 
 function add(msg){
@@ -118,14 +117,14 @@ function add(msg){
 
     log.appendChild(p);
 
-    if(log.children.length > 15){
+    if(log.children.length > 18){
         log.removeChild(log.children[0]);
     }
 
-    // 👁 glitch GARANTI après apparition
+    // 👁 glitch AUTOMATIQUE après apparition
     setTimeout(()=>{
-        glitch(p, 0.4);
-    }, 200);
+        glitch(p, 0.45);
+    }, 200 + Math.random()*300);
 }
 
 // =========================
@@ -137,16 +136,14 @@ function helpSequence(){
     const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
 
     if(helpStage < steps.length){
-
         add(steps[helpStage]);
-
         helpStage++;
         localStorage.setItem("node0_help", helpStage);
     }
 }
 
 // =========================
-// LOOP PRINCIPAL (VIVANT MAIS STABLE)
+// LOOP PRINCIPAL (ARG VIVANT)
 // =========================
 
 setInterval(()=>{
@@ -156,31 +153,30 @@ setInterval(()=>{
         add(stable[Math.floor(Math.random()*stable.length)]);
     }
 
-    // intrusion
-    if(Math.random() < 0.15){
+    // intrusions
+    if(Math.random() < 0.2){
         add(intrusion[Math.floor(Math.random()*intrusion.length)]);
     }
 
     // HELP lent
-    if(Math.random() < 0.08){
+    if(Math.random() < 0.07){
         helpSequence();
     }
 
-    // GLITCH GLOBAL (TOUT)
-    if(Math.random() < 0.7){
+    // GLITCH GLOBAL (TOUT PEUT CASSER)
+    if(Math.random() < 0.75){
 
         glitch(document.getElementById("title"), 0.25);
         glitch(document.getElementById("status"), 0.25);
-        glitch(document.getElementById("timer"), 0.15);
+        glitch(document.getElementById("timer"), 0.18);
 
-        // glitch sur TOUS les logs visibles
         document.querySelectorAll("#log p").forEach(p=>{
-            if(Math.random() < 0.35){
-                glitch(p, 0.35);
+            if(Math.random() < 0.4){
+                glitch(p, 0.4);
             }
         });
     }
 
-}, 3000);
+}, 2500);
 
 </script>
