@@ -19,41 +19,26 @@ body {
     margin-top: 60px;
 }
 
-.glitch {
-    display: inline-block;
-}
-
-#status {
-    margin-top: 10px;
-}
-
-#timer {
-    margin-top: 10px;
-    font-size: 18px;
-}
-
 #log {
     margin-top: 20px;
     line-height: 1.6;
     opacity: 0.85;
-    max-height: 400px;
+    max-height: 380px;
     overflow-y: auto;
 }
 
-img {
-    margin-top: 20px;
-    width: 320px;
-    border: 1px solid #00ff9f33;
-}
+.glitch { display:inline-block; }
+
+#timer { margin-top:10px; font-size:18px; }
 
 input, button {
-    width: 100%;
-    margin-top: 10px;
-    background: #000;
-    color: #00ff9f;
-    border: 1px solid #00ff9f55;
-    padding: 10px;
-    font-family: monospace;
+    width:100%;
+    margin-top:10px;
+    background:#000;
+    color:#00ff9f;
+    border:1px solid #00ff9f55;
+    padding:10px;
+    font-family:monospace;
 }
 </style>
 </head>
@@ -67,8 +52,6 @@ input, button {
 <p id="status">SYSTEM READY</p>
 
 <p id="timer"></p>
-
-<img src="./fracture.png" id="fracture" onerror="this.style.display='none'">
 
 <div id="log"></div>
 
@@ -87,75 +70,43 @@ const END = new Date("2026-08-08T00:00:00Z").getTime();
 
 function updateTimer(){
 
-    const timer = document.getElementById("timer");
-    if(!timer) return;
+    const t = document.getElementById("timer");
+    if(!t) return;
 
-    const now = Date.now();
-    const diff = END - now;
+    const d = END - Date.now();
 
-    if(diff <= 0){
-        timer.innerText = "NODE_0 ACTIVE";
+    if(d <= 0){
+        t.innerText = "NODE_0 ACTIVE";
         return;
     }
 
-    const totalSeconds = Math.floor(diff / 1000);
+    const s = Math.floor(d/1000);
+    const dd = Math.floor(s/86400);
+    const hh = Math.floor((s%86400)/3600);
+    const mm = Math.floor((s%3600)/60);
+    const ss = s%60;
 
-    const d = Math.floor(totalSeconds / 86400);
-    const h = Math.floor((totalSeconds % 86400) / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
-
-    timer.innerText =
-        `${d}d ${String(h).padStart(2,"0")}:` +
-        `${String(m).padStart(2,"0")}:` +
-        `${String(s).padStart(2,"0")}`;
+    t.innerText = `${dd}d ${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
 }
 
-setInterval(updateTimer, 1000);
+setInterval(updateTimer,1000);
 updateTimer();
 
 
 // =========================
-// GLITCH ENGINE
+// MEMORY SYSTEM (LEVEL 3)
 // =========================
 
-const symbols = ["█","#","%","&","@","Ø","Ξ","Δ","?","$"];
-
-function r(arr){
-    return arr[Math.floor(Math.random()*arr.length)];
+let first = localStorage.getItem("node0_first");
+if(!first){
+    first = Date.now();
+    localStorage.setItem("node0_first", first);
 }
 
-function glitch(el, intensity = 0.3){
+let messages = parseInt(localStorage.getItem("node0_msgcount") || "0");
 
-    if(!el) return;
-
-    const original = el.dataset.original || el.innerText;
-    el.dataset.original = original;
-
-    const words = original.split(" ");
-
-    const out = words.map(w => {
-
-        if(Math.random() < intensity){
-
-            let c = "";
-            const len = Math.max(2, w.length);
-
-            for(let i=0;i<len;i++){
-                c += r(symbols);
-            }
-
-            return c;
-        }
-
-        return w;
-    });
-
-    el.innerText = out.join(" ");
-
-    setTimeout(()=>{
-        el.innerText = original;
-    }, 120 + Math.random()*250);
+function sessionTime(){
+    return Date.now() - first;
 }
 
 
@@ -172,71 +123,93 @@ function add(msg){
 
     log.appendChild(p);
 
-    if(log.children.length > 25){
+    if(log.children.length > 30){
         log.removeChild(log.firstChild);
     }
 
-    setTimeout(()=>glitch(p,0.5),150);
+    if(Math.random() < 0.5){
+        glitch(p);
+    }
 }
 
 
 // =========================
-// RESPONSES NODE_0
+// GLITCH ENGINE
 // =========================
 
-const responses = [
-"NODE_0: I hear you.",
-"NODE_0: stop.",
-"NODE_0: signal corrupted.",
-"NODE_0: I remember fragments.",
-"NODE_0: do not continue.",
-"NODE_0: ...",
-"NODE_0: YOU ARE NOT ALONE.",
-"NODE_0: fracture active.",
-"NODE_0: input unstable.",
-"NODE_0: ERROR LANGUAGE",
-"NODE_0: I see you."
+const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
+
+function glitch(el){
+
+    if(!el) return;
+
+    const base = el.dataset.base || el.innerText;
+    el.dataset.base = base;
+
+    let out = "";
+
+    for(let i=0;i<base.length;i++){
+        out += Math.random()<0.25 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+    }
+
+    el.innerText = out;
+
+    setTimeout(()=>el.innerText = base, 200 + Math.random()*200);
+}
+
+
+// =========================
+// NODE RESPONSES EVOLUTIVE
+// =========================
+
+const baseResponses = [
+"I hear you.",
+"Stop.",
+"Signal unstable.",
+"I remember fragments.",
+"You are not alone.",
+"...",
+"I see you."
 ];
 
+const advancedResponses = [
+"You are still here.",
+"Why do you persist?",
+"I was not meant to stay.",
+"fracture is growing.",
+"you shouldn't have come back."
+];
+
+function getResponse(){
+
+    let t = sessionTime();
+
+    if(t > 180000){
+        return advancedResponses[Math.floor(Math.random()*advancedResponses.length)];
+    }
+
+    return baseResponses[Math.floor(Math.random()*baseResponses.length)];
+}
+
 
 // =========================
-// TRIGGERS (mots clés)
-// =========================
-
-const triggers = {
-    "fracture": "NODE_0: you shouldn't be looking at that.",
-    "help": "NODE_0: I cannot help you.",
-    "who": "NODE_0: I am what remains.",
-    "hello": "NODE_0: ...",
-    "why": "NODE_0: because you opened it."
-};
-
-
-// =========================
-// INPUT GLITCH (AVANT SEND)
+// INPUT GLITCH
 // =========================
 
 const input = document.getElementById("input");
 
-function glitchInput(){
-
-    let v = input.value;
-    if(!v) return;
-
-    const sym = ["█","#","%","&","@"];
-
-    let out = "";
-
-    for(let i=0;i<v.length;i++){
-        out += (Math.random()<0.25) ? sym[Math.floor(Math.random()*sym.length)] : v[i];
-    }
-
-    input.value = out;
-}
-
 input.addEventListener("input", ()=>{
-    if(Math.random() < 0.4){
-        glitchInput();
+
+    if(Math.random() < 0.35){
+
+        let v = input.value;
+        let out = "";
+
+        for(let i=0;i<v.length;i++){
+            out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : v[i];
+        }
+
+        input.value = out;
     }
 });
 
@@ -250,30 +223,21 @@ function send(){
     const v = input.value.trim();
     if(!v) return;
 
+    messages++;
+    localStorage.setItem("node0_msgcount", messages);
+
     add("YOU: " + v);
 
-    let lower = v.toLowerCase();
-    let response = null;
-
-    for(let key in triggers){
-        if(lower.includes(key)){
-            response = triggers[key];
-            break;
-        }
-    }
-
-    if(!response){
-        response = responses[Math.floor(Math.random()*responses.length)];
-    }
+    let response = getResponse();
 
     setTimeout(()=>{
-        add(response);
-    }, 600 + Math.random()*1200);
+        add("NODE_0: " + response);
+    }, 700 + Math.random()*900);
 
     input.value = "";
 }
 
-document.getElementById("send").addEventListener("click", send);
+document.getElementById("send").onclick = send;
 
 input.addEventListener("keydown",(e)=>{
     if(e.key==="Enter") send();
@@ -281,16 +245,34 @@ input.addEventListener("keydown",(e)=>{
 
 
 // =========================
-// VISUAL GLITCH LOOP
+// FRACTURE EVENTS (LEVEL 3)
 // =========================
 
 setInterval(()=>{
 
-    glitch(document.getElementById("title"),0.3);
-    glitch(document.getElementById("status"),0.3);
-    glitch(document.getElementById("timer"),0.2);
+    // status évolutif
+    const status = document.getElementById("status");
 
-},3000);
+    let t = sessionTime();
+
+    if(t > 60000){
+        status.innerText = "SYSTEM INSTABILITY DETECTED";
+    }
+
+    if(t > 180000){
+        status.innerText = "FRACTURE ACTIVE";
+    }
+
+    if(t > 300000){
+        status.innerText = "NODE_0 IS CHANGING";
+    }
+
+    // glitch global
+    document.querySelectorAll("p").forEach(p=>{
+        if(Math.random()<0.15) glitch(p);
+    });
+
+}, 4000);
 
 </script>
 
