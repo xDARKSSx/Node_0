@@ -1,37 +1,57 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>NODE_0</title>
+    <title>NODE_0</title>
 </head>
 
 <body style="background:black;color:#00ff9d;font-family:monospace;text-align:center;margin-top:100px;">
 
-<h1 id="title">NODE_0</h1>
+    <h1 id="title">NODE_0</h1>
 
-<p>ARE YOU THE OPERATOR?</p>
+    <p>ARE YOU THE OPERATOR?</p>
 
-<!-- IMAGE FRACTURE (énigme visuelle) -->
-<br>
-<img src="fracture.png" width="250" style="margin-top:20px;opacity:0.9;">
+    <!-- IMAGE ARG -->
+    <img
+        id="fractureImage"
+        src="fracture.png"
+        alt="Recovered Fragment"
+        width="320"
+        style="margin-top:25px;border:1px solid #00ff9d;cursor:pointer;">
 
-<p id="timer"></p>
+    <p id="timer"></p>
 
-<p id="glitchText"></p>
+    <p id="glitchText"></p>
 
-<!-- INPUT -->
-<input id="input" style="margin-top:20px;padding:5px;" />
-<button onclick="go()">SEND</button>
+    <input
+        id="input"
+        type="text"
+        placeholder="Type a message..."
+        style="padding:8px;width:300px;background:black;color:#00ff9d;border:1px solid #00ff9d;">
 
-<p id="response" style="margin-top:20px;"></p>
+    <button
+        onclick="go()"
+        style="padding:8px 15px;background:black;color:#00ff9d;border:1px solid #00ff9d;cursor:pointer;">
+        SEND
+    </button>
 
-<!-- NODE_1 BLOQUÉ -->
-<p id="hidden" style="display:none;">
-NODE_0: access denied... NODE_1 locked.
-<br><br>
-<a href="node1.html" style="color:#00ff9d;">ENTER NODE_1</a>
-</p>
+    <p id="response" style="margin-top:20px;"></p>
 
-<script src="script.js"></script>
+    <p id="hidden" style="display:none;">
+        NODE_0: access denied... NODE_1 locked.
+        <br><br>
+        <a href="node1.html" style="color:#00ff9d;">
+            ENTER NODE_1
+        </a>
+    </p>
+
+    <!-- Premier indice caché -->
+    <p style="opacity:0.02;font-size:10px;">
+        KEY_FRAGMENT: 7A-Δ9
+    </p>
+
+    <script src="script.js"></script>
 
 </body>
+
 </html>
