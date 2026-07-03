@@ -9,11 +9,16 @@ body {
     background-color: #0d0d0d;
     color: #00ff9f;
     font-family: monospace;
-    padding: 40px;
+
+    /* CENTRAGE GLOBAL FIX */
+    margin: 0;
+    display: flex;
+    justify-content: center;
 }
 
 #container {
-    max-width: 700px;
+    width: 700px;
+    margin-top: 60px;
 }
 
 .glitch {
@@ -36,10 +41,6 @@ img {
     width: 320px;
     border: 1px solid #00ff9f33;
 }
-
-.small-glitch {
-    display:inline-block;
-}
 </style>
 </head>
 
@@ -53,20 +54,19 @@ img {
 
 <p id="timer"></p>
 
-<img src="./fracture.png" id="fracture" alt="fracture" onerror="this.style.display='none'">
+<img src="./fracture.png" id="fracture" onerror="this.style.display='none'">
 
 <div id="log"></div>
 
 </div>
 
 <script>
+
 // =========================
-// NODE_0 ARG ENGINE v3
-// LENT / PERSISTENT / LIVING
+// TIMER 1 MOIS (FIX PROPRE)
 // =========================
 
-// ---------- TIMER 1 MOIS ----------
-let totalSeconds = 30 * 24 * 60 * 60; // 1 mois
+let totalSeconds = 30 * 24 * 60 * 60;
 
 function updateTimer(){
     let d = Math.floor(totalSeconds / (24*3600));
@@ -75,20 +75,26 @@ function updateTimer(){
     let s = totalSeconds % 60;
 
     document.getElementById("timer").innerText =
-    d + "d " + String(h).padStart(2,"0") + ":" +
+    d + "d " +
+    String(h).padStart(2,"0") + ":" +
     String(m).padStart(2,"0") + ":" +
     String(s).padStart(2,"0");
 
     if(totalSeconds > 0) totalSeconds--;
 }
-setInterval(updateTimer, 1000);
 
-// ---------- GLITCH SYSTEM ----------
+setInterval(updateTimer, 1000);
+updateTimer();
+
+// =========================
+// GLITCH SYSTEM (STABLE)
+// =========================
+
 const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
 
 function r(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-function glitch(el, intensity=0.15){
+function glitch(el, intensity=0.12){
     if(!el) return;
 
     const original = el.dataset.original || el.innerText;
@@ -111,10 +117,12 @@ function glitch(el, intensity=0.15){
     }, 120 + Math.random()*200);
 }
 
-// ---------- LOGIC LENT ----------
+// =========================
+// LORE NODE_0 (STABLE)
+// =========================
+
 const log = document.getElementById("log");
 
-// messages stables (NODE endormi)
 const stable = [
     "NODE_0 // sleep state active",
     "memory fragmented... stable",
@@ -123,34 +131,22 @@ const stable = [
     "no external anomaly detected"
 ];
 
-// évolution lente HELP (très important)
+const intrusion = [
+    "DON'T TRUST NODE_1",
+    "I AM STILL HERE",
+    "fracture.signal.low",
+];
+
 let helpStage = 0;
 
-function helpSequence(){
-    const steps = [
-        "H",
-        "HE",
-        "HEL",
-        "HELP",
-        "HELP M",
-        "HELP ME"
-    ];
-
+function help(){
+    const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
     if(helpStage < steps.length){
         add(steps[helpStage]);
         helpStage++;
     }
 }
 
-// messages intrusion
-const intrusion = [
-    "DON'T TRUST NODE_1",
-    "I AM STILL HERE",
-    "YOU ARE OBSERVING ME",
-    "fracture.signal.low",
-];
-
-// add log
 function add(msg){
     const p = document.createElement("p");
     p.innerText = msg;
@@ -161,28 +157,27 @@ function add(msg){
     }
 }
 
-// ---------- LOOP PRINCIPAL (LENT) ----------
+// =========================
+// LOOP LENT
+// =========================
+
 setInterval(()=>{
 
-    // log normal lent
     if(Math.random() < 0.7){
         add(r(stable));
     }
 
-    // intrusion rare
     if(Math.random() < 0.12){
         add(r(intrusion));
     }
 
-    // HELP progression TRÈS lente
     if(Math.random() < 0.08){
-        helpSequence();
+        help();
     }
 
-    // glitch visuel léger (pas agressif)
     if(Math.random() < 0.4){
-        glitch(document.getElementById("title"), 0.10);
-        glitch(document.getElementById("status"), 0.12);
+        glitch(document.getElementById("title"));
+        glitch(document.getElementById("status"));
     }
 
 }, 4000);
