@@ -1,60 +1,26 @@
 <script>
 
 // =========================
-// PERSISTENCE TIMER (FIX)
+// NODE_0 PERSISTENCE CORE
 // =========================
 
-// date de fin fixe (30 jours depuis 1er lancement)
-let start = localStorage.getItem("node0_start");
+// mémorise le début UNE SEULE FOIS
+let startTime = localStorage.getItem("node0_start");
 
-if(!start){
-    start = Date.now();
-    localStorage.setItem("node0_start", start);
+if(!startTime){
+    startTime = Date.now();
+    localStorage.setItem("node0_start", startTime);
 }
 
-const duration = 30 * 24 * 60 * 60 * 1000; // 30 jours
-const endTime = parseInt(start) + duration;
+// progression HELP persistante
+let helpStage = parseInt(localStorage.getItem("node0_help") || "0");
 
 // =========================
-// GLITCH ENGINE
+// TIMER 30 JOURS FIXE
 // =========================
 
-const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
-
-function r(arr){
-    return arr[Math.floor(Math.random()*arr.length)];
-}
-
-// glitch GLOBAL (texte entier + logs)
-function glitch(el, intensity = 0.25){
-    if(!el) return;
-
-    const original = el.dataset.original || el.innerText;
-    el.dataset.original = original;
-
-    const words = original.split(" ");
-
-    let out = words.map(w => {
-        if(Math.random() < intensity){
-            let c = "";
-            for(let i=0;i<Math.max(2,w.length);i++){
-                c += r(symbols);
-            }
-            return c;
-        }
-        return w;
-    });
-
-    el.innerText = out.join(" ");
-
-    setTimeout(()=>{
-        el.innerText = original;
-    }, 120 + Math.random()*200);
-}
-
-// =========================
-// TIMER UPDATE (PERSISTANT)
-// =========================
+const duration = 30 * 24 * 60 * 60 * 1000;
+const endTime = parseInt(startTime) + duration;
 
 function updateTimer(){
 
@@ -81,6 +47,50 @@ setInterval(updateTimer, 1000);
 updateTimer();
 
 // =========================
+// GLITCH ENGINE GLOBAL
+// =========================
+
+const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
+
+function r(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+// glitch INTELLIGENT (mots complets + chaos)
+function glitch(el, intensity = 0.25){
+
+    if(!el) return;
+
+    const original = el.dataset.original || el.innerText;
+    el.dataset.original = original;
+
+    const words = original.split(" ");
+
+    let out = words.map(word => {
+
+        if(Math.random() < intensity){
+
+            let corrupted = "";
+            let len = Math.max(2, word.length);
+
+            for(let i=0;i<len;i++){
+                corrupted += r(symbols);
+            }
+
+            return corrupted;
+        }
+
+        return word;
+    });
+
+    el.innerText = out.join(" ");
+
+    setTimeout(()=>{
+        el.innerText = original;
+    }, 120 + Math.random()*220);
+}
+
+// =========================
 // LOG SYSTEM + GLITCH AUTOMATIQUE
 // =========================
 
@@ -101,65 +111,76 @@ const intrusion = [
     "I REMEMBER YOU"
 ];
 
-let helpStage = parseInt(localStorage.getItem("help_stage") || "0");
-
 function add(msg){
+
     const p = document.createElement("p");
     p.innerText = msg;
+
     log.appendChild(p);
 
     if(log.children.length > 15){
         log.removeChild(log.children[0]);
     }
 
-    // 👁 glitch garanti après apparition
+    // 👁 glitch GARANTI après apparition
     setTimeout(()=>{
-        glitch(p, 0.35);
-    }, 250);
+        glitch(p, 0.4);
+    }, 200);
 }
 
-// HELP progression persistante
+// =========================
+// HELP SEQUENCE (persistante)
+// =========================
+
 function helpSequence(){
+
     const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
 
     if(helpStage < steps.length){
+
         add(steps[helpStage]);
+
         helpStage++;
-        localStorage.setItem("help_stage", helpStage);
+        localStorage.setItem("node0_help", helpStage);
     }
 }
 
 // =========================
-// LOOP PRINCIPAL
+// LOOP PRINCIPAL (VIVANT MAIS STABLE)
 // =========================
 
 setInterval(()=>{
 
+    // logs normaux
     if(Math.random() < 0.7){
         add(stable[Math.floor(Math.random()*stable.length)]);
     }
 
-    if(Math.random() < 0.12){
+    // intrusion
+    if(Math.random() < 0.15){
         add(intrusion[Math.floor(Math.random()*intrusion.length)]);
     }
 
+    // HELP lent
     if(Math.random() < 0.08){
         helpSequence();
     }
 
     // GLITCH GLOBAL (TOUT)
-    if(Math.random() < 0.6){
-        glitch(document.getElementById("title"), 0.2);
+    if(Math.random() < 0.7){
+
+        glitch(document.getElementById("title"), 0.25);
         glitch(document.getElementById("status"), 0.25);
         glitch(document.getElementById("timer"), 0.15);
 
+        // glitch sur TOUS les logs visibles
         document.querySelectorAll("#log p").forEach(p=>{
-            if(Math.random() < 0.25){
-                glitch(p, 0.25);
+            if(Math.random() < 0.35){
+                glitch(p, 0.35);
             }
         });
     }
 
-}, 3500);
+}, 3000);
 
 </script>
