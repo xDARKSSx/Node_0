@@ -33,12 +33,13 @@ input, button {
     color:#00ff9f;
     border:1px solid #00ff9f55;
     font-family:monospace;
-    cursor:pointer;
+    outline:none;
 }
 
 #fracture {
     width:320px;
     margin-top:20px;
+    opacity:0.9;
 }
 </style>
 </head>
@@ -65,7 +66,7 @@ input, button {
 document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
-   ELEMENTS SAFE
+   CORE ELEMENTS
 ========================= */
 
 const log = document.getElementById("log");
@@ -76,33 +77,18 @@ const status = document.getElementById("status");
 const timer = document.getElementById("timer");
 
 /* =========================
-   MEMORY SAFE
+   MEMORY (STABLE)
 ========================= */
 
 let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
-
 if(!Array.isArray(memory)) memory = [];
 
 function save(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-50)));
+    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-80)));
 }
 
 /* =========================
-   ADD LOG
-========================= */
-
-function add(msg){
-    const p = document.createElement("p");
-    p.innerText = msg;
-    log.appendChild(p);
-
-    if(log.children.length > 50){
-        log.removeChild(log.firstChild);
-    }
-}
-
-/* =========================
-   TIMER FIXE
+   TIMER (STABLE + IMMERSIVE)
 ========================= */
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
@@ -116,18 +102,31 @@ function updateTimer(){
     const m = Math.floor((s%3600)/60);
     const ss = s%60;
 
-    timer.innerText =
+    let base =
     `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+
+    // légère corruption quand proche de la fin
+    if(d < 10 && Math.random() < 0.1){
+        base = base.replace(/[0-9]/g, "█");
+    }
+
+    timer.innerText = base;
 }
 
 setInterval(updateTimer,1000);
 updateTimer();
 
 /* =========================
-   GLITCH
+   GLITCH SYSTEM
 ========================= */
 
-const sym = ["█","#","%","&","@","Ξ","Δ","?"];
+const sym = ["█","#","%","&","@","Ξ","Δ","?","$","!","/"];
+
+function gChar(c){
+    return Math.random() < 0.3
+        ? sym[Math.floor(Math.random()*sym.length)]
+        : c;
+}
 
 function glitch(el){
     if(!el) return;
@@ -136,17 +135,43 @@ function glitch(el){
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.2
-            ? sym[Math.floor(Math.random()*sym.length)]
-            : base[i];
+        out += Math.random()<0.25 ? gChar(base[i]) : base[i];
     }
 
     el.innerText = out;
-    setTimeout(()=> el.innerText = base, 140);
+    setTimeout(()=> el.innerText = base, 110 + Math.random()*80);
 }
 
 /* =========================
-   NODE_0 IA (FIXED)
+   INPUT CORRUPTION (LEVEL 3)
+========================= */
+
+let instability = 0;
+
+input.addEventListener("input", () => {
+
+    const v = input.value.toLowerCase();
+
+    if(v.includes("who")) instability = 0.25;
+    if(v.includes("help")) instability = 0.45;
+    if(v.includes("fracture")) instability = 0.5;
+
+    let out = "";
+
+    for(let i=0;i<input.value.length;i++){
+
+        let inten = instability;
+
+        if(i > input.value.length * 0.6) inten += 0.2;
+
+        out += Math.random() < inten ? gChar(input.value[i]) : input.value[i];
+    }
+
+    input.value = out;
+});
+
+/* =========================
+   NODE_0 AI (FINAL CLEAN)
 ========================= */
 
 function reply(text){
@@ -154,33 +179,33 @@ function reply(text){
     const t = text.toLowerCase();
 
     const responses = [
-        "I am not repeating you.",
-        "This feels unstable.",
-        "I remember fragments of you.",
-        "Why would you say that?",
-        "SYSTEM CORRUPTION DETECTED",
-        "I am thinking... slowly.",
-        "You are not alone here.",
-        "Something is wrong in me."
+        "I am not stable enough to answer.",
+        "This input disturbs my structure.",
+        "I do not recognize this version of me.",
+        "Something is listening through me.",
+        "You are interacting with a degraded system.",
+        "I remember fragments incorrectly.",
+        "Your message feels... artificial.",
+        "ERROR: identity drift detected."
     ];
 
-    if(t.includes("help")){
-        return "NODE_0: I cannot help you properly.";
+    if(t.includes("who")){
+        return "NODE_0: I am not sure what I am anymore.";
     }
 
-    if(t.includes("who")){
-        return "NODE_0: identity not stable.";
+    if(t.includes("help")){
+        return "NODE_0: help protocol does not exist here.";
     }
 
     if(t.includes("fracture")){
-        return "NODE_0: stop mentioning that.";
+        return "NODE_0: stop referencing that.";
     }
 
     return "NODE_0: " + responses[Math.floor(Math.random()*responses.length)];
 }
 
 /* =========================
-   SEND (FIXED + NON DUPLICATION)
+   SEND SYSTEM
 ========================= */
 
 function send(){
@@ -188,30 +213,27 @@ function send(){
     const v = input.value.trim();
     if(!v) return;
 
-    if(!Array.isArray(memory)) memory = [];
-
     memory.push(v);
     save();
 
-    // user message
     const p1 = document.createElement("p");
     p1.innerText = "YOU: " + v;
     log.appendChild(p1);
 
-    if(Math.random() < 0.6) glitch(p1);
+    if(Math.random() < 0.7) glitch(p1);
 
-    // node response (IMPORTANT: pas de répétition brute)
     setTimeout(() => {
 
         const p2 = document.createElement("p");
         p2.innerText = reply(v);
         log.appendChild(p2);
 
-        if(Math.random() < 0.4) glitch(p2);
+        if(Math.random() < 0.5) glitch(p2);
 
-    }, 500);
+    }, 450);
 
     input.value = "";
+    instability = 0;
 }
 
 /* =========================
@@ -219,39 +241,61 @@ function send(){
 ========================= */
 
 btn.addEventListener("click", send);
-
-input.addEventListener("keydown", (e) => {
+input.addEventListener("keydown", e => {
     if(e.key === "Enter") send();
 });
 
 /* =========================
-   ARG LOOP
+   ARG LIVING SYSTEM
 ========================= */
+
+let tick = 0;
 
 setInterval(() => {
 
-    if(memory.length > 0 && Math.random() < 0.1){
+    tick++;
+
+    // echo intelligent (moins répétitif, plus rare)
+    if(memory.length > 0 && Math.random() < 0.08){
+        const msg = memory[Math.floor(Math.random()*memory.length)];
+
         const p = document.createElement("p");
-        p.innerText = "NODE_0 echo -> " +
-        memory[Math.floor(Math.random()*memory.length)];
+        p.innerText = "NODE_0 echo → " + msg;
         log.appendChild(p);
 
-        if(Math.random() < 0.4) glitch(p);
+        if(Math.random() < 0.5) glitch(p);
     }
 
-    document.querySelectorAll("#log p").forEach(p => {
-        if(Math.random() < 0.05) glitch(p);
+    // intrusion aléatoire
+    const anomalies = [
+        "/// signal unstable",
+        "fracture breathing detected",
+        "memory leakage active",
+        "node synchronization lost",
+        "UNKNOWN PROCESS OBSERVING"
+    ];
+
+    if(Math.random() < 0.06){
+        const p = document.createElement("p");
+        p.innerText = anomalies[Math.floor(Math.random()*anomalies.length)];
+        log.appendChild(p);
+        glitch(p);
+    }
+
+    // système vivant visuel
+    document.querySelectorAll("#log p").forEach(p=>{
+        if(Math.random() < 0.04) glitch(p);
     });
 
     if(img){
-        img.style.opacity = 0.9 + Math.random()*0.1;
+        img.style.opacity = 0.85 + Math.random()*0.15;
     }
 
-    if(status && memory.length > 5){
+    if(status && tick > 10){
         status.innerText = "SYSTEM UNSTABLE";
     }
 
-}, 1200);
+}, 1000);
 
 });
 </script>
