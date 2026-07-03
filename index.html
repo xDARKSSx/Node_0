@@ -172,7 +172,7 @@ function add(msg){
 
     log.appendChild(p);
 
-    if(log.children.length > 20){
+    if(log.children.length > 25){
         log.removeChild(log.firstChild);
     }
 
@@ -181,7 +181,7 @@ function add(msg){
 
 
 // =========================
-// NODE RESPONSES (100% extensible)
+// RESPONSES NODE_0
 // =========================
 
 const responses = [
@@ -194,8 +194,22 @@ const responses = [
 "NODE_0: YOU ARE NOT ALONE.",
 "NODE_0: fracture active.",
 "NODE_0: input unstable.",
-"NODE_0: ERROR LANGUAGE"
+"NODE_0: ERROR LANGUAGE",
+"NODE_0: I see you."
 ];
+
+
+// =========================
+// TRIGGERS (mots clés)
+// =========================
+
+const triggers = {
+    "fracture": "NODE_0: you shouldn't be looking at that.",
+    "help": "NODE_0: I cannot help you.",
+    "who": "NODE_0: I am what remains.",
+    "hello": "NODE_0: ...",
+    "why": "NODE_0: because you opened it."
+};
 
 
 // =========================
@@ -220,7 +234,6 @@ function glitchInput(){
     input.value = out;
 }
 
-// glitch pendant écriture
 input.addEventListener("input", ()=>{
     if(Math.random() < 0.4){
         glitchInput();
@@ -239,10 +252,22 @@ function send(){
 
     add("YOU: " + v);
 
-    const r = responses[Math.floor(Math.random()*responses.length)];
+    let lower = v.toLowerCase();
+    let response = null;
+
+    for(let key in triggers){
+        if(lower.includes(key)){
+            response = triggers[key];
+            break;
+        }
+    }
+
+    if(!response){
+        response = responses[Math.floor(Math.random()*responses.length)];
+    }
 
     setTimeout(()=>{
-        add(r);
+        add(response);
     }, 600 + Math.random()*1200);
 
     input.value = "";
@@ -256,14 +281,14 @@ input.addEventListener("keydown",(e)=>{
 
 
 // =========================
-// VISUAL LOOP
+// VISUAL GLITCH LOOP
 // =========================
 
 setInterval(()=>{
 
-    glitch(document.getElementById("title"),0.25);
-    glitch(document.getElementById("status"),0.25);
-    glitch(document.getElementById("timer"),0.15);
+    glitch(document.getElementById("title"),0.3);
+    glitch(document.getElementById("status"),0.3);
+    glitch(document.getElementById("timer"),0.2);
 
 },3000);
 
