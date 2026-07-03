@@ -39,6 +39,12 @@ input, button {
 
 #status { margin-top:10px; }
 #timer { margin-top:10px; }
+
+img {
+    width:320px;
+    margin-top:20px;
+    border:1px solid #00ff9f33;
+}
 </style>
 </head>
 
@@ -50,6 +56,9 @@ input, button {
 <p id="status">SYSTEM READY</p>
 <p id="timer"></p>
 
+<!-- ✅ IMAGE FRACTURE AJOUTÉE -->
+<img src="./fracture.png" id="fracture">
+
 <div id="log"></div>
 
 <input id="input" placeholder="type message...">
@@ -60,18 +69,18 @@ input, button {
 <script>
 
 // =========================
-// TIMER GLOBAL FIXE
+// TIMER FIXE (NE RESET PLUS)
 // =========================
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
 
 function updateTimer(){
 
-    const t = document.getElementById("timer");
+    const el = document.getElementById("timer");
     const diff = END - Date.now();
 
     if(diff <= 0){
-        t.innerText = "NODE_0 ACTIVE";
+        el.innerText = "NODE_0 ACTIVE";
         return;
     }
 
@@ -81,7 +90,7 @@ function updateTimer(){
     const m = Math.floor((s%3600)/60);
     const ss = s%60;
 
-    t.innerText = `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+    el.innerText = `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
 }
 
 setInterval(updateTimer,1000);
@@ -89,51 +98,35 @@ updateTimer();
 
 
 // =========================
-// PERSISTENCE (VRAI FINAL)
+// MEMORY
 // =========================
 
 let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
-let firstVisit = localStorage.getItem("node0_first");
-
-if(!firstVisit){
-    firstVisit = Date.now();
-    localStorage.setItem("node0_first", firstVisit);
-}
 
 function save(){
     localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-60)));
 }
 
-function daysSinceStart(){
-    return (Date.now() - firstVisit) / 86400000;
-}
-
 
 // =========================
-// LOG SYSTEM
+// LOG
 // =========================
 
 const log = document.getElementById("log");
 
-function add(msg, type="normal"){
-
+function add(msg){
     const p = document.createElement("p");
     p.innerText = msg;
-    p.dataset.base = msg;
-    p.dataset.type = type;
-
     log.appendChild(p);
-
     if(log.children.length > 60){
         log.removeChild(log.firstChild);
     }
-
     return p;
 }
 
 
 // =========================
-// GLITCH LIGHT (STABLE)
+// GLITCH SIMPLE
 // =========================
 
 const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
@@ -142,61 +135,48 @@ function glitch(el){
 
     if(!el) return;
 
-    const base = el.dataset.base || el.innerText;
+    const base = el.innerText;
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.18 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+        out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
     }
 
     el.innerText = out;
 
-    setTimeout(()=>el.innerText = base, 200);
+    setTimeout(()=>el.innerText = base, 180);
 }
 
 
 // =========================
-// ENTITÉS ARG
+// RESPONSES
 // =========================
 
-const node0_base = [
+const base = [
+"I hear you.",
 "I am still here.",
-"You keep returning.",
 "...",
-"Signal stable.",
-"I observe."
+"You are observed.",
+"Signal stable."
 ];
 
 const fracture = [
-"I am not part of Node_0.",
-"I rewrite what it says.",
-"You are being corrected.",
-"This memory is wrong."
+"I should not be here.",
+"I remember incorrectly.",
+"This is not stable.",
+"I changed something."
 ];
 
-
-// =========================
-// RESPONSE ENGINE
-// =========================
-
-function getResponse(user){
-
-    let days = daysSinceStart();
-
-    if(days > 1 && Math.random()<0.25){
-        return "FRACTURE: " + fracture[Math.floor(Math.random()*fracture.length)];
-    }
-
+function getResponse(){
     if(memory.length > 0 && Math.random()<0.5){
-        return "NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)];
+        return "NODE_0: " + memory[Math.floor(Math.random()*memory.length)];
     }
-
-    return "NODE_0: " + node0_base[Math.floor(Math.random()*node0_base.length)];
+    return "NODE_0: " + base[Math.floor(Math.random()*base.length)];
 }
 
 
 // =========================
-// INPUT + SEND
+// SEND
 // =========================
 
 const input = document.getElementById("input");
@@ -213,12 +193,18 @@ function send(){
 
     setTimeout(()=>{
 
-        let r = getResponse(v);
-        let p = add(r);
+        let r;
 
+        if(Math.random()<0.2){
+            r = "FRACTURE: " + fracture[Math.floor(Math.random()*fracture.length)];
+        } else {
+            r = getResponse();
+        }
+
+        const p = add(r);
         if(Math.random()<0.4) glitch(p);
 
-    }, 700 + Math.random()*800);
+    }, 700);
 
     input.value = "";
 }
@@ -231,50 +217,31 @@ input.addEventListener("keydown",(e)=>{
 
 
 // =========================
-// AUTONOMOUS SYSTEM (FINAL)
+// AUTONOMOUS SYSTEM
 // =========================
 
 setInterval(()=>{
 
-    let days = daysSinceStart();
-
-    // messages autonomes doux
-    if(memory.length>0 && Math.random()<0.18){
-        let m = memory[Math.floor(Math.random()*memory.length)];
-        add("NODE_0: I remember -> " + m);
+    if(memory.length>0 && Math.random()<0.15){
+        const m = memory[Math.floor(Math.random()*memory.length)];
+        add("NODE_0: echo -> " + m);
     }
 
-    // fracture devient active après 1 jour réel
-    if(days > 1 && Math.random()<0.12){
-        add("FRACTURE: interference detected");
-    }
-
-    // corruption légère des anciens messages
     document.querySelectorAll("#log p").forEach(p=>{
-        if(Math.random()<0.06) glitch(p);
+        if(Math.random()<0.08) glitch(p);
     });
 
-    // état système
     const s = document.getElementById("status");
 
-    if(days > 0.3){
+    if(memory.length > 5){
         s.innerText = "SYSTEM UNSTABLE";
     }
 
-    if(days > 1){
+    if(memory.length > 10){
         s.innerText = "FRACTURE ACTIVE";
     }
 
-    if(days > 2){
-        s.innerText = "NODE_0 AWARE";
-    }
-
-    // titre vivant
-    if(days > 1){
-        document.title = "FRACTURE SYSTEM";
-    }
-
-}, 3500);
+}, 3000);
 
 </script>
 
