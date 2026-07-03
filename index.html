@@ -21,10 +21,9 @@ body {
 
 #log {
     margin-top:20px;
-    line-height:1.6;
-    opacity:0.85;
     max-height:420px;
     overflow-y:auto;
+    opacity:0.85;
 }
 
 input, button {
@@ -39,24 +38,14 @@ input, button {
 }
 
 #fractureWrap {
-    position:relative;
-    width:320px;
     margin-top:20px;
+    width:320px;
+    position:relative;
 }
 
 #fracture {
     width:100%;
     border:1px solid #00ff9f33;
-}
-
-#fractureText {
-    position:absolute;
-    bottom:5px;
-    left:5px;
-    right:5px;
-    font-size:12px;
-    color:#ff0033;
-    opacity:0;
 }
 </style>
 </head>
@@ -67,10 +56,10 @@ input, button {
 
 <h1 id="title">NODE_0</h1>
 <p id="status">SYSTEM READY</p>
+<p id="timer"></p>
 
 <div id="fractureWrap">
-    <img src="./fracture.png" id="fracture">
-    <div id="fractureText"></div>
+    <img id="fracture" src="./fracture.png">
 </div>
 
 <div id="log"></div>
@@ -81,32 +70,52 @@ input, button {
 </div>
 
 <script>
-
-document.addEventListener("DOMContentLoaded", () => {
+(() => {
 
 // =========================
-// SAFE INIT
+// SAFE GET ELEMENT
 // =========================
 
-const log = document.getElementById("log");
-const input = document.getElementById("input");
-const btn = document.getElementById("send");
-const img = document.getElementById("fracture");
-const fractureBox = document.getElementById("fractureText");
+const $ = (id) => document.getElementById(id);
 
-let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
+// =========================
+// ELEMENTS SAFE
+// =========================
+
+const log = $("log");
+const input = $("input");
+const btn = $("send");
+const timerEl = $("timer");
+const statusEl = $("status");
+const img = $("fracture");
+
+// =========================
+// MEMORY SAFE
+// =========================
+
+let memory = [];
+try {
+    memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
+} catch(e){
+    memory = [];
+}
 
 function save(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-60)));
+    try {
+        localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-60)));
+    } catch(e){}
 }
 
 // =========================
-// ADD MESSAGE
+// LOG SAFE
 // =========================
 
 function add(msg){
+    if(!log) return;
+
     const p = document.createElement("p");
     p.innerText = msg;
+
     log.appendChild(p);
 
     if(log.children.length > 60){
@@ -115,7 +124,37 @@ function add(msg){
 }
 
 // =========================
-// GLITCH
+// TIMER (NE PEUT PAS CRASH)
+// =========================
+
+const END = new Date("2026-08-08T00:00:00Z").getTime();
+
+function updateTimer(){
+
+    if(!timerEl) return;
+
+    try {
+
+        const diff = END - Date.now();
+
+        const s = Math.floor(diff/1000);
+        const d = Math.floor(s/86400);
+        const h = Math.floor((s%86400)/3600);
+        const m = Math.floor((s%3600)/60);
+        const ss = s%60;
+
+        timerEl.innerText =
+        `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+
+    } catch(e){
+        timerEl.innerText = "ERROR";
+    }
+}
+
+setInterval(updateTimer,1000);
+
+// =========================
+// GLITCH SAFE
 // =========================
 
 const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
@@ -123,40 +162,38 @@ const sym = ["█","#","%","&","@","Ø","Ξ","Δ","?"];
 function glitch(el){
     if(!el) return;
 
-    const base = el.innerText;
-    let out = "";
+    try {
+        const base = el.innerText;
+        let out = "";
 
-    for(let i=0;i<base.length;i++){
-        out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
-    }
+        for(let i=0;i<base.length;i++){
+            out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+        }
 
-    el.innerText = out;
-    setTimeout(()=>el.innerText = base, 180);
+        el.innerText = out;
+
+        setTimeout(()=>el.innerText = base, 180);
+    } catch(e){}
 }
 
 // =========================
-// RESPONSES
+// RESPONSE ENGINE
 // =========================
-
-const base = [
-"I am still here.",
-"...",
-"I hear you.",
-"Signal stable."
-];
 
 function getResponse(){
     if(memory.length > 0 && Math.random()<0.5){
         return "NODE_0: " + memory[Math.floor(Math.random()*memory.length)];
     }
-    return "NODE_0: " + base[Math.floor(Math.random()*base.length)];
+    return "NODE_0: I am still here.";
 }
 
 // =========================
-// SEND (FIXÉ 100%)
+// SEND (100% STABLE)
 // =========================
 
 function send(){
+
+    if(!input) return;
 
     const v = input.value.trim();
     if(!v) return;
@@ -167,73 +204,64 @@ function send(){
     add("YOU: " + v);
 
     setTimeout(()=>{
+
+        const reply = getResponse();
         const p = document.createElement("p");
-        p.innerText = getResponse();
+        p.innerText = reply;
+
         log.appendChild(p);
 
         if(Math.random()<0.4) glitch(p);
 
-    }, 700);
+    }, 600);
 
     input.value = "";
 }
 
-btn.addEventListener("click", send);
-
-input.addEventListener("keydown",(e)=>{
-    if(e.key === "Enter") send();
-});
-
 // =========================
-// FRACTURE TEXT
+// EVENTS (FORCÉS)
 // =========================
 
-const fractureLines = [
-"i am inside the image",
-"you should not look at me",
-"NODE_0 is unstable",
-"i remember you"
-];
+if(btn) btn.addEventListener("click", send);
+
+if(input){
+    input.addEventListener("keydown",(e)=>{
+        if(e.key === "Enter") send();
+    });
+}
 
 // =========================
-// MAIN LOOP
+// MAIN LOOP SAFE
 // =========================
 
 setInterval(()=>{
 
-    // auto messages
-    if(memory.length>0 && Math.random()<0.15){
-        add("NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)]);
+    try {
+
+        if(memory.length > 0 && Math.random()<0.12){
+            add("NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)]);
+        }
+
+        document.querySelectorAll("#log p").forEach(p=>{
+            if(Math.random()<0.06) glitch(p);
+        });
+
+        if(img){
+            img.style.opacity = 0.85 + Math.random()*0.2;
+            img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
+        }
+
+        if(statusEl && memory.length > 5){
+            statusEl.innerText = "SYSTEM UNSTABLE";
+        }
+
+    } catch(e){
+        // jamais crash
     }
-
-    // glitch logs
-    document.querySelectorAll("#log p").forEach(p=>{
-        if(Math.random()<0.08) glitch(p);
-    });
-
-    // image life
-    if(img){
-        img.style.opacity = 0.85 + Math.random()*0.2;
-        img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
-    }
-
-    // fracture speaks
-    if(fractureBox && Math.random()<0.25){
-        fractureBox.innerText = fractureLines[Math.floor(Math.random()*fractureLines.length)];
-        fractureBox.style.opacity = 1;
-
-        setTimeout(()=>fractureBox.style.opacity = 0, 1200);
-    }
-
-    // status
-    const s = document.getElementById("status");
-    if(memory.length > 5) s.innerText = "SYSTEM UNSTABLE";
-    if(memory.length > 10) s.innerText = "FRACTURE ACTIVE";
 
 }, 1200);
 
-});
-
+})();
 </script>
 
 </body>
