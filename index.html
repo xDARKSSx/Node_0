@@ -9,7 +9,6 @@ body {
     background-color: #0d0d0d;
     color: #00ff9f;
     font-family: monospace;
-
     margin: 0;
     display: flex;
     justify-content: center;
@@ -66,41 +65,54 @@ img {
 <script>
 
 // =========================
-// TIMER 1 MOIS (STABLE)
+// TIMER FIXE ARG (30 JOURS)
 // =========================
 
-let totalSeconds = 30 * 24 * 60 * 60;
+// OPTION PROPRE ARG : date fixe globale
+const END = new Date("2026-08-08T00:00:00Z").getTime();
 
 function updateTimer(){
-    let d = Math.floor(totalSeconds / (24*3600));
-    let h = Math.floor((totalSeconds % (24*3600)) / 3600);
-    let m = Math.floor((totalSeconds % 3600) / 60);
-    let s = totalSeconds % 60;
 
-    document.getElementById("timer").innerText =
-        d + "d " +
-        String(h).padStart(2,"0") + ":" +
-        String(m).padStart(2,"0") + ":" +
-        String(s).padStart(2,"0");
+    const timer = document.getElementById("timer");
+    if(!timer) return;
 
-    if(totalSeconds > 0) totalSeconds--;
+    const now = Date.now();
+    const diff = END - now;
+
+    if(diff <= 0){
+        timer.innerText = "NODE_0 ACTIVE";
+        return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+
+    const d = Math.floor(totalSeconds / 86400);
+    const h = Math.floor((totalSeconds % 86400) / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+
+    timer.innerText =
+        `${d}d ${String(h).padStart(2,"0")}:` +
+        `${String(m).padStart(2,"0")}:` +
+        `${String(s).padStart(2,"0")}`;
 }
 
 setInterval(updateTimer, 1000);
 updateTimer();
 
+
 // =========================
-// GLITCH ENGINE (LENT + SALE)
+// GLITCH ENGINE
 // =========================
 
-const symbols = ["█","#","%","&","@","Ø","Ξ","Δ"];
+const symbols = ["█","#","%","&","@","Ø","Ξ","Δ","?","$"];
 
 function r(arr){
     return arr[Math.floor(Math.random()*arr.length)];
 }
 
-// glitch MOTS COMPLETS (important pour effet "vivant")
-function glitch(el, intensity = 0.22){
+function glitch(el, intensity = 0.3){
+
     if(!el) return;
 
     const original = el.dataset.original || el.innerText;
@@ -108,16 +120,20 @@ function glitch(el, intensity = 0.22){
 
     const words = original.split(" ");
 
-    let out = words.map(w => {
-        if(Math.random() < intensity){
-            let c = "";
-            let len = Math.max(2, w.length);
+    const out = words.map(w => {
 
-            for(let i=0;i<len;i++){
+        if(Math.random() < intensity){
+
+            let c = "";
+            const len = Math.max(2, w.length);
+
+            for(let i = 0; i < len; i++){
                 c += r(symbols);
             }
+
             return c;
         }
+
         return w;
     });
 
@@ -125,11 +141,12 @@ function glitch(el, intensity = 0.22){
 
     setTimeout(()=>{
         el.innerText = original;
-    }, 180 + Math.random()*250);
+    }, 150 + Math.random() * 250);
 }
 
+
 // =========================
-// LORE NODE_0
+// LOG SYSTEM ARG
 // =========================
 
 const log = document.getElementById("log");
@@ -146,60 +163,76 @@ const intrusion = [
     "DON'T TRUST NODE_1",
     "I AM STILL HERE",
     "fracture.signal.low",
-    "I REMEMBER YOU"
+    "I REMEMBER YOU",
+    "YOU ARE BEING WATCHED"
 ];
 
-// HELP progression lente
+function addLog(msg){
+
+    const p = document.createElement("p");
+    p.innerText = msg;
+
+    log.appendChild(p);
+
+    if(log.children.length > 18){
+        log.removeChild(log.firstChild);
+    }
+
+    setTimeout(()=>{
+        glitch(p, 0.45);
+    }, 200);
+}
+
+
+// =========================
+// HELP SEQUENCE (simple)
+// =========================
+
 let helpStage = 0;
 
 function helpSequence(){
+
     const steps = ["H","HE","HEL","HELP","HELP M","HELP ME"];
 
     if(helpStage < steps.length){
-        add(steps[helpStage]);
+        addLog(steps[helpStage]);
         helpStage++;
     }
 }
 
-function add(msg){
-    const p = document.createElement("p");
-    p.innerText = msg;
-    log.appendChild(p);
-
-    if(log.children.length > 12){
-        log.removeChild(log.children[0]);
-    }
-}
 
 // =========================
-// LOOP PRINCIPAL (LENT)
+// LOOP ARG VIVANT
 // =========================
 
 setInterval(()=>{
 
-    // logs normaux
     if(Math.random() < 0.7){
-        add(r(stable));
+        addLog(r(stable));
     }
 
-    // intrusion
-    if(Math.random() < 0.12){
-        add(r(intrusion));
+    if(Math.random() < 0.2){
+        addLog(r(intrusion));
     }
 
-    // HELP lent
-    if(Math.random() < 0.08){
+    if(Math.random() < 0.06){
         helpSequence();
     }
 
-    // glitch VISUEL global
-    if(Math.random() < 0.5){
-        glitch(document.getElementById("title"));
-        glitch(document.getElementById("status"));
-        glitch(document.getElementById("timer"));
+    if(Math.random() < 0.7){
+
+        glitch(document.getElementById("title"), 0.3);
+        glitch(document.getElementById("status"), 0.3);
+        glitch(document.getElementById("timer"), 0.2);
+
+        document.querySelectorAll("#log p").forEach(p=>{
+            if(Math.random() < 0.3){
+                glitch(p, 0.4);
+            }
+        });
     }
 
-}, 4000);
+}, 2500);
 
 </script>
 
