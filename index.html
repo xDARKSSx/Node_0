@@ -21,9 +21,8 @@ body {
 
 #log {
     margin-top:20px;
-    max-height:380px;
+    max-height:400px;
     overflow:auto;
-    opacity:0.85;
 }
 
 input, button {
@@ -34,12 +33,11 @@ input, button {
     color:#00ff9f;
     border:1px solid #00ff9f55;
     font-family:monospace;
+    cursor:pointer;
 }
 
-#fracture {
-    width:320px;
-    margin-top:20px;
-    border:1px solid #00ff9f33;
+button {
+    background:#000;
 }
 </style>
 </head>
@@ -48,12 +46,9 @@ input, button {
 
 <div id="container">
 
-<h1 id="title">NODE_0</h1>
+<h1>NODE_0</h1>
 
-<p id="status">SYSTEM READY</p>
 <p id="timer"></p>
-
-<img id="fracture" src="fracture.png">
 
 <div id="log"></div>
 
@@ -63,151 +58,60 @@ input, button {
 </div>
 
 <script>
+console.log("NODE_0 ONLINE");
 
 // =========================
-// SAFE TIMER (GitHub safe)
+// SAFE INIT (IMPORTANT)
 // =========================
 
-const END = new Date("2026-08-08T00:00:00Z").getTime();
+window.addEventListener("DOMContentLoaded", () => {
 
-function updateTimer() {
-    const el = document.getElementById("timer");
-    if (!el) return;
-
-    const diff = END - Date.now();
-
-    const totalSeconds = Math.floor(diff / 1000);
-    const d = Math.floor(totalSeconds / 86400);
-    const h = Math.floor((totalSeconds % 86400) / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
-
-    el.innerText = `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-}
-
-setInterval(updateTimer, 1000);
-updateTimer();
-
-
-// =========================
-// LOG SYSTEM
-// =========================
-
+const btn = document.getElementById("send");
+const input = document.getElementById("input");
 const log = document.getElementById("log");
+
+// =========================
+// SAFE FUNCTION ADD
+// =========================
 
 function add(msg){
     const p = document.createElement("p");
     p.innerText = msg;
     log.appendChild(p);
-
-    if(log.children.length > 50){
-        log.removeChild(log.firstChild);
-    }
 }
 
-
 // =========================
-// GLITCH (SAFE LIGHT VERSION)
+// SEND GUARANTEED
 // =========================
 
-const symbols = ["█","#","%","&","@","Ξ","Δ","?"];
+function send(){
 
-function glitch(el){
-    if(!el) return;
+    if(!input) return;
 
-    const base = el.innerText;
-    let out = "";
+    const value = input.value.trim();
+    if(!value) return;
 
-    for(let i=0;i<base.length;i++){
-        out += Math.random() < 0.15
-            ? symbols[Math.floor(Math.random()*symbols.length)]
-            : base[i];
-    }
-
-    el.innerText = out;
+    add("YOU: " + value);
 
     setTimeout(() => {
-        el.innerText = base;
-    }, 200);
-}
-
-
-// =========================
-// RESPONSES
-// =========================
-
-const responses = [
-"I am still here.",
-"...",
-"Signal stable.",
-"You are observed.",
-"NODE_0 active."
-];
-
-function getResponse(){
-    return "NODE_0: " + responses[Math.floor(Math.random()*responses.length)];
-}
-
-
-// =========================
-// SEND (100% SAFE)
-// =========================
-
-document.getElementById("send").addEventListener("click", () => {
-
-    const input = document.getElementById("input");
-
-    if (!input || !input.value.trim()) return;
-
-    const msg = input.value.trim();
-
-    add("YOU: " + msg);
-
-    setTimeout(() => {
-        const r = getResponse();
-        const p = document.createElement("p");
-        p.innerText = r;
-
-        log.appendChild(p);
-
-        if (Math.random() < 0.3) glitch(p);
-
-    }, 600);
+        add("NODE_0: " + value);
+    }, 500);
 
     input.value = "";
+}
+
+// 🔥 FORCE BIND (DOUBLE SAFE)
+btn.onclick = send;
+btn.addEventListener("click", send);
+
+// ENTER
+input.addEventListener("keydown", (e) => {
+    if(e.key === "Enter") send();
 });
 
+console.log("SEND SYSTEM READY");
 
-// ENTER SUPPORT
-document.getElementById("input").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        document.getElementById("send").click();
-    }
 });
-
-
-// =========================
-// AUTONOMOUS ARG LITE
-// =========================
-
-setInterval(() => {
-
-    if (Math.random() < 0.15) {
-        add("NODE_0: echo detected...");
-    }
-
-    document.querySelectorAll("#log p").forEach(p => {
-        if (Math.random() < 0.05) glitch(p);
-    });
-
-    const img = document.getElementById("fracture");
-    if (img) {
-        img.style.opacity = 0.85 + Math.random() * 0.15;
-        img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
-    }
-
-}, 2000);
-
 </script>
 
 </body>
