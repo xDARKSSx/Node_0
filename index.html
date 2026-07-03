@@ -47,7 +47,7 @@ input, button {
 
 <div id="container">
 
-<h1>NODE_0</h1>
+<h1 id="title">NODE_0</h1>
 
 <p id="status">SYSTEM READY</p>
 <p id="timer"></p>
@@ -62,18 +62,11 @@ input, button {
 </div>
 
 <script>
-
-// =========================
-// SAFE BOOT (IMPORTANT)
-// =========================
-
 document.addEventListener("DOMContentLoaded", () => {
 
-console.log("NODE_0 STARTED");
-
-// =========================
-// SAFE ELEMENTS (NE PEUT PAS CRASH)
-// =========================
+/* =========================
+   ELEMENTS SAFE
+========================= */
 
 const log = document.getElementById("log");
 const input = document.getElementById("input");
@@ -82,15 +75,23 @@ const img = document.getElementById("fracture");
 const status = document.getElementById("status");
 const timer = document.getElementById("timer");
 
-// =========================
-// MEMORY SAFE
-// =========================
+/* =========================
+   MEMORY FIX (TON BUG ÉTAIT ICI)
+========================= */
 
 let memory = [];
 
 try {
-    memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
-} catch(e){
+    const saved = JSON.parse(localStorage.getItem("node0_memory"));
+
+    // 🔥 FIX IMPORTANT : garantit un vrai array
+    if (Array.isArray(saved)) {
+        memory = saved;
+    } else {
+        memory = [];
+    }
+
+} catch(e) {
     memory = [];
 }
 
@@ -100,16 +101,13 @@ function save(){
     } catch(e){}
 }
 
-// =========================
-// ADD SAFE
-// =========================
+/* =========================
+   LOG
+========================= */
 
 function add(msg){
-    if(!log) return;
-
     const p = document.createElement("p");
     p.innerText = msg;
-
     log.appendChild(p);
 
     if(log.children.length > 50){
@@ -117,9 +115,9 @@ function add(msg){
     }
 }
 
-// =========================
-// TIMER SAFE
-// =========================
+/* =========================
+   TIMER FIXE
+========================= */
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
 
@@ -141,33 +139,81 @@ function updateTimer(){
 setInterval(updateTimer,1000);
 updateTimer();
 
-// =========================
-// SEND (DOUBLE SAFE)
-// =========================
+/* =========================
+   GLITCH SIMPLE SAFE
+========================= */
+
+const sym = ["█","#","%","&","@","Ξ","Δ","?"];
+
+function glitch(el){
+    if(!el) return;
+
+    const base = el.innerText;
+    let out = "";
+
+    for(let i=0;i<base.length;i++){
+        out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+    }
+
+    el.innerText = out;
+
+    setTimeout(()=> el.innerText = base, 150);
+}
+
+/* =========================
+   NODE RESPONSE
+========================= */
+
+function reply(){
+    if(!Array.isArray(memory)) memory = [];
+
+    if(memory.length > 0 && Math.random() < 0.6){
+        return "NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)];
+    }
+
+    return "NODE_0: I am still here.";
+}
+
+/* =========================
+   SEND (100% FIXÉ)
+========================= */
 
 function send(){
 
-    if(!input) return;
+    if(!input || !input.value.trim()) return;
 
-    const value = input.value.trim();
-    if(!value) return;
+    const v = input.value.trim();
 
-    memory.push(value);
+    // 🔥 SAFE ARRAY CHECK
+    if(!Array.isArray(memory)){
+        memory = [];
+    }
+
+    memory.push(v);
     save();
 
-    add("YOU: " + value);
+    add("YOU: " + v);
 
     setTimeout(() => {
-        add("NODE_0: " + value);
-    }, 600);
+
+        const p = document.createElement("p");
+        p.innerText = reply();
+
+        log.appendChild(p);
+
+        if(Math.random() < 0.4) glitch(p);
+
+    }, 500);
 
     input.value = "";
 }
 
-// 🔥 IMPORTANT: DOUBLE BIND SAFE
+/* =========================
+   EVENTS SAFE
+========================= */
+
 if(btn){
     btn.addEventListener("click", send);
-    btn.onclick = send;
 }
 
 if(input){
@@ -176,35 +222,31 @@ if(input){
     });
 }
 
-// =========================
-// AUTO SAFE LOOP
-// =========================
+/* =========================
+   LOOP ARG
+========================= */
 
 setInterval(() => {
 
-    try {
+    if(memory.length > 0 && Math.random() < 0.12){
+        add("NODE_0 echo -> " + memory[Math.floor(Math.random()*memory.length)]);
+    }
 
-        if(memory.length > 0 && Math.random() < 0.1){
-            add("NODE_0: echo -> " + memory[Math.floor(Math.random()*memory.length)]);
-        }
+    document.querySelectorAll("#log p").forEach(p=>{
+        if(Math.random() < 0.05) glitch(p);
+    });
 
-        if(img){
-            img.style.opacity = 0.85 + Math.random()*0.15;
-            img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
-        }
+    if(img){
+        img.style.opacity = 0.9 + Math.random()*0.1;
+    }
 
-        if(status && memory.length > 5){
-            status.innerText = "SYSTEM UNSTABLE";
-        }
-
-    } catch(e){
-        console.log("loop safe catch");
+    if(status && memory.length > 5){
+        status.innerText = "SYSTEM UNSTABLE";
     }
 
 }, 1200);
 
 });
-
 </script>
 
 </body>
