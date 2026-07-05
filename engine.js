@@ -18,49 +18,25 @@ db.ref("/").on("value", (snap) => {
 });
 
 ////////////////////////////////////////////////////
-// GLOBAL TIMER (FIXED SAFE ACCESS)
+// SAFE TIMER (ULTRA STABLE)
 ////////////////////////////////////////////////////
 window.getTimeLeft = function(){
 
     if(!window.firebaseReady) return null;
 
-    const world = window.state.world;
+    const world = window.state?.world;
 
     if(!world) return null;
 
-    const start = world.timerStart;
-    const duration = world.timerDuration;
-
-    if(!start || !duration) return null;
+    if(world.timerStart == null || world.timerDuration == null) return null;
 
     const now = Math.floor(Date.now() / 1000);
 
-    return (start + duration) - now;
+    return (world.timerStart + world.timerDuration) - now;
 };
 
 ////////////////////////////////////////////////////
-// EVENTS
-////////////////////////////////////////////////////
-function pushEvent(type, data = ""){
-
-    db.ref("world/events").push({
-        type,
-        data,
-        time: Date.now()
-    });
-}
-
-////////////////////////////////////////////////////
-// CHAPTER
-////////////////////////////////////////////////////
-function setChapter(next){
-
-    db.ref("chapter").set(next);
-    pushEvent("chapter_shift", next);
-}
-
-////////////////////////////////////////////////////
-// TIMER TRIGGERS
+// TIMER EVENTS
 ////////////////////////////////////////////////////
 setInterval(() => {
 
@@ -69,20 +45,18 @@ setInterval(() => {
 
     const day = 86400;
 
-    // 15 days trigger
     if(left < 15 * day && !window.state?.world?.layer2Triggered){
 
         db.ref("world/layer2Triggered").set(true);
-        pushEvent("timer_layer_2", left);
+        console.log("Layer 2 triggered");
     }
 
-    // END
     if(left <= 0 && !window.state?.world?.layer3Triggered){
 
         db.ref("world/layer3Triggered").set(true);
-        pushEvent("timer_end", 0);
 
-        setChapter((window.state.chapter || 1) + 1);
+        db.ref("chapter").set((window.state.chapter || 1) + 1);
+        console.log("Timer ended");
     }
 
 }, 3000);
