@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////
-// NODE_0 ENGINE CORE — STABLE VERSION
+// NODE_0 ENGINE — FINAL STABLE VERSION
 ////////////////////////////////////////////////////
 
 const firebaseConfig = {
@@ -19,13 +19,13 @@ db.ref("/").on("value", (snap) => {
 });
 
 ////////////////////////////////////////////////////
-// EVENT SYSTEM (AUTO CREATED)
+// EVENT SYSTEM
 ////////////////////////////////////////////////////
 function pushEvent(type, data = ""){
 
     db.ref("world/events").push({
-        type: type,
-        data: data,
+        type,
+        data,
         time: Date.now()
     });
 }
@@ -36,21 +36,25 @@ function pushEvent(type, data = ""){
 function setChapter(next){
 
     db.ref("chapter").set(next);
-
     pushEvent("chapter_shift", next);
 }
 
 ////////////////////////////////////////////////////
-// PUZZLE SYSTEM (SAFE + CLEAN)
+// DISTRIBUTED FRAGMENT SYSTEM
+////////////////////////////////////////////////////
+function broadcastFragment(fragment){
+    pushEvent("fragment_broadcast", fragment);
+}
+
+////////////////////////////////////////////////////
+// PUZZLE SYSTEM (FINAL MULTI-LAYER)
 ////////////////////////////////////////////////////
 function checkPuzzle(input){
 
     if(!state.puzzle?.active) return false;
 
     const answer = input.trim().toLowerCase();
-
     const solution = (state.puzzle.solution || "").toLowerCase();
-
     const layer = state.puzzle.layer || 1;
 
     // 🔹 LAYER 1
@@ -69,7 +73,7 @@ function checkPuzzle(input){
         return false;
     }
 
-    // 🔹 LAYER 2 (fragments system)
+    // 🔹 LAYER 2 (fragments)
     if(layer === 2){
 
         const fragments = ["w","a","k","e"];
@@ -77,15 +81,14 @@ function checkPuzzle(input){
         if(fragments.includes(answer)){
 
             let current = state.puzzle.fragmentsFound || 0;
-
             current++;
 
             db.ref("puzzle/fragmentsFound").set(current);
 
             pushEvent("fragment_found", answer);
+            broadcastFragment(answer);
 
             if(current >= fragments.length){
-
                 db.ref("puzzle/layer").set(3);
             }
 
@@ -95,14 +98,14 @@ function checkPuzzle(input){
         return false;
     }
 
-    // 🔹 LAYER 3 (final unlock)
+    // 🔹 LAYER 3 (final)
     if(layer === 3){
 
         if(answer === solution){
 
-            const nextChapter = (state.chapter || 1) + 1;
+            const next = (state.chapter || 1) + 1;
 
-            setChapter(nextChapter);
+            setChapter(next);
 
             db.ref("puzzle/active").set(false);
             db.ref("puzzle/solvedBy").set("player");
@@ -119,7 +122,7 @@ function checkPuzzle(input){
 }
 
 ////////////////////////////////////////////////////
-// WORLD INSTABILITY (LIVING SYSTEM)
+// WORLD INSTABILITY
 ////////////////////////////////////////////////////
 setInterval(() => {
 
@@ -128,7 +131,6 @@ setInterval(() => {
     db.ref("world/instability").set(current + Math.random() * 0.4);
 
     if(current > 10){
-
         pushEvent("instability_spike", current);
     }
 
