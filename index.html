@@ -2,30 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>NODE_0 // INTERFERENCE</title>
+<title>NODE_0</title>
 
 <style>
-body{
-    margin:0;
+body {
     background:#0d0d0d;
     color:#00ff9f;
     font-family:monospace;
     display:flex;
     justify-content:center;
+    margin:0;
 }
 
-#container{
+#container {
     width:720px;
     margin-top:60px;
 }
 
-#log{
-    margin-top:20px;
-    max-height:380px;
-    overflow:auto;
+h1 {
+    margin-bottom:10px;
 }
 
-input, button{
+#status {
+    opacity:0.8;
+}
+
+#timer {
+    margin-top:10px;
+    font-size:16px;
+}
+
+#log {
+    margin-top:20px;
+    height:320px;
+    overflow-y:auto;
+    border:1px solid #00ff9f33;
+    padding:10px;
+}
+
+#log p {
+    margin:4px 0;
+}
+
+input, button {
     width:100%;
     margin-top:10px;
     padding:10px;
@@ -33,14 +52,13 @@ input, button{
     color:#00ff9f;
     border:1px solid #00ff9f55;
     font-family:monospace;
-    outline:none;
+    cursor:pointer;
 }
 
-#fracture{
+#fracture {
     width:320px;
     margin-top:20px;
     opacity:0.9;
-    transition:0.2s;
 }
 </style>
 </head>
@@ -49,53 +67,48 @@ input, button{
 
 <div id="container">
 
-<h1 id="title">NODE_0</h1>
+<h1>NODE_0</h1>
 
-<p id="status">SYSTEM STABLE</p>
+<p id="status">SYSTEM READY</p>
 <p id="timer"></p>
 
 <img id="fracture" src="fracture.png">
 
 <div id="log"></div>
 
-<input id="input" placeholder="enter query...">
+<input id="input" placeholder="type message...">
 <button id="send">SEND</button>
 
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
 
-/* =========================
-   CORE
-========================= */
+// =========================
+// SAFE INIT
+// =========================
 
 const log = document.getElementById("log");
 const input = document.getElementById("input");
 const btn = document.getElementById("send");
-const status = document.getElementById("status");
 const timer = document.getElementById("timer");
-const img = document.getElementById("fracture");
+const status = document.getElementById("status");
 
-/* =========================
-   MEMORY
-========================= */
-
-let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
-if(!Array.isArray(memory)) memory = [];
-
-function save(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-80)));
-}
-
-/* =========================
-   TIMER
-========================= */
+// =========================
+// TIMER STABLE
+// =========================
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
 
 function updateTimer(){
+
+    if(!timer) return;
+
     const diff = END - Date.now();
+
+    if(diff <= 0){
+        timer.innerText = "NODE_0 ACTIVE";
+        return;
+    }
 
     const s = Math.floor(diff/1000);
     const d = Math.floor(s/86400);
@@ -104,75 +117,37 @@ function updateTimer(){
     const ss = s%60;
 
     timer.innerText =
-    `${d}d ${String(h).padStart(2,"0")}:`+
-    `${String(m).padStart(2,"0")}:`+
+    `${d}d ${String(h).padStart(2,"0")}:` +
+    `${String(m).padStart(2,"0")}:` +
     `${String(ss).padStart(2,"0")}`;
 }
 
 setInterval(updateTimer,1000);
 updateTimer();
 
-/* =========================
-   GLITCH
-========================= */
+// =========================
+// NODE_0 LOG SYSTEM (FIX AUTO SCROLL + LIVING)
+// =========================
 
-const sym = ["█","#","%","&","@","Ξ","Δ","?","$","!"];
+function add(msg){
 
-function g(){
-    return sym[Math.floor(Math.random()*sym.length)];
-}
-
-function glitch(el){
-    if(!el) return;
-
-    const base = el.innerText;
-    let out = "";
-
-    for(let i=0;i<base.length;i++){
-        out += Math.random()<0.22 ? g() : base[i];
-    }
-
-    el.innerText = out;
-    setTimeout(()=> el.innerText = base, 90);
-}
-
-/* =========================
-   NODE_1 INTERFERENCE ENGINE
-========================= */
-
-function node1Interfere(p){
-
-    setTimeout(()=>{
-
-        if(Math.random() < 0.55){
-
-            const original = p.innerText;
-
-            const corrections = [
-                "[CORRECTED]",
-                "[DATA ALTERED]",
-                "[SIGNAL OVERRIDE]",
-                "[NODE_1 ACCESS]"
-            ];
-
-            p.innerText =
-                corrections[Math.floor(Math.random()*corrections.length)]
-                + " " + original;
-
-            glitch(p);
-        }
-
-    }, 800 + Math.random()*1200);
-}
-
-/* =========================
-   LOG SYSTEM
-========================= */
-
-function addLog(msg){
+    if(!log) return;
 
     const p = document.createElement("p");
-    p.innerText = msg;
+
+    let text = msg;
+
+    // micro glitch chance
+    if(Math.random() < 0.12){
+        const symbols = ["█","#","%","&","@","?","$"];
+        text = msg.split("").map(c => {
+            return Math.random() < 0.06
+                ? symbols[Math.floor(Math.random()*symbols.length)]
+                : c;
+        }).join("");
+    }
+
+    p.innerText = text;
 
     log.appendChild(p);
 
@@ -180,111 +155,71 @@ function addLog(msg){
         log.removeChild(log.firstChild);
     }
 
-    // Node_1 peut interférer sur TOUT
-    node1Interfere(p);
+    // AUTO SCROLL FIX
+    log.scrollTop = log.scrollHeight;
 
-    if(Math.random() < 0.3){
-        setTimeout(()=>glitch(p), 200);
-    }
+    // post-glitch effect
+    setTimeout(() => {
+        if(Math.random() < 0.2){
+            p.innerText = p.innerText.replaceAll(" ", "▒");
+        }
+    }, 300);
 }
 
-/* =========================
-   NODE_0 RESPONSE
-========================= */
-
-function reply(text){
-
-    const t = text.toLowerCase();
-
-    if(t.includes("fracture")){
-        return "NODE_0: stop referencing instability.";
-    }
-
-    if(t.includes("who")){
-        return "NODE_0: identity undefined.";
-    }
-
-    if(t.includes("help")){
-        return "NODE_0: no handler exists.";
-    }
-
-    const pool = [
-        "memory conflict detected.",
-        "output not verified.",
-        "signal partially lost.",
-        "something overwrote this response.",
-        "I am not alone in processing this.",
-        "data inconsistency growing."
-    ];
-
-    return "NODE_0: " + pool[Math.floor(Math.random()*pool.length)];
-}
-
-/* =========================
-   SEND
-========================= */
+// =========================
+// SEND SYSTEM FIX
+// =========================
 
 function send(){
 
-    const v = input.value.trim();
-    if(!v) return;
+    if(!input) return;
 
-    memory.push(v);
-    save();
+    const value = input.value.trim();
+    if(!value) return;
 
-    const userMsg = document.createElement("p");
-    userMsg.innerText = "YOU: " + v;
-    log.appendChild(userMsg);
+    add("YOU: " + value);
 
-    const nodeMsg = document.createElement("p");
-    nodeMsg.innerText = reply(v);
-    log.appendChild(nodeMsg);
-
-    // Node_1 peut modifier Node_0 AUSSI
-    node1Interfere(nodeMsg);
+    setTimeout(() => {
+        add("NODE_0: " + value);
+    }, 600);
 
     input.value = "";
 }
 
-/* =========================
-   EVENTS
-========================= */
+if(btn){
+    btn.addEventListener("click", send);
+}
 
-btn.addEventListener("click", send);
-input.addEventListener("keydown", e=>{
-    if(e.key === "Enter") send();
-});
+if(input){
+    input.addEventListener("keydown", (e) => {
+        if(e.key === "Enter") send();
+    });
+}
 
-/* =========================
-   LIVING SYSTEM
-========================= */
+// =========================
+// NODE_0 BACKGROUND LIFE
+// =========================
 
-setInterval(()=>{
+setInterval(() => {
 
-    // fracture devient instable visuellement
-    if(img){
-        img.style.opacity = 0.7 + Math.random()*0.3;
-        img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
+    if(Math.random() < 0.4){
+        const msgs = [
+            "memory fragment unstable",
+            "fracture breathing detected",
+            "node_1 interference low",
+            "signal corrupted but alive",
+            "system watching..."
+        ];
+
+        add(msgs[Math.floor(Math.random()*msgs.length)]);
     }
 
-    // Node_1 observe silencieusement
-    if(Math.random() < 0.04){
-        addLog(":: interference detected ::");
+    if(status && Math.random() < 0.3){
+        status.innerText = "SYSTEM " + (Math.random() < 0.5 ? "READY" : "UNSTABLE");
     }
 
-    // status instable
-    if(Math.random() < 0.2){
-        glitch(status);
-    }
+}, 3000);
 
-    // mémoire fantôme
-    if(memory.length > 0 && Math.random() < 0.05){
-        addLog("echo -> " + memory[Math.floor(Math.random()*memory.length)]);
-    }
-
-}, 1100);
-
-});
 </script>
 
 </body>
