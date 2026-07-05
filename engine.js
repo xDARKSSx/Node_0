@@ -9,10 +9,34 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 window.state = {};
+window.firebaseReady = false;
 
 db.ref("/").on("value", (snap) => {
+
     window.state = snap.val() || {};
+    window.firebaseReady = true;
 });
+
+////////////////////////////////////////////////////
+// GLOBAL TIMER (FIXED SAFE ACCESS)
+////////////////////////////////////////////////////
+window.getTimeLeft = function(){
+
+    if(!window.firebaseReady) return null;
+
+    const world = window.state.world;
+
+    if(!world) return null;
+
+    const start = world.timerStart;
+    const duration = world.timerDuration;
+
+    if(!start || !duration) return null;
+
+    const now = Math.floor(Date.now() / 1000);
+
+    return (start + duration) - now;
+};
 
 ////////////////////////////////////////////////////
 // EVENTS
@@ -36,26 +60,7 @@ function setChapter(next){
 }
 
 ////////////////////////////////////////////////////
-// TIMER CORE (IMPORTANT FIX)
-////////////////////////////////////////////////////
-window.getTimeLeft = function(){
-
-    const world = window.state?.world;
-
-    if(!world) return null;
-
-    const start = world.timerStart;
-    const duration = world.timerDuration;
-
-    if(start === undefined || duration === undefined) return null;
-
-    const now = Math.floor(Date.now() / 1000);
-
-    return (start + duration) - now;
-};
-
-////////////////////////////////////////////////////
-// TIMER CHECK (LAYER TRIGGERS)
+// TIMER TRIGGERS
 ////////////////////////////////////////////////////
 setInterval(() => {
 
@@ -64,14 +69,14 @@ setInterval(() => {
 
     const day = 86400;
 
-    // 15 days left
+    // 15 days trigger
     if(left < 15 * day && !window.state?.world?.layer2Triggered){
 
         db.ref("world/layer2Triggered").set(true);
         pushEvent("timer_layer_2", left);
     }
 
-    // END TIMER
+    // END
     if(left <= 0 && !window.state?.world?.layer3Triggered){
 
         db.ref("world/layer3Triggered").set(true);
@@ -80,4 +85,4 @@ setInterval(() => {
         setChapter((window.state.chapter || 1) + 1);
     }
 
-}, 5000);
+}, 3000);
