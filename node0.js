@@ -1,20 +1,17 @@
 const log = document.getElementById("log");
 const input = document.getElementById("input");
 
-const symbols = ["█","#","%","&","@","?","$"];
-
-function add(msg){
+function add(t){
 
     const p = document.createElement("p");
-    p.innerText = msg;
+    p.innerText = t;
 
     log.appendChild(p);
-
     log.scrollTop = log.scrollHeight;
 }
 
 ////////////////////////////////////////////////////
-// TIMER DISPLAY (WAIT SAFE)
+// TIMER DISPLAY (FIX FINAL 100%)
 ////////////////////////////////////////////////////
 function updateTimer(){
 
@@ -26,7 +23,7 @@ function updateTimer(){
         return;
     }
 
-    const left = window.getTimeLeft ? window.getTimeLeft() : null;
+    const left = window.getTimeLeft?.();
 
     if(left === null){
         el.innerText = "TIME SIGNAL LOST";
@@ -52,7 +49,7 @@ function updateTimer(){
 setInterval(updateTimer, 1000);
 
 ////////////////////////////////////////////////////
-// SIMPLE SEND (SAFE)
+// SIMPLE INPUT
 ////////////////////////////////////////////////////
 document.getElementById("send").onclick = () => {
 
