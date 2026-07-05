@@ -1,82 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>NODE_0</title>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
-<style>
-body {
-    background:#0d0d0d;
-    color:#00ff9f;
-    font-family:monospace;
-    display:flex;
-    justify-content:center;
-    margin:0;
-}
-
-#container {
-    width:720px;
-    margin-top:60px;
-}
-
-#log {
-    margin-top:20px;
-    height:320px;
-    overflow-y:auto;
-    border:1px solid #00ff9f33;
-    padding:10px;
-}
-
-input, button {
-    width:100%;
-    margin-top:10px;
-    padding:10px;
-    background:black;
-    color:#00ff9f;
-    border:1px solid #00ff9f55;
-    font-family:monospace;
-    cursor:pointer;
-}
-
-#fracture {
-    width:320px;
-    margin-top:20px;
-}
-
-#timer {
-    font-size:16px;
-    margin-top:10px;
-}
-</style>
+<title>TEST</title>
 </head>
-
 <body>
 
-<div id="container">
+<h1>PAGE LOAD TEST</h1>
 
-<h1>NODE_0</h1>
-
-<p id="status">SYSTEM INITIALIZING...</p>
-
-<!-- TIMER IMPORTANT -->
-<p id="timer">SYNCING TIME...</p>
-
-<img id="fracture" src="fracture.png" alt="fracture">
+<p id="timer">TIMER TEST</p>
 
 <div id="log"></div>
 
-<input id="input" placeholder="type message...">
+<input id="input">
 <button id="send">SEND</button>
 
-</div>
+<script>
+console.log("HTML IS WORKING");
 
-<!-- 🔥 IMPORTANT ORDER -->
-<script src="engine.js"></script>
-<script src="node0.js"></script>
+document.getElementById("timer").innerText = "JS IS WORKING";
+</script>
 
 </body>
 </html>
