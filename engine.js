@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////
-// NODE_0 ENGINE — FINAL STABLE VERSION
+// FIREBASE INIT
 ////////////////////////////////////////////////////
-
 const firebaseConfig = {
     databaseURL: "https://node-0-26139-default-rtdb.firebaseio.com"
 };
@@ -9,17 +8,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-////////////////////////////////////////////////////
-// GLOBAL STATE
-////////////////////////////////////////////////////
 window.state = {};
 
 db.ref("/").on("value", (snap) => {
-    state = snap.val() || {};
+    window.state = snap.val() || {};
 });
 
 ////////////////////////////////////////////////////
-// EVENT SYSTEM
+// EVENTS
 ////////////////////////////////////////////////////
 function pushEvent(type, data = ""){
 
@@ -31,7 +27,7 @@ function pushEvent(type, data = ""){
 }
 
 ////////////////////////////////////////////////////
-// CHAPTER SYSTEM
+// CHAPTER
 ////////////////////////////////////////////////////
 function setChapter(next){
 
@@ -40,98 +36,48 @@ function setChapter(next){
 }
 
 ////////////////////////////////////////////////////
-// DISTRIBUTED FRAGMENT SYSTEM
+// TIMER CORE (IMPORTANT FIX)
 ////////////////////////////////////////////////////
-function broadcastFragment(fragment){
-    pushEvent("fragment_broadcast", fragment);
-}
+window.getTimeLeft = function(){
 
-////////////////////////////////////////////////////
-// PUZZLE SYSTEM (FINAL MULTI-LAYER)
-////////////////////////////////////////////////////
-function checkPuzzle(input){
+    const world = window.state?.world;
 
-    if(!state.puzzle?.active) return false;
+    if(!world) return null;
 
-    const answer = input.trim().toLowerCase();
-    const solution = (state.puzzle.solution || "").toLowerCase();
-    const layer = state.puzzle.layer || 1;
+    const start = world.timerStart;
+    const duration = world.timerDuration;
 
-    // 🔹 LAYER 1
-    if(layer === 1){
+    if(start === undefined || duration === undefined) return null;
 
-        if(answer === solution){
+    const now = Math.floor(Date.now() / 1000);
 
-            db.ref("puzzle/layer").set(2);
-            db.ref("puzzle/progress").set(0);
-
-            pushEvent("puzzle_layer_1_complete", answer);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    // 🔹 LAYER 2 (fragments)
-    if(layer === 2){
-
-        const fragments = ["w","a","k","e"];
-
-        if(fragments.includes(answer)){
-
-            let current = state.puzzle.fragmentsFound || 0;
-            current++;
-
-            db.ref("puzzle/fragmentsFound").set(current);
-
-            pushEvent("fragment_found", answer);
-            broadcastFragment(answer);
-
-            if(current >= fragments.length){
-                db.ref("puzzle/layer").set(3);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    // 🔹 LAYER 3 (final)
-    if(layer === 3){
-
-        if(answer === solution){
-
-            const next = (state.chapter || 1) + 1;
-
-            setChapter(next);
-
-            db.ref("puzzle/active").set(false);
-            db.ref("puzzle/solvedBy").set("player");
-
-            pushEvent("puzzle_completed", answer);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    return false;
-}
+    return (start + duration) - now;
+};
 
 ////////////////////////////////////////////////////
-// WORLD INSTABILITY
+// TIMER CHECK (LAYER TRIGGERS)
 ////////////////////////////////////////////////////
 setInterval(() => {
 
-    let current = state.world?.instability || 0;
+    const left = window.getTimeLeft();
+    if(left === null) return;
 
-    db.ref("world/instability").set(current + Math.random() * 0.4);
+    const day = 86400;
 
-    if(current > 10){
-        pushEvent("instability_spike", current);
+    // 15 days left
+    if(left < 15 * day && !window.state?.world?.layer2Triggered){
+
+        db.ref("world/layer2Triggered").set(true);
+        pushEvent("timer_layer_2", left);
     }
 
-}, 6000);
+    // END TIMER
+    if(left <= 0 && !window.state?.world?.layer3Triggered){
+
+        db.ref("world/layer3Triggered").set(true);
+        pushEvent("timer_end", 0);
+
+        setChapter((window.state.chapter || 1) + 1);
+    }
+
+}, 5000);
