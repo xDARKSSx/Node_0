@@ -6,48 +6,46 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 window.state = null;
+window.ready = false;
 
 db.ref("/").on("value", (snap) => {
     window.state = snap.val() || {};
+    window.ready = true;
 });
 
 ////////////////////////////////////////////////////
-// SAFE TIMER (NO CRASH EVER)
+// SAFE TIMER (NE PEUT PAS FAIL)
 ////////////////////////////////////////////////////
 window.getTimeLeft = function(){
 
-    const w = window.state?.world;
+    if(!window.ready) return null;
 
-    if(!w) return null;
+    const world = window.state?.world;
+    if(!world) return null;
 
-    if(!w.timerStart || !w.timerDuration) return null;
+    if(world.timerStart == null || world.timerDuration == null) return null;
 
     const now = Math.floor(Date.now() / 1000);
 
-    return (w.timerStart + w.timerDuration) - now;
+    return (world.timerStart + world.timerDuration) - now;
 };
 
 ////////////////////////////////////////////////////
-// SIMPLE CHAPTER EVENTS
+// TIMER TRIGGERS
 ////////////////////////////////////////////////////
 setInterval(() => {
-
-    if(!window.state) return;
 
     const left = window.getTimeLeft();
     if(left === null) return;
 
     const day = 86400;
 
-    if(left < 15 * day && !window.state.world?.layer2Triggered){
-
+    if(left < 15 * day && !window.state?.world?.layer2Triggered){
         db.ref("world/layer2Triggered").set(true);
     }
 
-    if(left <= 0 && !window.state.world?.layer3Triggered){
-
+    if(left <= 0 && !window.state?.world?.layer3Triggered){
         db.ref("world/layer3Triggered").set(true);
-
         db.ref("chapter").set((window.state.chapter || 1) + 1);
     }
 
