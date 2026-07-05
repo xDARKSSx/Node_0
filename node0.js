@@ -3,6 +3,8 @@ const input = document.getElementById("input");
 
 function add(t){
 
+    if(!log) return;
+
     const p = document.createElement("p");
     p.innerText = t;
 
@@ -11,22 +13,17 @@ function add(t){
 }
 
 ////////////////////////////////////////////////////
-// TIMER DISPLAY (FIX FINAL 100%)
+// TIMER DISPLAY (SAFE MODE)
 ////////////////////////////////////////////////////
-function updateTimer(){
+function renderTimer(){
 
     const el = document.getElementById("timer");
     if(!el) return;
 
-    if(!window.firebaseReady){
-        el.innerText = "CONNECTING NODE_0...";
-        return;
-    }
-
     const left = window.getTimeLeft?.();
 
     if(left === null){
-        el.innerText = "TIME SIGNAL LOST";
+        el.innerText = "SYNCING NODE_0...";
         return;
     }
 
@@ -46,17 +43,34 @@ function updateTimer(){
         `${String(s).padStart(2,"0")}`;
 }
 
-setInterval(updateTimer, 1000);
+setInterval(renderTimer, 1000);
 
 ////////////////////////////////////////////////////
-// SIMPLE INPUT
+// NODE IS ALIVE CHECK
 ////////////////////////////////////////////////////
-document.getElementById("send").onclick = () => {
+function bootCheck(){
 
-    const v = input.value.trim();
+    if(!window.state){
+        if(log) add("NODE_0: waiting for system...");
+        return;
+    }
+
+    if(log.children.length === 0){
+        add("NODE_0: online.");
+    }
+}
+
+setInterval(bootCheck, 2000);
+
+////////////////////////////////////////////////////
+// INPUT SAFE
+////////////////////////////////////////////////////
+document.getElementById("send")?.addEventListener("click", () => {
+
+    const v = input?.value?.trim();
     if(!v) return;
 
     add("YOU: " + v);
 
     input.value = "";
-};
+});
