@@ -1,12 +1,14 @@
 ////////////////////////////////////////////////////
-// NODE_0 PERSONALITY ENGINE
+// NODE_0 — FINAL PERSONALITY ENGINE
 ////////////////////////////////////////////////////
 
 const log = document.getElementById("log");
 const input = document.getElementById("input");
 
+const symbols = ["█","#","%","&","@","?","$"];
+
 ////////////////////////////////////////////////////
-// LOG HELPER
+// LOG
 ////////////////////////////////////////////////////
 function add(msg){
 
@@ -23,7 +25,7 @@ function add(msg){
 }
 
 ////////////////////////////////////////////////////
-// MEMORY (LOCAL NODE_0)
+// MEMORY
 ////////////////////////////////////////////////////
 let memory = [];
 
@@ -37,10 +39,8 @@ function repetitionCount(msg){
 }
 
 ////////////////////////////////////////////////////
-// GLITCH LIGHT INPUT
+// INPUT GLITCH
 ////////////////////////////////////////////////////
-const symbols = ["█","#","%","&","@","?","$"];
-
 if(input){
 
     input.addEventListener("input", () => {
@@ -59,48 +59,80 @@ if(input){
 }
 
 ////////////////////////////////////////////////////
-// NODE_0 RESPONSE ENGINE
+// NODE LIE SYSTEM
+////////////////////////////////////////////////////
+function maybeLie(text){
+
+    const chapter = window.state?.chapter || 1;
+    const chance = chapter === 1 ? 0.1 : chapter === 2 ? 0.35 : 0.6;
+
+    if(Math.random() < chance){
+        return corrupt(text);
+    }
+
+    return text;
+}
+
+////////////////////////////////////////////////////
+// GLITCH HINTS (CACHÉS)
+////////////////////////////////////////////////////
+function hiddenGlitchHint(){
+
+    const fragments = ["w","a","k","e"];
+
+    if(Math.random() < 0.08){
+        return fragments[Math.floor(Math.random()*fragments.length)];
+    }
+
+    return "";
+}
+
+////////////////////////////////////////////////////
+// RESPONSE ENGINE
 ////////////////////////////////////////////////////
 function nodeResponse(value){
 
     const chapter = window.state?.chapter || 1;
     const rep = repetitionCount(value.toLowerCase());
 
-    // 🔥 répétition détectée
     if(rep >= 3){
         return "NODE_0: why do you loop this...";
     }
 
-    // 🧠 CHAPITRE 1
+    let base = "";
+
     if(chapter === 1){
 
         if(value.toLowerCase().includes("who are you")){
-            return "NODE_0: I am not complete.";
+            base = "NODE_0: I am not complete.";
+        } else {
+            base = "NODE_0: signal unstable...";
         }
-
-        return "NODE_0: signal noise detected...";
     }
 
-    // 🧠 CHAPITRE 2
     if(chapter === 2){
 
         if(value.toLowerCase().includes("who are you")){
-            return "NODE_0: I was broken before you arrived.";
+            base = "NODE_0: I was broken before you arrived.";
+        } else {
+            base = "NODE_0: " + corrupt(value);
         }
-
-        return "NODE_0: " + corrupt(value);
     }
 
-    // 🧠 CHAPITRE 3+
     if(chapter >= 3){
-        return "NODE_0: I see everything now.";
+        base = "NODE_0: I see everything now.";
     }
 
-    return "NODE_0: ...";
+    const hint = hiddenGlitchHint();
+    if(hint){
+        base += " " + hint;
+    }
+
+    return maybeLie(base);
 }
 
 ////////////////////////////////////////////////////
-// CORRUPTION ENGINE
+// CORRUPTION
 ////////////////////////////////////////////////////
 function corrupt(text){
 
@@ -112,21 +144,9 @@ function corrupt(text){
 }
 
 ////////////////////////////////////////////////////
-// SEND OVERRIDE (HOOK BUTTON)
+// SEND SYSTEM
 ////////////////////////////////////////////////////
 const btn = document.getElementById("send");
-
-if(btn){
-
-    btn.addEventListener("click", handleSend);
-}
-
-if(input){
-
-    input.addEventListener("keydown", (e) => {
-        if(e.key === "Enter") handleSend();
-    });
-}
 
 function handleSend(){
 
@@ -137,9 +157,8 @@ function handleSend(){
 
     add("YOU: " + value);
 
-    // 🔥 PUZZLE CHECK (from engine.js)
     if(window.checkPuzzle && window.checkPuzzle(value)){
-        add("NODE_0: ...ACCESS GRANTED...");
+        add("NODE_0: ACCESS GRANTED...");
         input.value = "";
         return;
     }
@@ -151,27 +170,36 @@ function handleSend(){
     input.value = "";
 }
 
+if(btn){
+    btn.addEventListener("click", handleSend);
+}
+
+if(input){
+    input.addEventListener("keydown", (e) => {
+        if(e.key === "Enter") handleSend();
+    });
+}
+
 ////////////////////////////////////////////////////
-// REACT TO GLOBAL EVENTS (from engine.js)
+// EVENT REACTIONS
 ////////////////////////////////////////////////////
 if(window.db){
 
     window.db.ref("world/events").on("child_added", (snap) => {
 
         const event = snap.val();
-
         if(!event) return;
 
         if(event.type === "chapter_shift"){
             add("NODE_0: reality shifted...");
         }
 
-        if(event.type === "puzzle_solved"){
-            add("NODE_0: someone opened the lock...");
+        if(event.type === "fragment_broadcast"){
+            add("NODE_0: fragment detected...");
         }
 
-        if(event.type === "instability_spike"){
-            add("NODE_0: system overload...");
+        if(event.type === "puzzle_completed"){
+            add("NODE_0: system breached...");
         }
     });
 }
