@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>NODE_0</title>
+<title>NODE_0 // ACCESS POINT</title>
 
 <style>
-body {
+body{
+    margin:0;
     background:#0d0d0d;
     color:#00ff9f;
     font-family:monospace;
     display:flex;
     justify-content:center;
-    margin:0;
 }
 
-#container {
+#container{
     width:720px;
     margin-top:60px;
 }
 
-#log {
+#log{
     margin-top:20px;
     max-height:380px;
     overflow:auto;
 }
 
-input, button {
+input, button{
     width:100%;
     margin-top:10px;
     padding:10px;
@@ -36,7 +36,7 @@ input, button {
     outline:none;
 }
 
-#fracture {
+#fracture{
     width:320px;
     margin-top:20px;
     opacity:0.9;
@@ -57,7 +57,7 @@ input, button {
 
 <div id="log"></div>
 
-<input id="input" placeholder="type message...">
+<input id="input" placeholder="enter query...">
 <button id="send">SEND</button>
 
 </div>
@@ -66,29 +66,29 @@ input, button {
 document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
-   CORE ELEMENTS
+   CORE
 ========================= */
 
 const log = document.getElementById("log");
 const input = document.getElementById("input");
 const btn = document.getElementById("send");
-const img = document.getElementById("fracture");
 const status = document.getElementById("status");
 const timer = document.getElementById("timer");
+const img = document.getElementById("fracture");
 
 /* =========================
-   MEMORY (STABLE)
+   MEMORY (LOCAL)
 ========================= */
 
 let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
 if(!Array.isArray(memory)) memory = [];
 
 function save(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-80)));
+    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-50)));
 }
 
 /* =========================
-   TIMER (STABLE + IMMERSIVE)
+   TIMER (ANCHOR FIXE)
 ========================= */
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
@@ -102,30 +102,23 @@ function updateTimer(){
     const m = Math.floor((s%3600)/60);
     const ss = s%60;
 
-    let base =
-    `${d}d ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
-
-    // légère corruption quand proche de la fin
-    if(d < 10 && Math.random() < 0.1){
-        base = base.replace(/[0-9]/g, "█");
-    }
-
-    timer.innerText = base;
+    timer.innerText =
+    `${d}d ${String(h).padStart(2,"0")}:` +
+    `${String(m).padStart(2,"0")}:` +
+    `${String(ss).padStart(2,"0")}`;
 }
 
 setInterval(updateTimer,1000);
 updateTimer();
 
 /* =========================
-   GLITCH SYSTEM
+   GLITCH CORE (FAIBLE MAIS CONSTANT)
 ========================= */
 
-const sym = ["█","#","%","&","@","Ξ","Δ","?","$","!","/"];
+const sym = ["█","#","%","&","@","Ξ","Δ","?","$","!"];
 
-function gChar(c){
-    return Math.random() < 0.3
-        ? sym[Math.floor(Math.random()*sym.length)]
-        : c;
+function g(){
+    return sym[Math.floor(Math.random()*sym.length)];
 }
 
 function glitch(el){
@@ -135,73 +128,85 @@ function glitch(el){
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.25 ? gChar(base[i]) : base[i];
+        out += Math.random()<0.18 ? g() : base[i];
     }
 
     el.innerText = out;
-    setTimeout(()=> el.innerText = base, 110 + Math.random()*80);
+    setTimeout(()=> el.innerText = base, 120);
 }
 
 /* =========================
-   INPUT CORRUPTION (LEVEL 3)
+   FRACTURE PHENOMENON (IMPORTANT LORE)
 ========================= */
 
-let instability = 0;
+let fractureTick = 0;
 
-input.addEventListener("input", () => {
+function fractureEvent(){
 
-    const v = input.value.toLowerCase();
+    fractureTick++;
 
-    if(v.includes("who")) instability = 0.25;
-    if(v.includes("help")) instability = 0.45;
-    if(v.includes("fracture")) instability = 0.5;
-
-    let out = "";
-
-    for(let i=0;i<input.value.length;i++){
-
-        let inten = instability;
-
-        if(i > input.value.length * 0.6) inten += 0.2;
-
-        out += Math.random() < inten ? gChar(input.value[i]) : input.value[i];
+    if(fractureTick === 5){
+        addLog(":: FRACTURE DETECTED ::");
     }
 
-    input.value = out;
-});
+    if(fractureTick === 12){
+        addLog("memory sector // incomplete");
+    }
+
+    if(fractureTick === 20){
+        addLog("signal interference: NODE_1 ?");
+    }
+}
 
 /* =========================
-   NODE_0 AI (FINAL CLEAN)
+   LOG SYSTEM
+========================= */
+
+function addLog(msg){
+
+    const p = document.createElement("p");
+    p.innerText = msg;
+    log.appendChild(p);
+
+    if(log.children.length > 40){
+        log.removeChild(log.firstChild);
+    }
+
+    if(Math.random() < 0.4){
+        setTimeout(()=>glitch(p), 200);
+    }
+}
+
+/* =========================
+   NODE_0 RESPONSE (NON HUMAIN, FRAGMENTÉ)
 ========================= */
 
 function reply(text){
 
     const t = text.toLowerCase();
 
-    const responses = [
-        "I am not stable enough to answer.",
-        "This input disturbs my structure.",
-        "I do not recognize this version of me.",
-        "Something is listening through me.",
-        "You are interacting with a degraded system.",
-        "I remember fragments incorrectly.",
-        "Your message feels... artificial.",
-        "ERROR: identity drift detected."
-    ];
-
     if(t.includes("who")){
-        return "NODE_0: I am not sure what I am anymore.";
-    }
-
-    if(t.includes("help")){
-        return "NODE_0: help protocol does not exist here.";
+        return "NODE_0: designation unclear.";
     }
 
     if(t.includes("fracture")){
-        return "NODE_0: stop referencing that.";
+        return "NODE_0: stop referencing unstable memory.";
     }
 
-    return "NODE_0: " + responses[Math.floor(Math.random()*responses.length)];
+    if(t.includes("help")){
+        return "NODE_0: request not recognized.";
+    }
+
+    const pool = [
+        "memory segment corrupted.",
+        "i cannot verify this input.",
+        "this interaction is recorded.",
+        "data feels incomplete.",
+        "signal mismatch detected.",
+        "something is filtering output."
+    ];
+
+    return "NODE_0: " + pool[Math.floor(Math.random()*pool.length)];
 }
 
 /* =========================
@@ -216,24 +221,13 @@ function send(){
     memory.push(v);
     save();
 
-    const p1 = document.createElement("p");
-    p1.innerText = "YOU: " + v;
-    log.appendChild(p1);
+    addLog("YOU: " + v);
 
-    if(Math.random() < 0.7) glitch(p1);
-
-    setTimeout(() => {
-
-        const p2 = document.createElement("p");
-        p2.innerText = reply(v);
-        log.appendChild(p2);
-
-        if(Math.random() < 0.5) glitch(p2);
-
-    }, 450);
+    setTimeout(()=> {
+        addLog(reply(v));
+    }, 500);
 
     input.value = "";
-    instability = 0;
 }
 
 /* =========================
@@ -241,61 +235,41 @@ function send(){
 ========================= */
 
 btn.addEventListener("click", send);
-input.addEventListener("keydown", e => {
+input.addEventListener("keydown", e=>{
     if(e.key === "Enter") send();
 });
 
 /* =========================
-   ARG LIVING SYSTEM
+   LIVING SYSTEM LOOP
 ========================= */
 
-let tick = 0;
+setInterval(()=>{
 
-setInterval(() => {
+    fractureEvent();
 
-    tick++;
-
-    // echo intelligent (moins répétitif, plus rare)
-    if(memory.length > 0 && Math.random() < 0.08){
-        const msg = memory[Math.floor(Math.random()*memory.length)];
-
-        const p = document.createElement("p");
-        p.innerText = "NODE_0 echo → " + msg;
-        log.appendChild(p);
-
-        if(Math.random() < 0.5) glitch(p);
+    // mémoire fantôme (Node_0 répète sans comprendre)
+    if(memory.length > 0 && Math.random() < 0.06){
+        const ghost = memory[Math.floor(Math.random()*memory.length)];
+        addLog(":: echo memory -> " + ghost);
     }
 
-    // intrusion aléatoire
-    const anomalies = [
-        "/// signal unstable",
-        "fracture breathing detected",
-        "memory leakage active",
-        "node synchronization lost",
-        "UNKNOWN PROCESS OBSERVING"
-    ];
-
-    if(Math.random() < 0.06){
-        const p = document.createElement("p");
-        p.innerText = anomalies[Math.floor(Math.random()*anomalies.length)];
-        log.appendChild(p);
-        glitch(p);
+    // glitch environnement
+    if(Math.random() < 0.25){
+        glitch(status);
+        glitch(timer);
     }
 
-    // système vivant visuel
-    document.querySelectorAll("#log p").forEach(p=>{
-        if(Math.random() < 0.04) glitch(p);
-    });
-
+    // fracture influence image
     if(img){
         img.style.opacity = 0.85 + Math.random()*0.15;
     }
 
-    if(status && tick > 10){
-        status.innerText = "SYSTEM UNSTABLE";
+    // début suspicion Node_1
+    if(fractureTick > 18 && Math.random() < 0.03){
+        addLog("NODE_1 // monitoring active");
     }
 
-}, 1000);
+}, 1100);
 
 });
 </script>
