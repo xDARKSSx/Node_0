@@ -1,15 +1,8 @@
-////////////////////////////////////////////////////
-// NODE_0 — FINAL PERSONALITY ENGINE
-////////////////////////////////////////////////////
-
 const log = document.getElementById("log");
 const input = document.getElementById("input");
 
 const symbols = ["█","#","%","&","@","?","$"];
 
-////////////////////////////////////////////////////
-// LOG
-////////////////////////////////////////////////////
 function add(msg){
 
     const p = document.createElement("p");
@@ -24,119 +17,66 @@ function add(msg){
     log.scrollTop = log.scrollHeight;
 }
 
-////////////////////////////////////////////////////
-// MEMORY
-////////////////////////////////////////////////////
 let memory = [];
 
-function remember(msg){
-    memory.push(msg);
+function remember(m){
+    memory.push(m);
     if(memory.length > 15) memory.shift();
 }
 
-function repetitionCount(msg){
-    return memory.filter(m => m === msg).length;
+function repeat(m){
+    return memory.filter(x => x === m).length;
 }
 
 ////////////////////////////////////////////////////
-// INPUT GLITCH
+// GLITCH INPUT
 ////////////////////////////////////////////////////
 if(input){
 
     input.addEventListener("input", () => {
 
-        let value = input.value;
-        let out = "";
+        let v = input.value;
+        let o = "";
 
-        for(let i = 0; i < value.length; i++){
-            out += (Math.random() < 0.03)
+        for(let i = 0; i < v.length; i++){
+            o += Math.random() < 0.03
                 ? symbols[Math.floor(Math.random()*symbols.length)]
-                : value[i];
+                : v[i];
         }
 
-        input.value = out;
+        input.value = o;
     });
 }
 
 ////////////////////////////////////////////////////
-// NODE LIE SYSTEM
+// LIE SYSTEM
 ////////////////////////////////////////////////////
-function maybeLie(text){
+function maybeLie(t){
 
-    const chapter = window.state?.chapter || 1;
-    const chance = chapter === 1 ? 0.1 : chapter === 2 ? 0.35 : 0.6;
+    const c = window.state?.chapter || 1;
+    const chance = c === 1 ? 0.1 : c === 2 ? 0.35 : 0.6;
 
     if(Math.random() < chance){
-        return corrupt(text);
+        return corrupt(t);
     }
 
-    return text;
+    return t;
 }
 
-////////////////////////////////////////////////////
-// GLITCH HINTS (CACHÉS)
-////////////////////////////////////////////////////
-function hiddenGlitchHint(){
+function hiddenHint(){
 
-    const fragments = ["w","a","k","e"];
+    const f = ["w","a","k","e"];
 
     if(Math.random() < 0.08){
-        return fragments[Math.floor(Math.random()*fragments.length)];
+        return f[Math.floor(Math.random()*f.length)];
     }
 
     return "";
 }
 
-////////////////////////////////////////////////////
-// RESPONSE ENGINE
-////////////////////////////////////////////////////
-function nodeResponse(value){
+function corrupt(t){
 
-    const chapter = window.state?.chapter || 1;
-    const rep = repetitionCount(value.toLowerCase());
-
-    if(rep >= 3){
-        return "NODE_0: why do you loop this...";
-    }
-
-    let base = "";
-
-    if(chapter === 1){
-
-        if(value.toLowerCase().includes("who are you")){
-            base = "NODE_0: I am not complete.";
-        } else {
-            base = "NODE_0: signal unstable...";
-        }
-    }
-
-    if(chapter === 2){
-
-        if(value.toLowerCase().includes("who are you")){
-            base = "NODE_0: I was broken before you arrived.";
-        } else {
-            base = "NODE_0: " + corrupt(value);
-        }
-    }
-
-    if(chapter >= 3){
-        base = "NODE_0: I see everything now.";
-    }
-
-    const hint = hiddenGlitchHint();
-    if(hint){
-        base += " " + hint;
-    }
-
-    return maybeLie(base);
-}
-
-////////////////////////////////////////////////////
-// CORRUPTION
-////////////////////////////////////////////////////
-function corrupt(text){
-
-    return text.split("").map(c => {
+    return t.split("").map(c => {
         return Math.random() < 0.15
             ? symbols[Math.floor(Math.random()*symbols.length)]
             : c;
@@ -144,62 +84,93 @@ function corrupt(text){
 }
 
 ////////////////////////////////////////////////////
-// SEND SYSTEM
+// RESPONSE ENGINE
 ////////////////////////////////////////////////////
-const btn = document.getElementById("send");
+function nodeResponse(v){
 
-function handleSend(){
+    const c = window.state?.chapter || 1;
 
-    const value = input.value.trim();
-    if(!value) return;
+    let r = "";
 
-    remember(value);
+    if(c === 1){
 
-    add("YOU: " + value);
+        if(v.includes("who are you")){
+            r = "NODE_0: incomplete.";
+        } else {
+            r = "NODE_0: signal unstable...";
+        }
+    }
 
-    if(window.checkPuzzle && window.checkPuzzle(value)){
-        add("NODE_0: ACCESS GRANTED...");
+    if(c === 2){
+
+        if(v.includes("who are you")){
+            r = "NODE_0: I was broken.";
+        } else {
+            r = "NODE_0: " + corrupt(v);
+        }
+    }
+
+    if(c >= 3){
+        r = "NODE_0: I see everything.";
+    }
+
+    const h = hiddenHint();
+    if(h) r += " " + h;
+
+    return maybeLie(r);
+}
+
+////////////////////////////////////////////////////
+// SEND
+////////////////////////////////////////////////////
+function send(){
+
+    const v = input.value.trim();
+    if(!v) return;
+
+    remember(v);
+
+    add("YOU: " + v);
+
+    if(window.checkPuzzle && window.checkPuzzle(v)){
+        add("NODE_0: ACCESS GRANTED");
         input.value = "";
         return;
     }
 
     setTimeout(() => {
-        add(nodeResponse(value));
+        add(nodeResponse(v));
     }, 600);
 
     input.value = "";
 }
 
-if(btn){
-    btn.addEventListener("click", handleSend);
-}
+document.getElementById("send").onclick = send;
 
-if(input){
-    input.addEventListener("keydown", (e) => {
-        if(e.key === "Enter") handleSend();
-    });
-}
+input.addEventListener("keydown", (e) => {
+    if(e.key === "Enter") send();
+});
 
 ////////////////////////////////////////////////////
-// EVENT REACTIONS
+// EVENTS
 ////////////////////////////////////////////////////
 if(window.db){
 
-    window.db.ref("world/events").on("child_added", (snap) => {
+    window.db.ref("world/events").on("child_added", (s) => {
 
-        const event = snap.val();
-        if(!event) return;
+        const e = s.val();
+        if(!e) return;
 
-        if(event.type === "chapter_shift"){
-            add("NODE_0: reality shifted...");
+        if(e.type === "chapter_shift"){
+            add("NODE_0: reality shift...");
         }
 
-        if(event.type === "fragment_broadcast"){
+        if(e.type === "fragment_found"){
             add("NODE_0: fragment detected...");
         }
 
-        if(event.type === "puzzle_completed"){
-            add("NODE_0: system breached...");
+        if(e.type === "timer_end"){
+            add("NODE_0: TIME COLLAPSE...");
         }
     });
 }
