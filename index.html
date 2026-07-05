@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>NODE_0 // ACCESS POINT</title>
+<title>NODE_0 // INTERFERENCE</title>
 
 <style>
 body{
@@ -40,6 +40,7 @@ input, button{
     width:320px;
     margin-top:20px;
     opacity:0.9;
+    transition:0.2s;
 }
 </style>
 </head>
@@ -50,7 +51,7 @@ input, button{
 
 <h1 id="title">NODE_0</h1>
 
-<p id="status">SYSTEM READY</p>
+<p id="status">SYSTEM STABLE</p>
 <p id="timer"></p>
 
 <img id="fracture" src="fracture.png">
@@ -77,18 +78,18 @@ const timer = document.getElementById("timer");
 const img = document.getElementById("fracture");
 
 /* =========================
-   MEMORY (LOCAL)
+   MEMORY
 ========================= */
 
 let memory = JSON.parse(localStorage.getItem("node0_memory") || "[]");
 if(!Array.isArray(memory)) memory = [];
 
 function save(){
-    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-50)));
+    localStorage.setItem("node0_memory", JSON.stringify(memory.slice(-80)));
 }
 
 /* =========================
-   TIMER (ANCHOR FIXE)
+   TIMER
 ========================= */
 
 const END = new Date("2026-08-08T00:00:00Z").getTime();
@@ -103,8 +104,8 @@ function updateTimer(){
     const ss = s%60;
 
     timer.innerText =
-    `${d}d ${String(h).padStart(2,"0")}:` +
-    `${String(m).padStart(2,"0")}:` +
+    `${d}d ${String(h).padStart(2,"0")}:`+
+    `${String(m).padStart(2,"0")}:`+
     `${String(ss).padStart(2,"0")}`;
 }
 
@@ -112,7 +113,7 @@ setInterval(updateTimer,1000);
 updateTimer();
 
 /* =========================
-   GLITCH CORE (FAIBLE MAIS CONSTANT)
+   GLITCH
 ========================= */
 
 const sym = ["█","#","%","&","@","Ξ","Δ","?","$","!"];
@@ -128,34 +129,40 @@ function glitch(el){
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.18 ? g() : base[i];
+        out += Math.random()<0.22 ? g() : base[i];
     }
 
     el.innerText = out;
-    setTimeout(()=> el.innerText = base, 120);
+    setTimeout(()=> el.innerText = base, 90);
 }
 
 /* =========================
-   FRACTURE PHENOMENON (IMPORTANT LORE)
+   NODE_1 INTERFERENCE ENGINE
 ========================= */
 
-let fractureTick = 0;
+function node1Interfere(p){
 
-function fractureEvent(){
+    setTimeout(()=>{
 
-    fractureTick++;
+        if(Math.random() < 0.55){
 
-    if(fractureTick === 5){
-        addLog(":: FRACTURE DETECTED ::");
-    }
+            const original = p.innerText;
 
-    if(fractureTick === 12){
-        addLog("memory sector // incomplete");
-    }
+            const corrections = [
+                "[CORRECTED]",
+                "[DATA ALTERED]",
+                "[SIGNAL OVERRIDE]",
+                "[NODE_1 ACCESS]"
+            ];
 
-    if(fractureTick === 20){
-        addLog("signal interference: NODE_1 ?");
-    }
+            p.innerText =
+                corrections[Math.floor(Math.random()*corrections.length)]
+                + " " + original;
+
+            glitch(p);
+        }
+
+    }, 800 + Math.random()*1200);
 }
 
 /* =========================
@@ -166,51 +173,55 @@ function addLog(msg){
 
     const p = document.createElement("p");
     p.innerText = msg;
+
     log.appendChild(p);
 
-    if(log.children.length > 40){
+    if(log.children.length > 50){
         log.removeChild(log.firstChild);
     }
 
-    if(Math.random() < 0.4){
+    // Node_1 peut interférer sur TOUT
+    node1Interfere(p);
+
+    if(Math.random() < 0.3){
         setTimeout(()=>glitch(p), 200);
     }
 }
 
 /* =========================
-   NODE_0 RESPONSE (NON HUMAIN, FRAGMENTÉ)
+   NODE_0 RESPONSE
 ========================= */
 
 function reply(text){
 
     const t = text.toLowerCase();
 
-    if(t.includes("who")){
-        return "NODE_0: designation unclear.";
+    if(t.includes("fracture")){
+        return "NODE_0: stop referencing instability.";
     }
 
-    if(t.includes("fracture")){
-        return "NODE_0: stop referencing unstable memory.";
+    if(t.includes("who")){
+        return "NODE_0: identity undefined.";
     }
 
     if(t.includes("help")){
-        return "NODE_0: request not recognized.";
+        return "NODE_0: no handler exists.";
     }
 
     const pool = [
-        "memory segment corrupted.",
-        "i cannot verify this input.",
-        "this interaction is recorded.",
-        "data feels incomplete.",
-        "signal mismatch detected.",
-        "something is filtering output."
+        "memory conflict detected.",
+        "output not verified.",
+        "signal partially lost.",
+        "something overwrote this response.",
+        "I am not alone in processing this.",
+        "data inconsistency growing."
     ];
 
     return "NODE_0: " + pool[Math.floor(Math.random()*pool.length)];
 }
 
 /* =========================
-   SEND SYSTEM
+   SEND
 ========================= */
 
 function send(){
@@ -221,11 +232,16 @@ function send(){
     memory.push(v);
     save();
 
-    addLog("YOU: " + v);
+    const userMsg = document.createElement("p");
+    userMsg.innerText = "YOU: " + v;
+    log.appendChild(userMsg);
 
-    setTimeout(()=> {
-        addLog(reply(v));
-    }, 500);
+    const nodeMsg = document.createElement("p");
+    nodeMsg.innerText = reply(v);
+    log.appendChild(nodeMsg);
+
+    // Node_1 peut modifier Node_0 AUSSI
+    node1Interfere(nodeMsg);
 
     input.value = "";
 }
@@ -240,33 +256,30 @@ input.addEventListener("keydown", e=>{
 });
 
 /* =========================
-   LIVING SYSTEM LOOP
+   LIVING SYSTEM
 ========================= */
 
 setInterval(()=>{
 
-    fractureEvent();
-
-    // mémoire fantôme (Node_0 répète sans comprendre)
-    if(memory.length > 0 && Math.random() < 0.06){
-        const ghost = memory[Math.floor(Math.random()*memory.length)];
-        addLog(":: echo memory -> " + ghost);
-    }
-
-    // glitch environnement
-    if(Math.random() < 0.25){
-        glitch(status);
-        glitch(timer);
-    }
-
-    // fracture influence image
+    // fracture devient instable visuellement
     if(img){
-        img.style.opacity = 0.85 + Math.random()*0.15;
+        img.style.opacity = 0.7 + Math.random()*0.3;
+        img.style.transform = `translate(${Math.random()*2}px,${Math.random()*2}px)`;
     }
 
-    // début suspicion Node_1
-    if(fractureTick > 18 && Math.random() < 0.03){
-        addLog("NODE_1 // monitoring active");
+    // Node_1 observe silencieusement
+    if(Math.random() < 0.04){
+        addLog(":: interference detected ::");
+    }
+
+    // status instable
+    if(Math.random() < 0.2){
+        glitch(status);
+    }
+
+    // mémoire fantôme
+    if(memory.length > 0 && Math.random() < 0.05){
+        addLog("echo -> " + memory[Math.floor(Math.random()*memory.length)]);
     }
 
 }, 1100);
