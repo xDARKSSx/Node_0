@@ -10,25 +10,26 @@ function add(msg){
 
     log.appendChild(p);
 
-    if(log.children.length > 60){
-        log.removeChild(log.firstChild);
-    }
-
     log.scrollTop = log.scrollHeight;
 }
 
 ////////////////////////////////////////////////////
-// TIMER DISPLAY (FIX FINAL)
+// TIMER DISPLAY (WAIT SAFE)
 ////////////////////////////////////////////////////
 function updateTimer(){
 
     const el = document.getElementById("timer");
     if(!el) return;
 
+    if(!window.firebaseReady){
+        el.innerText = "CONNECTING NODE_0...";
+        return;
+    }
+
     const left = window.getTimeLeft ? window.getTimeLeft() : null;
 
     if(left === null){
-        el.innerText = "SYSTEM TIME NOT INITIALIZED";
+        el.innerText = "TIME SIGNAL LOST";
         return;
     }
 
@@ -51,7 +52,7 @@ function updateTimer(){
 setInterval(updateTimer, 1000);
 
 ////////////////////////////////////////////////////
-// SEND SIMPLE (SAFE)
+// SIMPLE SEND (SAFE)
 ////////////////////////////////////////////////////
 document.getElementById("send").onclick = () => {
 
