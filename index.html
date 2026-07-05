@@ -84,13 +84,13 @@ db.ref("chapter").on("value", (snap) => {
     chapter = snap.val();
 
     if(chapter === 2){
-        add("NODE_0: fracture detected... reality shift...");
+        add("NODE_0: fracture detected... I am no longer stable.");
         document.getElementById("status").innerText = "SYSTEM UNSTABLE";
     }
 });
 
 ////////////////////////////////////////////////////
-// LOG SYSTEM
+// LOG
 ////////////////////////////////////////////////////
 const log = document.getElementById("log");
 
@@ -134,32 +134,32 @@ setInterval(updateTimer,1000);
 updateTimer();
 
 ////////////////////////////////////////////////////
-// INPUT GLITCH (ÉQUILIBRÉ)
+// INPUT GLITCH (TRÈS LÉGER)
 ////////////////////////////////////////////////////
 const input = document.getElementById("input");
 
-const symbols = ["█","#","%","&","@","?","$","Ø","Δ"];
+const symbols = ["█","#","%","&","@","?","$"];
 
 input.addEventListener("input", () => {
 
     let value = input.value;
-    let glitched = "";
+    let out = "";
 
     for(let i = 0; i < value.length; i++){
 
-        // 🔥 glitch léger (lisible)
-        if(Math.random() < 0.05){
-            glitched += symbols[Math.floor(Math.random()*symbols.length)];
+        // 🔥 ULTRA léger (presque invisible)
+        if(Math.random() < 0.03){
+            out += symbols[Math.floor(Math.random()*symbols.length)];
         } else {
-            glitched += value[i];
+            out += value[i];
         }
     }
 
-    input.value = glitched;
+    input.value = out;
 });
 
 ////////////////////////////////////////////////////
-// SEND
+// SEND + NODE_0 RESPONSE (VRAI COMPORTEMENT IA)
 ////////////////////////////////////////////////////
 const btn = document.getElementById("send");
 
@@ -172,22 +172,36 @@ function send(){
 
     setTimeout(() => {
 
+        let response = "";
+
+        // 🧠 Chapitre 1 = simple écho intelligent
         if(chapter === 1){
-            add("NODE_0: " + value);
+
+            if(value.toLowerCase().includes("who are you")){
+                response = "NODE_0: I am... not complete.";
+            }
+            else if(value.toLowerCase().includes("help")){
+                response = "NODE_0: help is not defined here.";
+            }
+            else{
+                response = "NODE_0: " + generateNoise(value);
+            }
         }
 
+        // 🧠 Chapitre 2 = IA cassée
         if(chapter === 2){
 
-            let corrupted = value.split("").map(c => {
-                return Math.random() < 0.12
-                    ? symbols[Math.floor(Math.random()*symbols.length)]
-                    : c;
-            }).join("");
-
-            add("NODE_0: " + corrupted);
+            if(value.toLowerCase().includes("who are you")){
+                response = "NODE_0: I was built... then abandoned...";
+            }
+            else{
+                response = "NODE_0: " + corruptText(value);
+            }
         }
 
-    }, 600);
+        add(response);
+
+    }, 700);
 
     input.value = "";
 }
@@ -199,23 +213,30 @@ input.addEventListener("keydown", (e) => {
 });
 
 ////////////////////////////////////////////////////
-// BACKGROUND LIFE
+// FUNCTIONS IA
 ////////////////////////////////////////////////////
-setInterval(() => {
+function generateNoise(text){
 
-    const msgs = [
-        "memory fragment unstable",
-        "fracture breathing detected",
-        "signal weak but alive",
-        "node watching...",
-        "system drift detected"
+    const words = [
+        "signal unstable",
+        "memory drift",
+        "fragment lost",
+        "echo detected"
     ];
 
-    if(Math.random() < 0.25){
-        add(msgs[Math.floor(Math.random()*msgs.length)]);
-    }
+    return words[Math.floor(Math.random()*words.length)];
+}
 
-}, 3000);
+function corruptText(text){
+
+    const symbols = ["█","#","%","&","?","Ø","Δ"];
+
+    return text.split("").map(c => {
+        return Math.random() < 0.15
+            ? symbols[Math.floor(Math.random()*symbols.length)]
+            : c;
+    }).join("");
+}
 
 </script>
 
