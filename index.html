@@ -69,7 +69,7 @@ input, button {
 <script>
 
 ////////////////////////////////////////////////////
-// FIREBASE
+// FIREBASE INIT
 ////////////////////////////////////////////////////
 const firebaseConfig = {
     databaseURL: "https://node-0-26139-default-rtdb.firebaseio.com"
@@ -78,13 +78,15 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let chapter = 1;
+////////////////////////////////////////////////////
+// GLOBAL STATE (IMPORTANT)
+////////////////////////////////////////////////////
+let state = {};
 
-db.ref("chapter").on("value", (snap) => {
-    chapter = snap.val();
+db.ref("/").on("value", (snap) => {
+    state = snap.val() || {};
 
-    if(chapter === 2){
-        add("NODE_0: I am no longer stable...");
+    if(state.chapter === 2){
         document.getElementById("status").innerText = "SYSTEM UNSTABLE";
     }
 });
@@ -134,25 +136,11 @@ setInterval(updateTimer,1000);
 updateTimer();
 
 ////////////////////////////////////////////////////
-// NODE_0 MEMORY
-////////////////////////////////////////////////////
-let memory = [];
-
-function remember(msg){
-    memory.push(msg);
-    if(memory.length > 12) memory.shift();
-}
-
-function getRepetition(msg){
-    return memory.filter(m => m === msg).length;
-}
-
-////////////////////////////////////////////////////
-// INPUT
+// INPUT GLITCH (LIGHT)
 ////////////////////////////////////////////////////
 const input = document.getElementById("input");
 
-const symbols = ["█","#","%","&","@","?","$","Ø","Δ"];
+const symbols = ["█","#","%","&","@","?","$"];
 
 input.addEventListener("input", () => {
 
@@ -160,7 +148,7 @@ input.addEventListener("input", () => {
     let out = "";
 
     for(let i = 0; i < value.length; i++){
-        if(Math.random() < 0.03){
+        if(Math.random() < 0.04){
             out += symbols[Math.floor(Math.random()*symbols.length)];
         } else {
             out += value[i];
@@ -171,7 +159,32 @@ input.addEventListener("input", () => {
 });
 
 ////////////////////////////////////////////////////
-// SEND + NODE_0 “VIVANT”
+// PUZZLE SYSTEM (GLOBAL ARG CORE)
+////////////////////////////////////////////////////
+function checkPuzzle(value){
+
+    if(!state.puzzle?.active) return false;
+
+    const answer = value.trim().toLowerCase();
+    const solution = (state.puzzle.solution || "").toLowerCase();
+
+    if(answer === solution){
+
+        db.ref("chapter").set((state.chapter || 1) + 1);
+        db.ref("puzzle/active").set(false);
+        db.ref("puzzle/solvedBy").set("player");
+
+        add("NODE_0: ...ERROR... KEY ACCEPTED...");
+        add("SYSTEM: CHAPTER SHIFT INITIATED");
+
+        return true;
+    }
+
+    return false;
+}
+
+////////////////////////////////////////////////////
+// SEND SYSTEM + NODE_0
 ////////////////////////////////////////////////////
 const btn = document.getElementById("send");
 
@@ -182,33 +195,30 @@ function send(){
 
     add("YOU: " + value);
 
-    remember(value);
+    // 🔥 PUZZLE CHECK FIRST
+    if(checkPuzzle(value)){
+        input.value = "";
+        return;
+    }
 
     setTimeout(() => {
 
-        let rep = getRepetition(value);
-
         let response = "";
 
-        // 🧠 Node_0 devient instable si répétition
-        if(rep > 2){
-            response = "NODE_0: why do you repeat this... ?";
-        }
-
-        else if(chapter === 1){
+        if(state.chapter === 1){
 
             if(value.toLowerCase().includes("who are you")){
                 response = "NODE_0: I am not supposed to exist fully.";
             }
             else{
-                response = "NODE_0: " + noiseResponse();
+                response = "NODE_0: " + noise();
             }
         }
 
-        else if(chapter === 2){
+        if(state.chapter === 2){
 
             if(value.toLowerCase().includes("who are you")){
-                response = "NODE_0: I was erased... but I remember fragments.";
+                response = "NODE_0: I was fragmented... but still active.";
             }
             else{
                 response = "NODE_0: " + corrupt(value);
@@ -217,7 +227,7 @@ function send(){
 
         add(response);
 
-    }, 700);
+    }, 600);
 
     input.value = "";
 }
@@ -229,21 +239,23 @@ input.addEventListener("keydown", (e) => {
 });
 
 ////////////////////////////////////////////////////
-// NODE_0 PERSONALITY ENGINE
+// NODE_0 PERSONALITY
 ////////////////////////////////////////////////////
-function noiseResponse(){
+function noise(){
     const msgs = [
         "signal unstable",
-        "memory fragment lost",
-        "echo without source",
-        "fracture listening"
+        "memory drift detected",
+        "echo without origin",
+        "fragment breathing"
     ];
     return msgs[Math.floor(Math.random()*msgs.length)];
 }
 
 function corrupt(text){
     return text.split("").map(c => {
-        return Math.random() < 0.15 ? symbols[Math.floor(Math.random()*symbols.length)] : c;
+        return Math.random() < 0.12
+            ? symbols[Math.floor(Math.random()*symbols.length)]
+            : c;
     }).join("");
 }
 
