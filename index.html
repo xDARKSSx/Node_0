@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>NODE_0</title>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
@@ -45,6 +46,11 @@ input, button {
     width:320px;
     margin-top:20px;
 }
+
+#timer {
+    font-size:16px;
+    margin-top:10px;
+}
 </style>
 </head>
 
@@ -54,10 +60,12 @@ input, button {
 
 <h1>NODE_0</h1>
 
-<p id="status">SYSTEM READY</p>
-<p id="timer">LOADING TIME...</p>
+<p id="status">SYSTEM INITIALIZING...</p>
 
-<img id="fracture" src="fracture.png">
+<!-- TIMER IMPORTANT -->
+<p id="timer">SYNCING TIME...</p>
+
+<img id="fracture" src="fracture.png" alt="fracture">
 
 <div id="log"></div>
 
@@ -66,8 +74,9 @@ input, button {
 
 </div>
 
-<script src="engine.js" defer></script>
-<script src="node0.js" defer></script>
+<!-- 🔥 IMPORTANT ORDER -->
+<script src="engine.js"></script>
+<script src="node0.js"></script>
 
 </body>
 </html>
