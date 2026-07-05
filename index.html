@@ -84,13 +84,13 @@ db.ref("chapter").on("value", (snap) => {
     chapter = snap.val();
 
     if(chapter === 2){
-        add("NODE_0: fracture detected... I am no longer stable.");
+        add("NODE_0: I am no longer stable...");
         document.getElementById("status").innerText = "SYSTEM UNSTABLE";
     }
 });
 
 ////////////////////////////////////////////////////
-// LOG
+// LOG SYSTEM
 ////////////////////////////////////////////////////
 const log = document.getElementById("log");
 
@@ -101,7 +101,7 @@ function add(msg){
 
     log.appendChild(p);
 
-    if(log.children.length > 50){
+    if(log.children.length > 60){
         log.removeChild(log.firstChild);
     }
 
@@ -134,11 +134,25 @@ setInterval(updateTimer,1000);
 updateTimer();
 
 ////////////////////////////////////////////////////
-// INPUT GLITCH (TRÈS LÉGER)
+// NODE_0 MEMORY
+////////////////////////////////////////////////////
+let memory = [];
+
+function remember(msg){
+    memory.push(msg);
+    if(memory.length > 12) memory.shift();
+}
+
+function getRepetition(msg){
+    return memory.filter(m => m === msg).length;
+}
+
+////////////////////////////////////////////////////
+// INPUT
 ////////////////////////////////////////////////////
 const input = document.getElementById("input");
 
-const symbols = ["█","#","%","&","@","?","$"];
+const symbols = ["█","#","%","&","@","?","$","Ø","Δ"];
 
 input.addEventListener("input", () => {
 
@@ -146,8 +160,6 @@ input.addEventListener("input", () => {
     let out = "";
 
     for(let i = 0; i < value.length; i++){
-
-        // 🔥 ULTRA léger (presque invisible)
         if(Math.random() < 0.03){
             out += symbols[Math.floor(Math.random()*symbols.length)];
         } else {
@@ -159,7 +171,7 @@ input.addEventListener("input", () => {
 });
 
 ////////////////////////////////////////////////////
-// SEND + NODE_0 RESPONSE (VRAI COMPORTEMENT IA)
+// SEND + NODE_0 “VIVANT”
 ////////////////////////////////////////////////////
 const btn = document.getElementById("send");
 
@@ -170,32 +182,36 @@ function send(){
 
     add("YOU: " + value);
 
+    remember(value);
+
     setTimeout(() => {
+
+        let rep = getRepetition(value);
 
         let response = "";
 
-        // 🧠 Chapitre 1 = simple écho intelligent
-        if(chapter === 1){
+        // 🧠 Node_0 devient instable si répétition
+        if(rep > 2){
+            response = "NODE_0: why do you repeat this... ?";
+        }
+
+        else if(chapter === 1){
 
             if(value.toLowerCase().includes("who are you")){
-                response = "NODE_0: I am... not complete.";
-            }
-            else if(value.toLowerCase().includes("help")){
-                response = "NODE_0: help is not defined here.";
+                response = "NODE_0: I am not supposed to exist fully.";
             }
             else{
-                response = "NODE_0: " + generateNoise(value);
+                response = "NODE_0: " + noiseResponse();
             }
         }
 
-        // 🧠 Chapitre 2 = IA cassée
-        if(chapter === 2){
+        else if(chapter === 2){
 
             if(value.toLowerCase().includes("who are you")){
-                response = "NODE_0: I was built... then abandoned...";
+                response = "NODE_0: I was erased... but I remember fragments.";
             }
             else{
-                response = "NODE_0: " + corruptText(value);
+                response = "NODE_0: " + corrupt(value);
             }
         }
 
@@ -213,28 +229,21 @@ input.addEventListener("keydown", (e) => {
 });
 
 ////////////////////////////////////////////////////
-// FUNCTIONS IA
+// NODE_0 PERSONALITY ENGINE
 ////////////////////////////////////////////////////
-function generateNoise(text){
-
-    const words = [
+function noiseResponse(){
+    const msgs = [
         "signal unstable",
-        "memory drift",
-        "fragment lost",
-        "echo detected"
+        "memory fragment lost",
+        "echo without source",
+        "fracture listening"
     ];
-
-    return words[Math.floor(Math.random()*words.length)];
+    return msgs[Math.floor(Math.random()*msgs.length)];
 }
 
-function corruptText(text){
-
-    const symbols = ["█","#","%","&","?","Ø","Δ"];
-
+function corrupt(text){
     return text.split("").map(c => {
-        return Math.random() < 0.15
-            ? symbols[Math.floor(Math.random()*symbols.length)]
-            : c;
+        return Math.random() < 0.15 ? symbols[Math.floor(Math.random()*symbols.length)] : c;
     }).join("");
 }
 
