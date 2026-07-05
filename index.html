@@ -69,7 +69,7 @@ input, button {
 <script>
 
 ////////////////////////////////////////////////////
-// FIREBASE INIT
+// FIREBASE
 ////////////////////////////////////////////////////
 const firebaseConfig = {
     databaseURL: "https://node-0-26139-default-rtdb.firebaseio.com"
@@ -79,7 +79,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 ////////////////////////////////////////////////////
-// GLOBAL STATE (IMPORTANT)
+// GLOBAL STATE
 ////////////////////////////////////////////////////
 let state = {};
 
@@ -92,7 +92,31 @@ db.ref("/").on("value", (snap) => {
 });
 
 ////////////////////////////////////////////////////
-// LOG SYSTEM
+// EVENTS LISTENER
+////////////////////////////////////////////////////
+db.ref("world/events").on("child_added", (snap) => {
+    handleEvent(snap.val());
+});
+
+function handleEvent(event){
+
+    if(!event) return;
+
+    if(event.type === "chapter_shift"){
+        add("NODE_0: reality shift detected...");
+    }
+
+    if(event.type === "puzzle_solved"){
+        add("NODE_0: someone interfered with the system...");
+    }
+
+    if(event.type === "instability_spike"){
+        add("NODE_0: noise increasing...");
+    }
+}
+
+////////////////////////////////////////////////////
+// LOG
 ////////////////////////////////////////////////////
 const log = document.getElementById("log");
 
@@ -136,7 +160,7 @@ setInterval(updateTimer,1000);
 updateTimer();
 
 ////////////////////////////////////////////////////
-// INPUT GLITCH (LIGHT)
+// INPUT GLITCH (LIGHT SAFE)
 ////////////////////////////////////////////////////
 const input = document.getElementById("input");
 
@@ -148,7 +172,7 @@ input.addEventListener("input", () => {
     let out = "";
 
     for(let i = 0; i < value.length; i++){
-        if(Math.random() < 0.04){
+        if(Math.random() < 0.03){
             out += symbols[Math.floor(Math.random()*symbols.length)];
         } else {
             out += value[i];
@@ -159,7 +183,19 @@ input.addEventListener("input", () => {
 });
 
 ////////////////////////////////////////////////////
-// PUZZLE SYSTEM (GLOBAL ARG CORE)
+// EVENT PUSHER
+////////////////////////////////////////////////////
+function pushEvent(type, data = ""){
+
+    db.ref("world/events").push({
+        type,
+        data,
+        time: Date.now()
+    });
+}
+
+////////////////////////////////////////////////////
+// PUZZLE SYSTEM
 ////////////////////////////////////////////////////
 function checkPuzzle(value){
 
@@ -170,12 +206,17 @@ function checkPuzzle(value){
 
     if(answer === solution){
 
-        db.ref("chapter").set((state.chapter || 1) + 1);
+        const newChapter = (state.chapter || 1) + 1;
+
+        db.ref("chapter").set(newChapter);
         db.ref("puzzle/active").set(false);
         db.ref("puzzle/solvedBy").set("player");
 
-        add("NODE_0: ...ERROR... KEY ACCEPTED...");
-        add("SYSTEM: CHAPTER SHIFT INITIATED");
+        pushEvent("chapter_shift", newChapter);
+        pushEvent("puzzle_solved", value);
+
+        add("NODE_0: ...KEY ACCEPTED...");
+        add("SYSTEM: CHAPTER SHIFT");
 
         return true;
     }
@@ -184,7 +225,7 @@ function checkPuzzle(value){
 }
 
 ////////////////////////////////////////////////////
-// SEND SYSTEM + NODE_0
+// SEND
 ////////////////////////////////////////////////////
 const btn = document.getElementById("send");
 
@@ -195,7 +236,7 @@ function send(){
 
     add("YOU: " + value);
 
-    // 🔥 PUZZLE CHECK FIRST
+    // PUZZLE FIRST
     if(checkPuzzle(value)){
         input.value = "";
         return;
@@ -208,19 +249,17 @@ function send(){
         if(state.chapter === 1){
 
             if(value.toLowerCase().includes("who are you")){
-                response = "NODE_0: I am not supposed to exist fully.";
-            }
-            else{
-                response = "NODE_0: " + noise();
+                response = "NODE_0: I am incomplete.";
+            } else {
+                response = "NODE_0: signal unstable...";
             }
         }
 
-        if(state.chapter === 2){
+        if(state.chapter >= 2){
 
             if(value.toLowerCase().includes("who are you")){
-                response = "NODE_0: I was fragmented... but still active.";
-            }
-            else{
+                response = "NODE_0: I am what remains.";
+            } else {
                 response = "NODE_0: " + corrupt(value);
             }
         }
@@ -233,25 +272,15 @@ function send(){
 }
 
 btn.addEventListener("click", send);
-
 input.addEventListener("keydown", (e) => {
     if(e.key === "Enter") send();
 });
 
 ////////////////////////////////////////////////////
-// NODE_0 PERSONALITY
+// CORRUPTION
 ////////////////////////////////////////////////////
-function noise(){
-    const msgs = [
-        "signal unstable",
-        "memory drift detected",
-        "echo without origin",
-        "fragment breathing"
-    ];
-    return msgs[Math.floor(Math.random()*msgs.length)];
-}
-
 function corrupt(text){
+
     return text.split("").map(c => {
         return Math.random() < 0.12
             ? symbols[Math.floor(Math.random()*symbols.length)]
