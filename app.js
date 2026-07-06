@@ -14,8 +14,6 @@ const ghost2 = document.getElementById("ghost2");
 
 /* =========================
    PLAYER IDENTITY
-   (a unique ID per browser, stored locally,
-   but all the real memory lives in Firebase)
 ========================= */
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -27,10 +25,8 @@ if (!playerId) {
 }
 const playerRef = db.ref("players/" + playerId);
 
-/* local mirror of this player's Firebase messages */
 let memory = [];
 
-/* load this player's past messages from Firebase */
 playerRef.child("messages").limitToLast(20).once("value", snap => {
     const val = snap.val();
     if (val) {
@@ -38,7 +34,6 @@ playerRef.child("messages").limitToLast(20).once("value", snap => {
     }
 });
 
-/* record first visit if it doesn't exist yet */
 playerRef.child("firstSeen").once("value", snap => {
     if (!snap.exists()) {
         playerRef.child("firstSeen").set(firebase.database.ServerValue.TIMESTAMP);
@@ -52,6 +47,9 @@ const sym = ["█", "#", "%", "&", "@", "?", "Δ", "Ξ", "▓", "░"];
 
 /* =========================
    LOG / CHAT
+   NOTE: textContent everywhere (not innerText),
+   because innerText was silently trimming
+   trailing spaces on every update.
 ========================= */
 function trimLog() {
     while (log.children.length > 60) {
@@ -61,9 +59,9 @@ function trimLog() {
 
 function typewriter(el, fullText, speed = 28) {
     let i = 0;
-    el.innerText = "";
+    el.textContent = "";
     const iv = setInterval(() => {
-        el.innerText += fullText[i];
+        el.textContent += fullText[i];
         i++;
         log.scrollTop = log.scrollHeight;
         if (i >= fullText.length) clearInterval(iv);
@@ -80,33 +78,46 @@ function addMessage(sender, text) {
     if (sender === "NODE_0") {
         typewriter(p, "NODE_0: " + text);
     } else {
-        p.innerText = "YOU: " + text;
+        p.textContent = "YOU: " + text;
     }
     return p;
 }
 
-/* transient glitch on an already-displayed line (text always returns intact) */
 function glitchFlicker(el) {
-    const base = el.innerText;
+    const base = el.textContent;
     if (!base) return;
     let out = "";
     for (let i = 0; i < base.length; i++) {
         out += Math.random() < 0.15 ? sym[Math.floor(Math.random() * sym.length)] : base[i];
     }
-    el.innerText = out;
-    setTimeout(() => { el.innerText = base; }, 150);
+    el.textContent = out;
+    setTimeout(() => { el.textContent = base; }, 150);
 }
 
-/* ambient glitch loop over the whole log */
+/* quick visual pulse that does NOT touch text (used on the timer,
+   which redraws every second and would fight a text-scramble) */
+function cssGlitchPulse(el) {
+    if (!el) return;
+    const x = (Math.random() * 4 - 2).toFixed(1);
+    el.style.transform = `translate(${x}px, 0)`;
+    el.style.opacity = 0.55 + Math.random() * 0.3;
+    setTimeout(() => {
+        el.style.transform = "translate(0,0)";
+        el.style.opacity = 1;
+    }, 90);
+}
+
+/* ambient glitch loop: log lines + status text scramble + timer pulse */
 setInterval(() => {
     document.querySelectorAll("#log p").forEach(p => {
         if (Math.random() < 0.04) glitchFlicker(p);
     });
+    if (Math.random() < 0.05) glitchFlicker(statusEl);
+    if (Math.random() < 0.12) cssGlitchPulse(timerEl);
 }, 900);
 
 /* =========================
    NODE_0 - AMBIENT LINES
-   (deliberately not fully coherent)
 ========================= */
 const ambientLines = [
     "...signal drifting...",
@@ -125,7 +136,6 @@ function pickAmbient() {
     return ambientLines[Math.floor(Math.random() * ambientLines.length)];
 }
 
-/* distorts a player's message for the echo reply (stays readable) */
 function distort(text) {
     const words = text.split(" ");
     return words
@@ -145,7 +155,6 @@ function respondTo(userText) {
     }
 }
 
-/* NODE_0 talks on its own, even if nobody writes */
 setInterval(() => {
     if (Math.random() < 0.15) {
         addMessage("NODE_0", pickAmbient());
@@ -167,8 +176,8 @@ function send() {
     });
 
     input.value = "";
-    ghost1.innerText = "";
-    ghost2.innerText = "";
+    ghost1.textContent = "";
+    ghost2.textContent = "";
 
     setTimeout(() => {
         addMessage("NODE_0", respondTo(v));
@@ -185,20 +194,18 @@ input.addEventListener("keydown", (e) => {
 
 /* =========================
    VISUAL GLITCH ON THE TEXT FIELD
-   (the actual text stays 100% readable and
-   intact, this is a purely visual overlay)
 ========================= */
 input.addEventListener("input", () => {
-    ghost1.innerText = input.value;
-    ghost2.innerText = input.value;
+    ghost1.textContent = input.value;
+    ghost2.textContent = input.value;
 });
 
 /* =========================
-   GLITCH ON fracture.png
+   GLITCH ON fracture.png (faster now)
 ========================= */
 setInterval(() => {
     if (!img) return;
-    if (Math.random() < 0.35) {
+    if (Math.random() < 0.5) {
         const hue = Math.floor(Math.random() * 40 - 20);
         const contrast = (1 + Math.random() * 0.6).toFixed(2);
         const bright = (0.9 + Math.random() * 0.3).toFixed(2);
@@ -206,45 +213,44 @@ setInterval(() => {
         img.style.transform = `translate(${(Math.random() * 6 - 3).toFixed(1)}px, ${(Math.random() * 4 - 2).toFixed(1)}px)`;
         setTimeout(() => {
             img.style.transform = "translate(0,0)";
-        }, 120);
+        }, 100);
     }
-}, 1400);
+}, 700);
 
 /* =========================
-   TIMER (shared via Firebase, see engine.js)
+   TIMER
 ========================= */
 function renderTimer() {
     const left = window.getTimeLeft();
     if (left === null) {
-        timerEl.innerText = "synchronizing...";
+        timerEl.textContent = "synchronizing...";
         return;
     }
     if (left <= 0) {
-        timerEl.innerText = "█ TIME COLLAPSED █";
+        timerEl.textContent = "█ TIME COLLAPSED █";
         return;
     }
     const d = Math.floor(left / 86400);
     const h = Math.floor((left % 86400) / 3600);
     const m = Math.floor((left % 3600) / 60);
     const s = Math.floor(left % 60);
-    timerEl.innerText =
+    timerEl.textContent =
         `${d}d ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 setInterval(renderTimer, 1000);
 
 /* =========================
-   STATUS (evolves with player involvement)
+   STATUS
 ========================= */
 document.addEventListener("state-updated", () => {
     if (window.state.world?.layer2Triggered) {
-        statusEl.innerText = "SYSTEM UNSTABLE";
+        statusEl.textContent = "SYSTEM UNSTABLE";
     }
     if (window.state.world?.layer3Triggered) {
-        statusEl.innerText = "SYSTEM COLLAPSED";
+        statusEl.textContent = "SYSTEM COLLAPSED";
     }
 });
 
-/* welcome message */
 setTimeout(() => {
     addMessage("NODE_0", "...connection established...");
 }, 800);
