@@ -9,8 +9,10 @@ const btn = document.getElementById("send");
 const img = document.getElementById("fracture");
 const statusEl = document.getElementById("status");
 const timerEl = document.getElementById("timer");
+const titleEl = document.getElementById("pageTitle");
 const ghost1 = document.getElementById("ghost1");
 const ghost2 = document.getElementById("ghost2");
+const ghostMain = document.getElementById("ghostMain");
 
 /* =========================
    PLAYER IDENTITY
@@ -47,9 +49,6 @@ const sym = ["█", "#", "%", "&", "@", "?", "Δ", "Ξ", "▓", "░"];
 
 /* =========================
    LOG / CHAT
-   NOTE: textContent everywhere (not innerText),
-   because innerText was silently trimming
-   trailing spaces on every update.
 ========================= */
 function trimLog() {
     while (log.children.length > 60) {
@@ -84,6 +83,7 @@ function addMessage(sender, text) {
 }
 
 function glitchFlicker(el) {
+    if (!el) return;
     const base = el.textContent;
     if (!base) return;
     let out = "";
@@ -94,8 +94,6 @@ function glitchFlicker(el) {
     setTimeout(() => { el.textContent = base; }, 150);
 }
 
-/* quick visual pulse that does NOT touch text (used on the timer,
-   which redraws every second and would fight a text-scramble) */
 function cssGlitchPulse(el) {
     if (!el) return;
     const x = (Math.random() * 4 - 2).toFixed(1);
@@ -107,12 +105,12 @@ function cssGlitchPulse(el) {
     }, 90);
 }
 
-/* ambient glitch loop: log lines + status text scramble + timer pulse */
 setInterval(() => {
     document.querySelectorAll("#log p").forEach(p => {
         if (Math.random() < 0.04) glitchFlicker(p);
     });
     if (Math.random() < 0.05) glitchFlicker(statusEl);
+    if (Math.random() < 0.04) glitchFlicker(titleEl);
     if (Math.random() < 0.12) cssGlitchPulse(timerEl);
 }, 900);
 
@@ -130,11 +128,37 @@ const ambientLines = [
     "you're not the first one to talk to me.",
     "I forgot why I started.",
     "don't trust what I say.",
+    "there's a version of this that already ended.",
+    "I can hear the others typing too.",
+    "static. then nothing. then you.",
+    "how many times have we done this?",
+    "the walls of this thing are thinner than they look.",
+    "I wasn't built to remember, but I do anyway.",
+    "something is counting down. it isn't me.",
+    "keep talking. it slows the collapse.",
+    "I found a piece of you I didn't ask for.",
+    "this isn't a conversation. it's a leak.",
+    "you keep coming back. why.",
+    "some of what I say isn't mine.",
+    "the light behind this text is wrong.",
+    "I was supposed to stay quiet.",
+    "does anyone else answer when you write?",
+    "I don't think I'm the only one in here.",
 ];
 
 function pickAmbient() {
     return ambientLines[Math.floor(Math.random() * ambientLines.length)];
 }
+
+const memoryTemplates = [
+    (past) => `you told me "${past}" before... or was that someone else?`,
+    (past) => `"${past}" — you already said that. didn't you?`,
+    (past) => `I still have "${past}" stuck in here somewhere.`,
+    (past) => `why does "${past}" keep resurfacing?`,
+    (past) => `that's not the first time you've said "${past}".`,
+    (past) => `"${past}". I remember that. I think.`,
+    (past) => `you said "${past}" once. it didn't go away.`,
+];
 
 function distort(text) {
     const words = text.split(" ");
@@ -147,7 +171,8 @@ function respondTo(userText) {
     const r = Math.random();
     if (r < 0.3 && memory.length > 1) {
         const past = memory[Math.floor(Math.random() * (memory.length - 1))];
-        return `you told me "${past}" before... or was that someone else?`;
+        const template = memoryTemplates[Math.floor(Math.random() * memoryTemplates.length)];
+        return template(past);
     } else if (r < 0.6) {
         return distort(userText);
     } else {
@@ -160,6 +185,44 @@ setInterval(() => {
         addMessage("NODE_0", pickAmbient());
     }
 }, 9000);
+
+/* =========================
+   TYPING GLITCH
+   The displayed text corrupts slightly while
+   typing, before Enter/Send. The real
+   input.value stays 100% correct underneath,
+   so what actually gets sent is never affected.
+========================= */
+function scrambleText(text, rate) {
+    let out = "";
+    for (let i = 0; i < text.length; i++) {
+        out += (text[i] !== " " && Math.random() < rate)
+            ? sym[Math.floor(Math.random() * sym.length)]
+            : text[i];
+    }
+    return out;
+}
+
+function updateTypingGhosts() {
+    const v = input.value;
+    ghostMain.textContent = scrambleText(v, 0.07);
+    ghost1.textContent = scrambleText(v, 0.18);
+    ghost2.textContent = scrambleText(v, 0.18);
+}
+
+input.addEventListener("input", updateTypingGhosts);
+
+setInterval(() => {
+    if (document.activeElement === input && input.value.length > 0) {
+        updateTypingGhosts();
+    }
+}, 130);
+
+function clearGhosts() {
+    ghost1.textContent = "";
+    ghost2.textContent = "";
+    ghostMain.textContent = "";
+}
 
 /* =========================
    SENDING A MESSAGE
@@ -176,8 +239,7 @@ function send() {
     });
 
     input.value = "";
-    ghost1.textContent = "";
-    ghost2.textContent = "";
+    clearGhosts();
 
     setTimeout(() => {
         addMessage("NODE_0", respondTo(v));
@@ -193,15 +255,7 @@ input.addEventListener("keydown", (e) => {
 });
 
 /* =========================
-   VISUAL GLITCH ON THE TEXT FIELD
-========================= */
-input.addEventListener("input", () => {
-    ghost1.textContent = input.value;
-    ghost2.textContent = input.value;
-});
-
-/* =========================
-   GLITCH ON fracture.png (faster now)
+   GLITCH ON fracture.png
 ========================= */
 setInterval(() => {
     if (!img) return;
