@@ -5,34 +5,37 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-window.state = null;
+window.state = {};
 window.ready = false;
 
-db.ref("/").on("value", (snap) => {
+/* =========================
+   FIREBASE SYNC
+========================= */
+db.ref("/").on("value", snap => {
     window.state = snap.val() || {};
     window.ready = true;
 });
 
-////////////////////////////////////////////////////
-// SAFE TIMER (NE PEUT PAS FAIL)
-////////////////////////////////////////////////////
+/* =========================
+   TIMER CORE
+========================= */
 window.getTimeLeft = function(){
 
     if(!window.ready) return null;
 
-    const world = window.state?.world;
-    if(!world) return null;
+    const w = window.state.world;
+    if(!w) return null;
 
-    if(world.timerStart == null || world.timerDuration == null) return null;
+    if(!w.timerStart || !w.timerDuration) return null;
 
-    const now = Math.floor(Date.now() / 1000);
+    const now = Math.floor(Date.now()/1000);
 
-    return (world.timerStart + world.timerDuration) - now;
+    return (w.timerStart + w.timerDuration) - now;
 };
 
-////////////////////////////////////////////////////
-// TIMER TRIGGERS
-////////////////////////////////////////////////////
+/* =========================
+   ARG TRIGGERS
+========================= */
 setInterval(() => {
 
     const left = window.getTimeLeft();
@@ -40,11 +43,13 @@ setInterval(() => {
 
     const day = 86400;
 
-    if(left < 15 * day && !window.state?.world?.layer2Triggered){
+    // 15 days left
+    if(left < 15 * day && !window.state.world?.layer2Triggered){
         db.ref("world/layer2Triggered").set(true);
     }
 
-    if(left <= 0 && !window.state?.world?.layer3Triggered){
+    // END TIMER
+    if(left <= 0 && !window.state.world?.layer3Triggered){
         db.ref("world/layer3Triggered").set(true);
         db.ref("chapter").set((window.state.chapter || 1) + 1);
     }
