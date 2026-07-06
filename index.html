@@ -1,25 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>TEST</title>
+<title>NODE_0</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<style>
+body{
+    background:#0d0d0d;
+    color:#00ff9f;
+    font-family:monospace;
+    display:flex;
+    justify-content:center;
+}
+
+#container{
+    width:720px;
+    margin-top:60px;
+}
+
+#log{
+    height:320px;
+    overflow-y:auto;
+    border:1px solid #00ff9f33;
+    padding:10px;
+    margin-top:20px;
+}
+
+input,button{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    background:black;
+    color:#00ff9f;
+    border:1px solid #00ff9f55;
+    font-family:monospace;
+}
+
+#timer{
+    margin-top:10px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>PAGE LOAD TEST</h1>
+<div id="container">
 
-<p id="timer">TIMER TEST</p>
+<h1>NODE_0</h1>
+
+<p id="status">CONNECTING...</p>
+<p id="timer">SYNCING TIME...</p>
 
 <div id="log"></div>
 
-<input id="input">
+<input id="input" placeholder="message...">
 <button id="send">SEND</button>
 
-<script>
-console.log("HTML IS WORKING");
+</div>
 
-document.getElementById("timer").innerText = "JS IS WORKING";
-</script>
+<script src="engine.js"></script>
+<script src="node0.js"></script>
 
 </body>
 </html>
