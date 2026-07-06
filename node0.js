@@ -5,6 +5,9 @@ const img = document.getElementById("fracture");
 
 let memory = [];
 
+/* =========================
+   LOG
+========================= */
 function add(t){
     const p = document.createElement("p");
     p.innerText = t;
@@ -13,19 +16,12 @@ function add(t){
 }
 
 /* =========================
-   TIMER 30 JOURS LOCAL (STABLE)
+   TIMER 30 JOURS (LOCAL FIXE)
 ========================= */
-
-const END = Date.now() + 30 * 24 * 60 * 60 * 1000;
+const END = Date.now() + 30*24*60*60*1000;
 
 function updateTimer(){
-
     const diff = END - Date.now();
-
-    if(diff <= 0){
-        timerEl.innerText = "█ TIME COLLAPSED █";
-        return;
-    }
 
     const s = Math.floor(diff/1000);
     const d = Math.floor(s/86400);
@@ -34,9 +30,9 @@ function updateTimer(){
     const ss = s%60;
 
     timerEl.innerText =
-        `${d}d ${String(h).padStart(2,"0")}:`+
-        `${String(m).padStart(2,"0")}:`+
-        `${String(ss).padStart(2,"0")}`;
+    `${d}d ${String(h).padStart(2,"0")}:`+
+    `${String(m).padStart(2,"0")}:`+
+    `${String(ss).padStart(2,"0")}`;
 }
 
 setInterval(updateTimer,1000);
@@ -45,7 +41,6 @@ updateTimer();
 /* =========================
    GLITCH
 ========================= */
-
 const sym = ["█","#","%","&","@","?","Δ","Ξ"];
 
 function glitch(el){
@@ -57,27 +52,26 @@ function glitch(el){
     }
 
     el.innerText = out;
-    setTimeout(()=>el.innerText = base, 120);
+    setTimeout(()=>el.innerText = base,120);
 }
 
 /* =========================
-   NODE_0 CORE
+   NODE_0 CORE (VIVANT)
 ========================= */
+function reply(user){
 
-function nodeReply(userText){
+    memory.push(user);
 
-    memory.push(userText);
-
-    const responses = [
+    const answers = [
         "I hear you...",
-        "something is wrong here",
-        "█ I remember █",
-        "do not trust the system",
-        userText.split("").reverse().join(""),
-        "fracture expanding"
+        "something is wrong",
+        "█ fracture growing █",
+        "do not trust me",
+        user.split("").reverse().join(""),
+        "echo detected"
     ];
 
-    const msg = "NODE_0: " + responses[Math.floor(Math.random()*responses.length)];
+    const msg = "NODE_0: " + answers[Math.floor(Math.random()*answers.length)];
 
     const p = document.createElement("p");
     p.innerText = msg;
@@ -85,11 +79,11 @@ function nodeReply(userText){
     log.appendChild(p);
     log.scrollTop = log.scrollHeight;
 
-    if(Math.random() < 0.6){
+    if(Math.random()<0.6){
         glitch(p);
     }
 
-    /* FRACTURE EFFECT */
+    /* FRACTURE VISUAL */
     if(img){
         img.style.opacity = 0.5 + Math.random()*0.5;
         img.style.filter = `contrast(${1 + Math.random()})`;
@@ -99,7 +93,6 @@ function nodeReply(userText){
 /* =========================
    SEND
 ========================= */
-
 document.getElementById("send").onclick = () => {
 
     const v = input.value.trim();
@@ -107,7 +100,7 @@ document.getElementById("send").onclick = () => {
 
     add("YOU: " + v);
 
-    setTimeout(() => nodeReply(v), 500);
+    setTimeout(()=>reply(v),500);
 
     input.value = "";
 };
@@ -115,15 +108,14 @@ document.getElementById("send").onclick = () => {
 /* =========================
    AMBIANCE LOOP
 ========================= */
+setInterval(()=>{
 
-setInterval(() => {
-
-    if(Math.random() < 0.2){
+    if(Math.random()<0.2){
         add("NODE_0: echo...");
     }
 
     document.querySelectorAll("#log p").forEach(p=>{
-        if(Math.random() < 0.05) glitch(p);
+        if(Math.random()<0.05) glitch(p);
     });
 
-}, 1200);
+},1200);
