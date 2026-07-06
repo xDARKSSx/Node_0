@@ -47,6 +47,10 @@ playerRef.child("firstSeen").once("value", snap => {
 ========================= */
 const sym = ["█", "#", "%", "&", "@", "?", "Δ", "Ξ", "▓", "░"];
 
+/* different symbol set used only for the brief
+   "materializing" glitch when a message is sent */
+const sendSym = ["$", "%", "&", "\"", "!", "|"];
+
 /* =========================
    LOG / CHAT
 ========================= */
@@ -67,6 +71,27 @@ function typewriter(el, fullText, speed = 28) {
     }, speed);
 }
 
+/* briefly scrambles a line with a given symbol set, then
+   settles on the real, exact final text */
+function revealWithGlitch(el, finalText, symbolSet, steps = 6, stepDelay = 45) {
+    let count = 0;
+    const iv = setInterval(() => {
+        let out = "";
+        for (let i = 0; i < finalText.length; i++) {
+            out += (finalText[i] !== " " && Math.random() < 0.3)
+                ? symbolSet[Math.floor(Math.random() * symbolSet.length)]
+                : finalText[i];
+        }
+        el.textContent = out;
+        log.scrollTop = log.scrollHeight;
+        count++;
+        if (count >= steps) {
+            clearInterval(iv);
+            el.textContent = finalText; // always ends on the exact real text
+        }
+    }, stepDelay);
+}
+
 function addMessage(sender, text) {
     const p = document.createElement("p");
     p.className = sender === "NODE_0" ? "node0" : "you";
@@ -77,7 +102,7 @@ function addMessage(sender, text) {
     if (sender === "NODE_0") {
         typewriter(p, "NODE_0: " + text);
     } else {
-        p.textContent = "YOU: " + text;
+        revealWithGlitch(p, "YOU: " + text, sendSym);
     }
     return p;
 }
@@ -188,10 +213,6 @@ setInterval(() => {
 
 /* =========================
    TYPING GLITCH
-   The displayed text corrupts slightly while
-   typing, before Enter/Send. The real
-   input.value stays 100% correct underneath,
-   so what actually gets sent is never affected.
 ========================= */
 function scrambleText(text, rate) {
     let out = "";
