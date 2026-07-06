@@ -1,56 +1,51 @@
 const log = document.getElementById("log");
 const input = document.getElementById("input");
-const btn = document.getElementById("send");
+const timerEl = document.getElementById("timer");
+const img = document.getElementById("fracture");
+
+let memory = [];
 
 function add(t){
     const p = document.createElement("p");
     p.innerText = t;
-
     log.appendChild(p);
     log.scrollTop = log.scrollHeight;
 }
 
 /* =========================
-   TIMER DISPLAY
+   TIMER 30 JOURS LOCAL (STABLE)
 ========================= */
-function renderTimer(){
 
-    const el = document.getElementById("timer");
-    if(!el) return;
+const END = Date.now() + 30 * 24 * 60 * 60 * 1000;
 
-    if(!window.ready){
-        el.innerText = "CONNECTING NODE_0...";
+function updateTimer(){
+
+    const diff = END - Date.now();
+
+    if(diff <= 0){
+        timerEl.innerText = "█ TIME COLLAPSED █";
         return;
     }
 
-    const left = window.getTimeLeft?.();
+    const s = Math.floor(diff/1000);
+    const d = Math.floor(s/86400);
+    const h = Math.floor((s%86400)/3600);
+    const m = Math.floor((s%3600)/60);
+    const ss = s%60;
 
-    if(left === null){
-        el.innerText = "TIME SIGNAL LOST";
-        return;
-    }
-
-    if(left <= 0){
-        el.innerText = "█ TIME COLLAPSED █";
-        return;
-    }
-
-    const d = Math.floor(left / 86400);
-    const h = Math.floor((left % 86400)/3600);
-    const m = Math.floor((left % 3600)/60);
-    const s = left % 60;
-
-    el.innerText =
+    timerEl.innerText =
         `${d}d ${String(h).padStart(2,"0")}:`+
         `${String(m).padStart(2,"0")}:`+
-        `${String(s).padStart(2,"0")}`;
+        `${String(ss).padStart(2,"0")}`;
 }
 
-setInterval(renderTimer, 1000);
+setInterval(updateTimer,1000);
+updateTimer();
 
 /* =========================
-   GLITCH SYSTEM
+   GLITCH
 ========================= */
+
 const sym = ["█","#","%","&","@","?","Δ","Ξ"];
 
 function glitch(el){
@@ -58,7 +53,7 @@ function glitch(el){
     let out = "";
 
     for(let i=0;i<base.length;i++){
-        out += Math.random()<0.2 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
+        out += Math.random()<0.25 ? sym[Math.floor(Math.random()*sym.length)] : base[i];
     }
 
     el.innerText = out;
@@ -66,56 +61,69 @@ function glitch(el){
 }
 
 /* =========================
-   SEND SYSTEM (NODE_0 TALKS)
+   NODE_0 CORE
 ========================= */
-function send(){
+
+function nodeReply(userText){
+
+    memory.push(userText);
+
+    const responses = [
+        "I hear you...",
+        "something is wrong here",
+        "█ I remember █",
+        "do not trust the system",
+        userText.split("").reverse().join(""),
+        "fracture expanding"
+    ];
+
+    const msg = "NODE_0: " + responses[Math.floor(Math.random()*responses.length)];
+
+    const p = document.createElement("p");
+    p.innerText = msg;
+
+    log.appendChild(p);
+    log.scrollTop = log.scrollHeight;
+
+    if(Math.random() < 0.6){
+        glitch(p);
+    }
+
+    /* FRACTURE EFFECT */
+    if(img){
+        img.style.opacity = 0.5 + Math.random()*0.5;
+        img.style.filter = `contrast(${1 + Math.random()})`;
+    }
+}
+
+/* =========================
+   SEND
+========================= */
+
+document.getElementById("send").onclick = () => {
 
     const v = input.value.trim();
     if(!v) return;
 
     add("YOU: " + v);
 
-    setTimeout(() => {
-
-        let reply;
-
-        if(Math.random() < 0.5){
-            reply = "NODE_0: I hear you.";
-        } else {
-            reply = "NODE_0: " + v.split("").reverse().join("");
-        }
-
-        const p = document.createElement("p");
-        p.innerText = reply;
-
-        log.appendChild(p);
-        log.scrollTop = log.scrollHeight;
-
-        if(Math.random() < 0.4){
-            glitch(p);
-        }
-
-    }, 400);
+    setTimeout(() => nodeReply(v), 500);
 
     input.value = "";
-}
-
-btn.onclick = send;
-input.addEventListener("keydown", e=>{
-    if(e.key === "Enter") send();
-});
+};
 
 /* =========================
-   LOOP ARG
+   AMBIANCE LOOP
 ========================= */
+
 setInterval(() => {
 
-    if(Math.random() < 0.1){
+    if(Math.random() < 0.2){
         add("NODE_0: echo...");
     }
 
     document.querySelectorAll("#log p").forEach(p=>{
-        if(Math.random() < 0.03) glitch(p);
+        if(Math.random() < 0.05) glitch(p);
     });
 
-}, 1500);
+}, 1200);
