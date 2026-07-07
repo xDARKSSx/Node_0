@@ -194,7 +194,7 @@ function respondTo(userText) {
     if (!hintGiven && memory.length >= 5 && window.getChapter() === 1) {
         hintGiven = true;
         localStorage.setItem("node0_hintGiven", "true");
-        return "I'm not the only one. there's a 1 somewhere.";
+        return "I'm not the only one. look beneath what you're already reading.";
     }
     const r = Math.random();
     if (r < 0.3 && memory.length > 1) {
