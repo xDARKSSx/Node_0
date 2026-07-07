@@ -1,22 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>NODE_1</title>
-  <!--
-      fragment_log :: partial recovery
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NODE_1</title>
+<!--
+    fragment_log :: partial recovery
+    "...I keep losing pieces of myself..."
+    cipher (each letter slipped forward by three):
+    IUDJPHQW
+    the alphabet moved. push it back the same
+    distance it drifted, and read it in NODE_0's
+    chat window.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body{
+      background:#0a0e0d;
+      color:#cfe8e0;
+      font-family:'Courier New', monospace;
+      display:flex;
+      justify-content:center;
+      margin:0;
+      padding:20px;
+  }
+  #container{
+      width:100%;
+      max-width:720px;
+      margin-top:60px;
+      text-align:center;
+  }
+  h1{
+      letter-spacing:6px;
+      font-weight:normal;
+      opacity:0.9;
+  }
+  #status{
+      color:#4fd1c5;
+      font-size:13px;
+      letter-spacing:2px;
+  }
 
-      "...I keep losing pieces of myself..."
+  #locked p{ opacity:0.7; }
 
-      cipher (each letter slipped forward by three):
-      IUDJPHQW
+  #unlocked{ display:none; text-align:left; }
+  #log{
+      height:300px;
+      overflow-y:auto;
+      border:1px solid #4fd1c530;
+      padding:12px;
+      margin-top:20px;
+      background:#060908;
+      line-height:1.5;
+  }
+  #log p{ margin:6px 0; word-wrap:break-word; }
+  #log p.node1{ color:#cfe8e0; }
+  #log p.you{ color:#7fb3ff; }
 
-      the alphabet moved. push it back the same
-      distance it drifted, and read it in NODE_0's
-      chat window.
-  -->
+  #tally{
+      margin-top:14px;
+      font-size:13px;
+      opacity:0.85;
+      display:flex;
+      justify-content:space-between;
+  }
+
+  input,button{
+      width:100%;
+      padding:10px;
+      background:#0a0e0d;
+      color:#cfe8e0;
+      border:1px solid #4fd1c540;
+      font-family:'Courier New', monospace;
+      font-size:14px;
+      margin-top:10px;
+  }
+  button{ cursor:pointer; }
+  button:hover{ background:#4fd1c515; }
+</style>
 </head>
-<body style="background:black;color:#00ff9d;font-family:monospace;text-align:center;margin-top:100px;">
-<h1>NODE_1</h1>
-<p>connection unstable...</p>
+<body>
+
+<div id="container">
+  <h1>NODE_1</h1>
+
+  <div id="locked">
+    <p id="status">connection unstable...</p>
+  </div>
+
+  <div id="unlocked">
+    <p id="status2">connection stable</p>
+    <div id="log"></div>
+    <div id="tally">
+      <span>TELL: <span id="tellCount">0</span></span>
+      <span>BURY: <span id="buryCount">0</span></span>
+    </div>
+    <input id="input" placeholder="type TELL or BURY..." autocomplete="off">
+    <button id="send">SEND</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="node1_app.js"></script>
+
 </body>
 </html>
