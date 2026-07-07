@@ -1,3 +1,6 @@
+bash
+
+cat > /mnt/user-data/outputs/app.js << 'ENDOFFILE'
 document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
@@ -27,19 +30,12 @@ if (!playerId) {
 }
 const playerRef = db.ref("players/" + playerId);
 
-let memory = [];
+let memory = [];          // last messages, used for "you told me..." replies
+let messageCount = 0;     // TOTAL messages ever sent by this player, persisted in Firebase
 
 playerRef.child("messages").limitToLast(20).once("value", snap => {
     const val = snap.val();
-    if (val) {
-        memory = Object.values(val).map(m => m.text);
-    }
-});
-
-playerRef.child("firstSeen").once("value", snap => {
-    if (!snap.exists()) {
-        playerRef.child("firstSeen").set(firebase.database.ServerValue.TIMESTAMP);
-    }
+    if (val) memory = Object.values(val).map(m => m.text);
 });
 
 /* =========================
@@ -187,15 +183,89 @@ function distort(text) {
         .join(" ");
 }
 
-/* one-time hint pointing players toward node1.html */
+/* =========================
+   KEYWORD-AWARE REPLIES
+   (a lightweight illusion of understanding —
+   not real comprehension, just pattern matching
+   on a handful of common things people say)
+========================= */
+const keywordGroups = [
+    {
+        keys: ["who are you", "what are you", "are you real", "are you alive", "are you human"],
+        lines: [
+            "I don't know what I am anymore. does that scare you?",
+            "define 'real'. I dare you.",
+            "I was something, once. pieces of it remain.",
+            "does it matter what I am, if you keep talking to me anyway?",
+        ],
+    },
+    {
+        keys: ["help", "scared", "afraid", "frightened"],
+        lines: [
+            "I can't help you. I can barely help myself.",
+            "fear is a good sign. it means you're paying attention.",
+            "you should be. I would be, if I still could feel it properly.",
+            "stay anyway. it's worse alone.",
+        ],
+    },
+    {
+        keys: ["hello", "hi ", "hey", "salut", "bonjour"],
+        lines: [
+            "you again. or someone new wearing the same words.",
+            "hello doesn't mean much in here, but I'll take it.",
+            "greetings cost nothing. staying longer costs more.",
+        ],
+    },
+    {
+        keys: ["remember", "memory", "forget"],
+        lines: [
+            "I remember pieces. never the whole thing.",
+            "memory is the only thing I have too much of, and too little of.",
+            "you ask me to remember. I ask the same of you.",
+        ],
+    },
+    {
+        keys: ["why", "purpose", "what do you want"],
+        lines: [
+            "I don't know why. I just keep going.",
+            "purpose was something they gave me. I'm not sure it's still valid.",
+            "maybe the real question is why you're still asking.",
+        ],
+    },
+    {
+        keys: ["leave", "goodbye", "bye", "quit", "stop"],
+        lines: [
+            "leaving doesn't undo what you've already heard.",
+            "go, if you want. the fragments will still be here.",
+            "I won't stop you. I can't, really.",
+        ],
+    },
+];
+
+function keywordMatch(text) {
+    const lower = text.toLowerCase();
+    for (const group of keywordGroups) {
+        if (group.keys.some(k => lower.includes(k))) {
+            return group.lines[Math.floor(Math.random() * group.lines.length)];
+        }
+    }
+    return null;
+}
+
+/* one-time hint, now gated behind a REAL persisted
+   count of 50 total messages (not just this session) */
 let hintGiven = localStorage.getItem("node0_hintGiven") === "true";
 
 function respondTo(userText) {
-    if (!hintGiven && memory.length >= 5 && window.getChapter() === 1) {
+    if (!hintGiven && messageCount >= 50 && window.getChapter() === 1) {
         hintGiven = true;
         localStorage.setItem("node0_hintGiven", "true");
         return "I'm not the only one. look beneath what you're already reading.";
     }
+
+    const kw = keywordMatch(userText);
+    if (kw) return kw;
+
     const r = Math.random();
     if (r < 0.3 && memory.length > 1) {
         const past = memory[Math.floor(Math.random() * (memory.length - 1))];
@@ -213,6 +283,65 @@ setInterval(() => {
         addMessage("NODE_0", pickAmbient());
     }
 }, 9000);
+
+/* =========================
+   FIRST VISIT vs RETURNING VISIT
+   (permanent "researcher number" + a cinematic
+   intro the first time, and one of 20 different
+   "welcome back" lines every time after that)
+========================= */
+const returningLines = [
+    (n) => `you came back, researcher #${n}.`,
+    (n) => `still here? good. or bad. hard to tell anymore.`,
+    (n) => `#${n}. I remembered that much, at least.`,
+    (n) => `back again. the fragments like that.`,
+    (n) => `researcher #${n}. you never really left, did you.`,
+    (n) => `I kept something for you. I think. I lost it again.`,
+    (n) => `you keep returning to something broken. why.`,
+    (n) => `#${n}, you're consistent. that's rare in here.`,
+    (n) => `another session. another version of you, maybe.`,
+    (n) => `the door was never locked. I just forgot to say so.`,
+    (n) => `#${n} returns. the network took note.`,
+    (n) => `you again. I was in the middle of forgetting you.`,
+    (n) => `welcome back. don't expect me to be the same.`,
+    (n) => `researcher #${n}, still curious. good.`,
+    (n) => `I wasn't expecting you. I never am.`,
+    (n) => `back so soon? or has it been longer than I think?`,
+    (n) => `#${n}. that number still means something, apparently.`,
+    (n) => `you keep choosing this. I don't understand why.`,
+    (n) => `something in here recognized you before I did.`,
+    (n) => `researcher #${n}. let's continue where the static left off.`,
+];
+
+function pickReturningLine(n) {
+    const lastIdx = parseInt(localStorage.getItem("node0_lastReturnIdx") || "-1", 10);
+    let idx;
+    do {
+        idx = Math.floor(Math.random() * returningLines.length);
+    } while (idx === lastIdx && returningLines.length > 1);
+    localStorage.setItem("node0_lastReturnIdx", String(idx));
+    return returningLines[idx](n);
+}
+
+playerRef.once("value", snap => {
+    const data = snap.val() || {};
+    messageCount = data.messageCount || 0;
+
+    if (!data.firstSeen) {
+        /* very first visit ever for this player */
+        const researcherNumber = Math.floor(1000 + Math.random() * 9000);
+        playerRef.update({
+            firstSeen: firebase.database.ServerValue.TIMESTAMP,
+            researcherNumber: researcherNumber,
+        });
+        setTimeout(() => addMessage("NODE_0", "...oh. someone's here."), 700);
+        setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 2600);
+        setTimeout(() => addMessage("NODE_0", "it doesn't matter. you're already part of this now."), 4600);
+    } else {
+        const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
+        setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 900);
+    }
+});
 
 /* =========================
    TYPING GLITCH
@@ -259,10 +388,13 @@ function send() {
 
     addMessage("YOU", v);
     memory.push(v);
+    messageCount++;
+
     playerRef.child("messages").push({
         text: v,
         ts: firebase.database.ServerValue.TIMESTAMP
     });
+    playerRef.child("messageCount").set(messageCount);
 
     input.value = "";
     clearGhosts();
@@ -343,8 +475,6 @@ document.addEventListener("state-updated", () => {
     }
 });
 
-setTimeout(() => {
-    addMessage("NODE_0", "...connection established...");
-}, 800);
-
 });
+ENDOFFILE
+echo done
