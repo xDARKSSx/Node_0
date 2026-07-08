@@ -1,6 +1,3 @@
-bash
-
-cat > /mnt/user-data/outputs/app.js << 'ENDOFFILE'
 document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
@@ -30,8 +27,8 @@ if (!playerId) {
 }
 const playerRef = db.ref("players/" + playerId);
 
-let memory = [];          // last messages, used for "you told me..." replies
-let messageCount = 0;     // TOTAL messages ever sent by this player, persisted in Firebase
+let memory = [];
+let messageCount = 0;
 
 playerRef.child("messages").limitToLast(20).once("value", snap => {
     const val = snap.val();
@@ -185,9 +182,6 @@ function distort(text) {
 
 /* =========================
    KEYWORD-AWARE REPLIES
-   (a lightweight illusion of understanding —
-   not real comprehension, just pattern matching
-   on a handful of common things people say)
 ========================= */
 const keywordGroups = [
     {
@@ -252,8 +246,6 @@ function keywordMatch(text) {
     return null;
 }
 
-/* one-time hint, now gated behind a REAL persisted
-   count of 50 total messages (not just this session) */
 let hintGiven = localStorage.getItem("node0_hintGiven") === "true";
 
 function respondTo(userText) {
@@ -286,9 +278,6 @@ setInterval(() => {
 
 /* =========================
    FIRST VISIT vs RETURNING VISIT
-   (permanent "researcher number" + a cinematic
-   intro the first time, and one of 20 different
-   "welcome back" lines every time after that)
 ========================= */
 const returningLines = [
     (n) => `you came back, researcher #${n}.`,
@@ -328,7 +317,6 @@ playerRef.once("value", snap => {
     messageCount = data.messageCount || 0;
 
     if (!data.firstSeen) {
-        /* very first visit ever for this player */
         const researcherNumber = Math.floor(1000 + Math.random() * 9000);
         playerRef.update({
             firstSeen: firebase.database.ServerValue.TIMESTAMP,
@@ -476,5 +464,3 @@ document.addEventListener("state-updated", () => {
 });
 
 });
-ENDOFFILE
-echo done
