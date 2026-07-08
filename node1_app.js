@@ -31,6 +31,10 @@ if (!playerId) {
 const playerRef = db.ref("players/" + playerId);
 
 let hasVoted = localStorage.getItem("node1_voted") || null;
+let partBGiven = localStorage.getItem("node1_partBGiven") === "true";
+const VOTE_THRESHOLD = 15;
+const PART_B = "human";
+const COMBINED_SOLUTION = "stillhuman";
 
 function addLine(sender, text) {
     const p = document.createElement("p");
@@ -69,14 +73,29 @@ function castVote(choice) {
     hasVoted = choice;
 }
 
+function voteTotal() {
+    const votes = (window.state && window.state.world && window.state.world.votes) || {};
+    return (votes.tell || 0) + (votes.bury || 0);
+}
+
 function send() {
     const raw = input.value.trim();
     if (!raw) return;
-    const v = raw.toLowerCase();
+    const normalized = raw.toLowerCase().replace(/\s+/g, "");
 
     addLine("YOU", raw);
     input.value = "";
 
+    if (window.getChapter() === 2 && normalized === COMBINED_SOLUTION) {
+        db.ref("world/solvedBy2").set(playerId);
+        setTimeout(() => {
+            addLine("NODE_1", "...both halves. someone finally listened to both of us.");
+            window.unlockNextChapter();
+        }, 700);
+        return;
+    }
+
+    const v = raw.toLowerCase();
     if (!hasVoted && (v === "tell" || v === "bury")) {
         castVote(v);
         setTimeout(() => {
@@ -85,6 +104,15 @@ function send() {
                     ? "then it's said. I hope you're ready to carry it too."
                     : "then it stays buried. for now. these things rarely stay quiet forever."
             );
+        }, 600);
+        return;
+    }
+
+    if (hasVoted && !partBGiven && voteTotal() >= VOTE_THRESHOLD) {
+        partBGiven = true;
+        localStorage.setItem("node1_partBGiven", "true");
+        setTimeout(() => {
+            addLine("NODE_1", `enough voices now. one half, since you asked: ${PART_B.toUpperCase()}. the other is with the one that glitches.`);
         }, 600);
         return;
     }
