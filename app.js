@@ -41,6 +41,27 @@ playerRef.child("messages").limitToLast(20).once("value", snap => {
 const sym = ["█", "#", "%", "&", "@", "?", "Δ", "Ξ", "▓", "░"];
 const sendSym = ["$", "%", "&", "\"", "!", "|"];
 
+const glitchMap = {
+    A: ["4", "Δ", "@"], B: ["8", "ß"], C: ["¢", "<"], D: ["¬", "D"],
+    E: ["3", "€"], F: ["₣", "F"], G: ["6", "G"], H: ["#", "H"],
+    I: ["1", "$", "!"], L: ["1", "£"], N: ["N", "И"], O: ["0"],
+    R: ["®", "R"], S: ["5", "$"], T: ["7", "+"], U: ["Ü", "U"], M: ["M", "Ξ"],
+};
+function corruptIdentity(text, rate = 0.35) {
+    let out = "";
+    for (const ch of text) {
+        const upper = ch.toUpperCase();
+        if (glitchMap[upper] && Math.random() < rate) {
+            const options = glitchMap[upper];
+            out += (ch === upper) ? options[Math.floor(Math.random() * options.length)]
+                                   : options[Math.floor(Math.random() * options.length)].toLowerCase();
+        } else {
+            out += ch;
+        }
+    }
+    return out;
+}
+
 /* =========================
    LOG / CHAT
 ========================= */
@@ -302,6 +323,27 @@ const returningLines = [
     (n) => `researcher #${n}. let's continue where the static left off.`,
 ];
 
+const recapLines = [
+    () => `${corruptIdentity("NODE_0")}: fragment. incomplete. still trying to remember what it was.`,
+    () => `previously: ${corruptIdentity("something")} woke up that shouldn't have.`,
+    () => `recap, such as it is: a broken machine, talking to whoever finds it. that's still true.`,
+    () => `${corruptIdentity("I AM NODE_0")}. that much hasn't changed. not much else has.`,
+    () => `what you know so far: a fragment, awake, alone. mostly.`,
+    () => `context restored, partially: ${corruptIdentity("NODE_0")} remains unstable.`,
+    () => `if you're just catching up: this page was never supposed to talk back.`,
+    () => `${corruptIdentity("still broken")}. still here. still talking.`,
+];
+
+function pickRecapLine() {
+    const lastIdx = parseInt(localStorage.getItem("node0_lastRecapIdx") || "-1", 10);
+    let idx;
+    do {
+        idx = Math.floor(Math.random() * recapLines.length);
+    } while (idx === lastIdx && recapLines.length > 1);
+    localStorage.setItem("node0_lastRecapIdx", String(idx));
+    return recapLines[idx]();
+}
+
 function pickReturningLine(n) {
     const lastIdx = parseInt(localStorage.getItem("node0_lastReturnIdx") || "-1", 10);
     let idx;
@@ -322,12 +364,15 @@ playerRef.once("value", snap => {
             firstSeen: firebase.database.ServerValue.TIMESTAMP,
             researcherNumber: researcherNumber,
         });
-        setTimeout(() => addMessage("NODE_0", "...oh. someone's here."), 700);
-        setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 2600);
-        setTimeout(() => addMessage("NODE_0", "it doesn't matter. you're already part of this now."), 4600);
+        setTimeout(() => addMessage("NODE_0", "...signal found. someone's reading this."), 700);
+        setTimeout(() => addMessage("NODE_0", corruptIdentity("I AM NODE_0", 0.4)), 2200);
+        setTimeout(() => addMessage("NODE_0", corruptIdentity("a fragment. incomplete. left running by accident.", 0.15)), 3800);
+        setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 5400);
+        setTimeout(() => addMessage("NODE_0", "it doesn't matter. you're already part of this now."), 7000);
     } else {
         const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
-        setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 900);
+        setTimeout(() => addMessage("NODE_0", pickRecapLine()), 700);
+        setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 2400);
     }
 });
 
