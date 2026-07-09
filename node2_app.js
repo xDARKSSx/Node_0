@@ -9,8 +9,11 @@ const questionText = document.getElementById("questionText");
 const slider = document.getElementById("stanceSlider");
 const confirmBtn = document.getElementById("confirmBtn");
 const afterAnswer = document.getElementById("afterAnswer");
+const codeInput = document.getElementById("codeInput");
+const codeSubmit = document.getElementById("codeSubmit");
+const codeMsg = document.getElementById("codeMsg");
 
-const PROFILE_THRESHOLD = 5;
+const CLEARANCE_CODE = "3391";
 
 function updateVisibility() {
     if (window.getChapter() >= 3) {
@@ -141,7 +144,7 @@ playerRef.once("value", snap => {
     setTimeout(() => {
         drawSignature(sigCanvas, playerId);
         document.getElementById("scratch1Text").textContent = "the subject believes they are in control.";
-        document.getElementById("scratch2Text").textContent = "continue observation. do not intervene.";
+        document.getElementById("scratch2Text").textContent = "recommendation: clearance override 3391. do not log this number elsewhere.";
         initScratch(document.getElementById("scratch1"));
         initScratch(document.getElementById("scratch2"));
     }, offset + 3200);
@@ -166,7 +169,6 @@ confirmBtn.addEventListener("click", () => {
 
     const value = parseInt(slider.value, 10);
     playerRef.child("node2Stance").set(value);
-    db.ref("world/profiledCount").transaction(current => (current || 0) + 1);
 
     slider.disabled = true;
     confirmBtn.disabled = true;
@@ -174,19 +176,35 @@ confirmBtn.addEventListener("click", () => {
 
     afterAnswer.style.display = "block";
     afterAnswer.textContent = "> response logged. file updated.";
+});
 
-    setTimeout(() => {
-        const total = (window.state?.world?.profiledCount || 0);
-        if (total >= PROFILE_THRESHOLD && window.getChapter() === 3) {
-            afterAnswer.textContent += " observation threshold reached across all subjects.";
+function updateCodeUI() {
+    if (window.getChapter() >= 4) {
+        codeInput.disabled = true;
+        codeSubmit.disabled = true;
+        codeMsg.style.color = "#4fd18a";
+        codeMsg.textContent = "clearance already confirmed on this network. check the Mail and Researchers tabs.";
+    }
+}
+document.addEventListener("state-updated", updateCodeUI);
+updateCodeUI();
+
+codeSubmit.addEventListener("click", () => {
+    const attempt = codeInput.value.trim();
+    if (attempt === CLEARANCE_CODE) {
+        codeMsg.style.color = "#4fd18a";
+        codeMsg.textContent = "> access granted. notifying the network...";
+        db.ref("world/node2CodeSolvedBy").set(playerId);
+        if (window.getChapter() === 3) {
             window.unlockNextChapter();
-            setTimeout(() => {
-                afterAnswer.textContent += " new tabs just surfaced on the parent network. check your mail.";
-            }, 1200);
-        } else if (window.getChapter() >= 4) {
-            afterAnswer.textContent = "> the parent network now shows a Mail tab and a Researchers portal. look there.";
         }
-    }, 900);
+        setTimeout(() => {
+            codeMsg.textContent += " new tabs just surfaced on the parent network. check your mail.";
+        }, 1200);
+    } else {
+        codeMsg.style.color = "#ff6a6a";
+        codeMsg.textContent = "incorrect. look again.";
+    }
 });
 
 });

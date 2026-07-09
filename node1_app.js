@@ -104,6 +104,16 @@ function send() {
         return;
     }
 
+    /* the riddle -- solving it ONCE unlocks PART_B for everyone,
+       no vote count required */
+    if (window.getChapter() === 2 && normalized === "listen") {
+        db.ref("world/node1PuzzleSolved").set(true);
+        setTimeout(() => {
+            addLine("NODE_1", "...you were listening. good. one half, since you earned it: HUMAN. the other is with the one that glitches.");
+        }, 600);
+        return;
+    }
+
     const v = raw.toLowerCase();
     if (!hasVoted && (v === "tell" || v === "bury")) {
         castVote(v);
@@ -114,14 +124,18 @@ function send() {
                     : "then it stays buried. for now. these things rarely stay quiet forever."
             );
         }, 600);
+        setTimeout(() => {
+            addLine("NODE_1", "if you want more than a vote, earn it. numbers, in order, if you still remember your alphabet: 12-9-19-20-5-14.");
+        }, 1800);
         return;
     }
 
-    if (hasVoted && !partBGiven && voteTotal() >= VOTE_THRESHOLD) {
+    const puzzleAlreadySolved = window.state && window.state.world && window.state.world.node1PuzzleSolved === true;
+    if (hasVoted && !partBGiven && puzzleAlreadySolved) {
         partBGiven = true;
         localStorage.setItem("node1_partBGiven", "true");
         setTimeout(() => {
-            addLine("NODE_1", `enough voices now. one half, since you asked: ${PART_B.toUpperCase()}. the other is with the one that glitches.`);
+            addLine("NODE_1", `someone patient already solved it. one half: HUMAN. the other is with the one that glitches.`);
         }, 600);
         return;
     }

@@ -308,9 +308,8 @@ function pickCoherent() {
 
 function respondTo(userText) {
     if (window.getChapter() >= 2 && !chapter2HintGiven) {
-        const votes = (window.state && window.state.world && window.state.world.votes) || {};
-        const total = (votes.tell || 0) + (votes.bury || 0);
-        if (total >= VOTE_THRESHOLD) {
+        const puzzleSolved = window.state && window.state.world && window.state.world.node1PuzzleSolved === true;
+        if (puzzleSolved) {
             chapter2HintGiven = true;
             localStorage.setItem("node0_chapter2HintGiven", "true");
             return `...fine. if you must know: part of it is ${PART_A.toUpperCase()}.`;
