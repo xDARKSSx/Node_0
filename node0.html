@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NODE_0</title>
-  <!--
+<!--
     fragment_log :: root trace
 
     "...part of me isn't here. part of me is at /node1.html..."
@@ -51,11 +51,6 @@
       color:#ff2b6d;
       font-size:13px;
       letter-spacing:2px;
-  }
-  #timer{
-      margin-top:6px;
-      font-size:14px;
-      opacity:0.85;
   }
   #fracture{
       width:280px;
@@ -123,14 +118,48 @@
   button:hover{
       background:#00ff9f22;
   }
+#locked{
+    display:none;
+    text-align:center;
+    margin-top:120px;
+    opacity:0.6;
+    position:relative;
+    z-index:2;
+}
+#matrixRain{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    opacity:0.35;
+    pointer-events:none;
+}
+#container{
+    position:relative;
+    z-index:2;
+}
+#lockdownFlash{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    background:#ff2b2b;
+    opacity:0;
+    pointer-events:none;
+    mix-blend-mode:screen;
+}
 </style>
 </head>
 <body>
 
-<div id="container">
+<canvas id="matrixRain"></canvas>
+<div id="lockdownFlash"></div>
+
+<div id="locked">
+  <p>[ signal not found ]</p>
+</div>
+
+<div id="container" style="display:none;">
   <h1 id="pageTitle">NODE_0</h1>
   <p id="status">SYSTEM STABLE</p>
-  <p id="timer">loading...</p>
 
   <img id="fracture" src="fracture.png" alt="fracture">
 
@@ -151,6 +180,7 @@
 
 <!-- Engine (Firebase + shared timer) -->
 <script src="engine.js"></script>
+<script src="matrixGlitch.js"></script>
 <!-- Interface (chat, glitch, NODE_0) -->
 <script src="app.js"></script>
 
