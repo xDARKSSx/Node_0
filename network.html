@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Map — Recovered</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body{ background:#05060a; color:#cfe8ff; font-family:'Courier New', monospace; }
+  #locked{ text-align:center; margin-top:100px; opacity:0.6; }
+  #mapWrap{ display:none; padding:20px; }
+  #caption{ text-align:center; opacity:0.6; font-size:12px; margin-bottom:14px; letter-spacing:1px; }
+  #sky{
+      position:relative; width:100%; max-width:900px; height:460px;
+      margin:0 auto; border:1px solid #ffffff15; border-radius:6px;
+      overflow:hidden; background:radial-gradient(ellipse at center, #0a0e18 0%, #05060a 100%);
+  }
+  #linesCanvas{ position:absolute; inset:0; width:100%; height:100%; }
+  .star{
+      position:absolute; border-radius:50%;
+      background:#ffffff; transform:translate(-50%,-50%);
+  }
+  .bgstar{ width:2px; height:2px; opacity:0.5; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle{ 0%,100%{opacity:0.2;} 50%{opacity:0.8;} }
+  .milestone{
+      width:10px; height:10px; cursor:default;
+      box-shadow:0 0 8px 2px currentColor;
+  }
+  .milestone.lit{ background:#7fe7c4; color:#7fe7c4; }
+  .milestone.unlit{ background:#333; color:#333; box-shadow:none; opacity:0.5; }
+  .milestone-label{
+      position:absolute; transform:translate(-50%, 10px);
+      font-size:11px; white-space:nowrap; opacity:0.75; letter-spacing:1px;
+  }
+  /* the hidden star -- visually identical to background decoration */
+  #hiddenStar{ width:2px; height:2px; opacity:0.5; }
+
+  #revealPanel{
+      display:none; max-width:900px; margin:16px auto 0; text-align:center;
+      font-size:13px; opacity:0.85; border-top:1px solid #ffffff15; padding-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">MERIDIAN DYNAMICS GROUP</div>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="contact.html">Contact</a>
+    <a href="inbox.html">Mail</a>
+    <a href="researchers.html">Researchers</a>
+    <a href="archive.html">Archive</a>
+    <a href="network.html" class="active">Network</a>
+  </div>
+</nav>
+
+<div id="locked">
+  <p>[ map data unavailable ]</p>
+</div>
+
+<div id="mapWrap">
+  <p id="caption">signal map — reconstructed from partial data</p>
+  <div id="sky">
+    <canvas id="linesCanvas"></canvas>
+    <!-- milestone and background stars are added here by network.js -->
+
+    <!-- some stars don't belong to any constellation. this one doesn't either. -->
+    <div id="hiddenStar" class="star" style="top:23%; left:79%;"></div>
+  </div>
+  <div id="revealPanel"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="network.js"></script>
+</body>
+</html>
