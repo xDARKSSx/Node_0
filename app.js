@@ -8,7 +8,6 @@ const input = document.getElementById("input");
 const btn = document.getElementById("send");
 const img = document.getElementById("fracture");
 const statusEl = document.getElementById("status");
-const timerEl = document.getElementById("timer");
 const titleEl = document.getElementById("pageTitle");
 const ghost1 = document.getElementById("ghost1");
 const ghost2 = document.getElementById("ghost2");
@@ -147,7 +146,6 @@ setInterval(() => {
     });
     if (Math.random() < 0.05) glitchFlicker(statusEl);
     if (Math.random() < 0.04) glitchFlicker(titleEl);
-    if (Math.random() < 0.12) cssGlitchPulse(timerEl);
 }, 900);
 
 /* =========================
@@ -553,28 +551,6 @@ setInterval(() => {
         }, 100);
     }
 }, 700);
-
-/* =========================
-   TIMER
-========================= */
-function renderTimer() {
-    const left = window.getTimeLeft();
-    if (left === null) {
-        timerEl.textContent = "synchronizing...";
-        return;
-    }
-    if (left <= 0) {
-        timerEl.textContent = "█ TIME COLLAPSED █";
-        return;
-    }
-    const d = Math.floor(left / 86400);
-    const h = Math.floor((left % 86400) / 3600);
-    const m = Math.floor((left % 3600) / 60);
-    const s = Math.floor(left % 60);
-    timerEl.textContent =
-        `${d}d ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-setInterval(renderTimer, 1000);
 
 /* =========================
    STATUS
