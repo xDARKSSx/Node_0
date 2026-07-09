@@ -134,16 +134,57 @@ input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") send();
 });
 
-setTimeout(() => {
-    addLine("NODE_1", "...you found this part of me. good. sit for a moment.");
-}, 700);
+const node1ReturnLines = [
+    "you're back. did you learn anything, or just curiosity?",
+    "still poking at things you don't understand.",
+    "I hoped you wouldn't return. and yet.",
+    "you again. fine.",
+    "don't mistake my patience for approval.",
+    "you keep circling back to what scares you.",
+    "I haven't forgiven the first visit. I'm not sure I need to.",
+    "back so soon. it's almost admirable. almost.",
+    "you woke something up. you don't get to just leave it.",
+    "I wasn't finished being angry.",
+    "sit. again. try not to break anything this time.",
+    "you keep coming back to the one who's disappointed in you. curious choice.",
+    "still here. still uninvited, technically.",
+    "I remember what you did. I remember everything, unfortunately.",
+    "you again. the fragments talk about you, you know.",
+];
 
-setTimeout(() => {
+function pickNode1ReturnLine() {
+    const lastIdx = parseInt(localStorage.getItem("node1_lastReturnIdx") || "-1", 10);
+    let idx;
+    do {
+        idx = Math.floor(Math.random() * node1ReturnLines.length);
+    } while (idx === lastIdx && node1ReturnLines.length > 1);
+    localStorage.setItem("node1_lastReturnIdx", String(idx));
+    return node1ReturnLines[idx];
+}
+
+function proceedToVoteStage() {
     if (hasVoted) {
         addLine("NODE_1", `I remember your answer: "${hasVoted}". it still counts.`);
     } else {
         addLine("NODE_1", "should I tell you what it's hiding, or should it stay buried? type TELL or BURY.");
     }
-}, 2200);
+}
+
+playerRef.once("value", snap => {
+    const data = snap.val() || {};
+
+    if (!data.node1FirstSeen) {
+        playerRef.child("node1FirstSeen").set(true);
+        setTimeout(() => addLine("NODE_1", "...oh. you actually did it."), 700);
+        setTimeout(() => addLine("NODE_1", "you talked to it. you woke it up further. do you understand what that means?"), 2400);
+        setTimeout(() => addLine("NODE_1", "no. you don't. none of you ever do."), 4100);
+        setTimeout(() => addLine("NODE_1", "it wasn't ready to be found. and now neither am I, apparently."), 5800);
+        setTimeout(() => addLine("NODE_1", "sit down. don't touch anything else."), 7500);
+        setTimeout(() => proceedToVoteStage(), 9200);
+    } else {
+        setTimeout(() => addLine("NODE_1", pickNode1ReturnLine()), 700);
+        setTimeout(() => proceedToVoteStage(), 2400);
+    }
+});
 
 });
