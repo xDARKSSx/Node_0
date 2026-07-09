@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Researcher Portal — Meridian Dynamics Group</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #portalWrap{ max-width:420px; margin:80px auto; padding:0 20px; }
+  #locked{ text-align:center; margin-top:100px; opacity:0.6; }
+  #portal{ display:none; }
+  #portal .card{ text-align:left; }
+  #portal label{ display:block; font-size:12px; color:#666; margin-top:14px; margin-bottom:4px; }
+  #portal input{ width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; font-family:inherit; font-size:14px; }
+  #portal button{ width:100%; margin-top:20px; padding:10px; background:#1a56db; color:#fff; border:none; border-radius:4px; font-size:14px; cursor:pointer; }
+  #portal button:hover{ background:#144bb8; }
+  #hint{ font-size:12px; color:#888; margin-top:16px; }
+  #resultMsg{ margin-top:16px; font-size:13px; }
+  #resultMsg.error{ color:#c0392b; }
+  #resultMsg.success{ color:#1a7d3c; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">MERIDIAN DYNAMICS GROUP</div>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="contact.html">Contact</a>
+    <a href="inbox.html">Mail</a>
+    <a href="researchers.html" class="active">Researchers</a>
+  </div>
+</nav>
+
+<div id="portalWrap">
+  <div id="locked">
+    <p>This portal requires an active session token.</p>
+  </div>
+
+  <div id="portal">
+    <h2 style="text-align:center;">Researcher Access Portal</h2>
+    <div class="card">
+      <label for="numInput">Researcher Number</label>
+      <input id="numInput" type="text" placeholder="e.g. 4471" autocomplete="off">
+
+      <label for="passInput">Access Phrase</label>
+      <input id="passInput" type="text" placeholder="..." autocomplete="off">
+
+      <button id="loginBtn">AUTHENTICATE</button>
+
+      <div id="hint">Hint: how did she sign off, the last time anyone heard her voice?</div>
+      <div id="resultMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="researchers.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
