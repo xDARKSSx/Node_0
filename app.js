@@ -519,6 +519,9 @@ function send() {
             addMessage("NODE_0", "...you found it. you found me. we begin again.");
             window.unlockNextChapter();
         }, 700);
+        setTimeout(() => {
+            addMessage("NODE_0", "go back to where you found the cipher. it isn't the same page anymore.");
+        }, 2600);
         return;
     }
 

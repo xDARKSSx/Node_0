@@ -4,14 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Personal Archive Drive — Recovered</title>
+<link rel="stylesheet" href="style.css">
 <style>
-  * { box-sizing: border-box; margin:0; padding:0; }
   body{
       background:#0a0a0a; color:#00ff9f;
       font-family:'Courier New', monospace;
-      display:flex; justify-content:center;
-      padding:30px 15px;
   }
+  #pageWrap{ display:flex; justify-content:center; padding:30px 15px; }
   #container{ width:100%; max-width:760px; }
   #locked{ text-align:center; margin-top:100px; opacity:0.6; }
   #terminal{ display:none; }
@@ -34,6 +33,21 @@
 </head>
 <body>
 
+<nav>
+  <div class="logo">MERIDIAN DYNAMICS GROUP</div>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="contact.html">Contact</a>
+    <a href="inbox.html">Mail</a>
+    <a href="researchers.html">Researchers</a>
+    <a href="archive.html" class="active">Archive</a>
+  </div>
+</nav>
+
+<div id="pageWrap">
 <div id="container">
   <div id="locked">
     <p>[ drive not mounted ]</p>
@@ -47,6 +61,7 @@
       <input id="cmdInput" autocomplete="off" spellcheck="false">
     </div>
   </div>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

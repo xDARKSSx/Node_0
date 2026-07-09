@@ -11,12 +11,12 @@ window.state = {};
 window.ready = false;
 
 /* =========================
-   SHARED TIMER (30 DAYS)
-   The first visitor triggers the start
-   on the Firebase server side. Everyone
-   then sees the exact same countdown.
+   TIMER PARTAGÉ (30 JOURS)
+   Le premier visiteur déclenche le départ
+   côté serveur Firebase. Tout le monde
+   voit ensuite le même compte à rebours.
 ========================= */
-const TIMER_DURATION_SECONDS = 30 * 24 * 60 * 60; // 30 days
+const TIMER_DURATION_SECONDS = 30 * 24 * 60 * 60; // 30 jours
 
 db.ref("world").transaction(current => {
     if (current === null || current.timerStart === undefined) {
@@ -27,11 +27,11 @@ db.ref("world").transaction(current => {
             chapter: (current && current.chapter) || 1
         };
     }
-    return current; // already initialized, leave it alone
+    return current; // déjà initialisé, on ne touche à rien
 });
 
 /* =========================
-   CONTINUOUS SYNC
+   SYNC EN CONTINU
 ========================= */
 db.ref("/").on("value", snap => {
     window.state = snap.val() || {};
@@ -56,33 +56,33 @@ window.getChapter = function () {
 };
 
 /* =========================
-   ARG TRIGGERS (global progression)
-   Only one of these blocks needs to fire
-   to trigger the event for EVERYONE, no
-   matter who's online at that moment.
+   TRIGGERS ARG (progression globale)
+   Un seul de ces blocs suffit à déclencher
+   l'event pour TOUT LE MONDE, peu importe
+   qui est en ligne au moment T.
 ========================= */
 setInterval(() => {
     const left = window.getTimeLeft();
     if (left === null) return;
     const day = 86400;
 
-    // Example: at 15 days left, trigger a narrative layer
+    // Exemple : à 15 jours restants, on déclenche une couche narrative (pur habillage, ne touche pas au chapitre)
     if (left < 15 * day && !window.state.world?.layer2Triggered) {
         db.ref("world/layer2Triggered").set(true);
     }
 
-    // Timer ends -> automatic move to next chapter for everyone
+    // Fin du minuteur : habillage narratif seulement (NE force plus le chapitre,
+    // la progression réelle passe uniquement par les énigmes résolues)
     if (left <= 0 && !window.state.world?.layer3Triggered) {
         db.ref("world/layer3Triggered").set(true);
-        db.ref("world/chapter").set((window.getChapter() || 1) + 1);
     }
 }, 3000);
 
 /* =========================
-   MANUAL CHAPTER UNLOCK
-   (call this later from the console,
-   or from a "puzzle solved" system)
-   Example: window.unlockNextChapter()
+   DÉBLOCAGE MANUEL D'UN CHAPITRE
+   (à appeler plus tard depuis la console,
+   ou depuis un système d'énigme résolue)
+   Exemple : window.unlockNextChapter()
 ========================= */
 window.unlockNextChapter = function () {
     db.ref("world/chapter").set((window.getChapter() || 1) + 1);
