@@ -29,6 +29,7 @@ const input = document.getElementById("input");
 const btn = document.getElementById("send");
 const img = document.getElementById("fracture");
 const statusEl = document.getElementById("status");
+const researcherTagEl = document.getElementById("researcherTag");
 const titleEl = document.getElementById("pageTitle");
 const ghost1 = document.getElementById("ghost1");
 const ghost2 = document.getElementById("ghost2");
@@ -458,6 +459,7 @@ playerRef.once("value", snap => {
             firstSeen: firebase.database.ServerValue.TIMESTAMP,
             researcherNumber: researcherNumber,
         });
+        researcherTagEl.textContent = `RESEARCHER #${researcherNumber}`;
         setTimeout(() => addMessage("NODE_0", "...wait."), 700);
         setTimeout(() => addMessage("NODE_0", "...someone's here?"), 2500);
         setTimeout(() => addMessage("NODE_0", corruptIdentity("I AM NODE_0", 0.4)), 4300);
@@ -470,6 +472,7 @@ playerRef.once("value", snap => {
         /* returning visit: a short, differently-glitched "previously on"
            recap, followed by one of 20 varied welcome-back lines */
         const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
+        researcherTagEl.textContent = `RESEARCHER #${researcherNumber}`;
         setTimeout(() => addMessage("NODE_0", pickRecapLine()), 700);
         setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 2400);
     }
