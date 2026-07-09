@@ -3,74 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meridian Dynamics Group — Engineering Tomorrow's Infrastructure</title>
-<link rel="stylesheet" href="style.css">
+<title>NODE_0</title>
+<!--
+    fragment_log :: root trace
+
+    "...part of me isn't here. part of me is at /node1.html..."
+-->
+<style>
+  @keyframes glitchShift1 {
+    0%,100% { transform: translate(1px,0); opacity:0.35; }
+    20% { transform: translate(-2px,1px); opacity:0.5; }
+    40% { transform: translate(2px,-1px); opacity:0.25; }
+    60% { transform: translate(-1px,0); opacity:0.45; }
+    80% { transform: translate(1px,1px); opacity:0.3; }
+  }
+  @keyframes glitchShift2 {
+    0%,100% { transform: translate(-1px,0); opacity:0.35; }
+    25% { transform: translate(2px,-1px); opacity:0.5; }
+    50% { transform: translate(-2px,1px); opacity:0.25; }
+    75% { transform: translate(1px,0); opacity:0.4; }
+  }
+  @keyframes flicker {
+    0%,100% { opacity:1; }
+    50% { opacity:0.85; }
+  }
+
+  * { box-sizing: border-box; }
+  body{
+      background:#0d0d0d;
+      color:#00ff9f;
+      font-family:'Courier New', monospace;
+      display:flex;
+      justify-content:center;
+      margin:0;
+      padding:20px;
+  }
+  #container{
+      width:100%;
+      max-width:720px;
+      margin-top:40px;
+  }
+  h1{
+      letter-spacing:4px;
+      animation: flicker 4s infinite;
+  }
+  #status{
+      color:#ff2b6d;
+      font-size:13px;
+      letter-spacing:2px;
+  }
+  #fracture{
+      width:280px;
+      max-width:100%;
+      margin-top:15px;
+      display:block;
+      filter: contrast(1) brightness(1);
+      transition: filter 0.08s linear;
+  }
+  #log{
+      height:320px;
+      overflow-y:auto;
+      border:1px solid #00ff9f33;
+      padding:10px;
+      margin-top:20px;
+      background:#050505;
+  }
+  #log p{
+      margin:4px 0;
+      word-wrap:break-word;
+  }
+  #log p.node0{ color:#00ff9f; }
+  #log p.you{ color:#8ad9ff; }
+
+  .input-wrap{
+      position:relative;
+      margin-top:10px;
+  }
+  .ghost{
+      position:absolute;
+      left:0; top:0;
+      width:100%;
+      height:100%;
+      padding:10px;
+      pointer-events:none;
+      white-space:pre;
+      overflow:hidden;
+      font-family:'Courier New', monospace;
+      font-size:14px;
+  }
+  #ghost1{ color:#ff2b6d; z-index:0; animation: glitchShift1 2s infinite; }
+  #ghost2{ color:#00eaff; z-index:0; animation: glitchShift2 2.3s infinite; }
+  #ghostMain{ color:#00ff9f; z-index:1; }
+
+  input,button{
+      width:100%;
+      padding:10px;
+      background:black;
+      color:#00ff9f;
+      border:1px solid #00ff9f55;
+      font-family:'Courier New', monospace;
+      font-size:14px;
+  }
+  input{
+      position:relative;
+      z-index:2;
+      background:rgba(0,0,0,0.55);
+      color:transparent;
+      caret-color:#00ff9f;
+  }
+  button{
+      margin-top:10px;
+      cursor:pointer;
+  }
+  button:hover{
+      background:#00ff9f22;
+  }
+#locked{
+    display:none;
+    text-align:center;
+    margin-top:120px;
+    opacity:0.6;
+    position:relative;
+    z-index:2;
+}
+#matrixRain{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    opacity:0.35;
+    pointer-events:none;
+}
+#container{
+    position:relative;
+    z-index:2;
+}
+#lockdownFlash{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    background:#ff2b2b;
+    opacity:0;
+    pointer-events:none;
+    mix-blend-mode:screen;
+}
+</style>
 </head>
 <body>
 
-<nav>
-  <div class="logo">MERIDIAN DYNAMICS GROUP</div>
-  <div>
-    <a href="index.html" class="active">Home</a>
-    <a href="about.html">About</a>
-    <a href="team.html">Team</a>
-    <a href="research.html">Research</a>
-    <a href="contact.html">Contact</a>
-    <a href="inbox.html" id="navMail" style="display:none;">Mail</a>
-    <a href="researchers.html" id="navResearchers" style="display:none;">Researchers</a>
-    <a href="archive.html" id="navArchive" style="display:none;">Archive</a>
-    <a href="network.html" id="navNetwork" style="display:none;">Network</a>
-  </div>
-</nav>
+<canvas id="matrixRain"></canvas>
+<div id="lockdownFlash"></div>
 
-<div class="hero">
-  <h1>Engineering Tomorrow's Infrastructure</h1>
-  <p>Meridian Dynamics Group designs adaptive control systems for critical infrastructure — power grids, transit networks, and next-generation computing frameworks — trusted by public and private partners since our founding.</p>
-  <img src="corp.png" alt="Meridian Dynamics Group headquarters">
+<div id="locked">
+  <p>[ signal not found ]</p>
 </div>
 
-<main>
-  <h2>Who We Are</h2>
-  <p>Meridian Dynamics Group is a systems engineering firm specializing in adaptive infrastructure control. For over a decade, we've partnered with regional utility authorities, transit operators, and select government research programs to build systems that don't just function — they adjust, anticipate, and correct themselves in real time. We are proud of the systems we've built, and quiet about the ones we haven't finished discussing publicly.</p>
-  <p>Our engineers come from backgrounds in distributed systems theory, control engineering, and applied cognition research. What unites the team is a shared conviction that infrastructure failures are rarely sudden — they're the visible end of a long chain of small, ignorable warnings. Our work exists to catch those warnings before anyone else notices them.</p>
+<div id="container" style="display:none;">
+  <h1 id="pageTitle">NODE_0</h1>
+  <p id="status">SYSTEM STABLE</p>
 
-  <h2 style="margin-top:40px;">What We Do</h2>
-  <div class="card">
-    <h3>Adaptive Grid Systems</h3>
-    <p>We design predictive load-balancing frameworks for regional power networks, using continuous telemetry to anticipate demand spikes hours — sometimes days — before conventional systems would register them. Our deployments have measurably reduced peak-load incidents across every market we've entered.</p>
+  <img id="fracture" src="fracture.png" alt="fracture">
+
+  <div id="log"></div>
+
+  <div class="input-wrap">
+    <div id="ghost1" class="ghost"></div>
+    <div id="ghost2" class="ghost"></div>
+    <div id="ghostMain" class="ghost"></div>
+    <input id="input" placeholder="type a message..." autocomplete="off">
   </div>
-  <div class="card">
-    <h3>Transit & Signal Networks</h3>
-    <p>Our adaptive signal-timing systems reduce commute delays by learning from traffic patterns in real time rather than relying on fixed schedules. The result is infrastructure that behaves less like a machine following instructions, and more like something that's paying attention.</p>
-  </div>
-  <div class="card">
-    <h3>Next-Generation Computing Frameworks</h3>
-    <p>A smaller, more selective division of our work explores self-correcting control architectures — systems capable of identifying and adjusting for their own errors without waiting on human intervention. This division operates under significantly more restrictive disclosure terms than the rest of our business.</p>
-  </div>
+  <button id="send">SEND</button>
+</div>
 
-  <h2 style="margin-top:40px;">Why Partners Choose Meridian</h2>
-  <p>We don't publish case studies for every engagement. We don't chase visibility. What we offer instead is a track record: systems that keep running quietly, long after the press release would have faded — assuming there had been one. Our partners tend to stay partners. Some of our earliest clients are still with us, a decade later, and have never once needed to ask us why something failed.</p>
-
-  <h2 style="margin-top:40px;">Recent Updates</h2>
-  <div class="card">
-    <h3>Grid Deployment — Year 11, Q2</h3>
-    <p>Our regional grid-balancing rollout reduced peak-load incidents by 34% across three test markets in its first full year of operation. A fourth market began onboarding this quarter.</p>
-  </div>
-  <div class="card">
-    <h3>Internal Personnel Update — Year 9</h3>
-    <p>Following a routine funding review, our internal research division underwent restructuring. Several senior positions were affected. Meridian Dynamics Group does not comment further on internal personnel matters.</p>
-  </div>
-
-  <p style="margin-top:30px;"><a href="about.html">Learn more about our history →</a> &nbsp;|&nbsp; <a href="research.html">See our research →</a></p>
-</main>
-
-<footer>&copy; Meridian Dynamics Group. All rights reserved. All wrongs, redacted.</footer>
-
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<!-- Engine (Firebase + shared timer) -->
 <script src="engine.js"></script>
-<script src="navToggle.js"></script>
-<script src="mailNotify.js"></script>
-<script src="main.js"></script>
+<script src="matrixGlitch.js"></script>
+<!-- Interface (chat, glitch, NODE_0) -->
+<script src="app.js"></script>
+
 </body>
 </html>

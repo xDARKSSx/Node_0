@@ -1,6 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
+   ACCESS LOCK
+   NODE_0 only becomes reachable after the corporate site
+   breach (the "forget" trigger) has actually happened.
+========================= */
+const lockedEl = document.getElementById("locked");
+const containerEl = document.getElementById("container");
+
+function updateAccess() {
+    const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
+    if (discovered) {
+        lockedEl.style.display = "none";
+        containerEl.style.display = "block";
+    } else {
+        lockedEl.style.display = "block";
+        containerEl.style.display = "none";
+    }
+}
+document.addEventListener("state-updated", updateAccess);
+updateAccess();
+
+/* =========================
    ELEMENTS
 ========================= */
 const log = document.getElementById("log");
