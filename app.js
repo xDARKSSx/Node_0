@@ -279,7 +279,7 @@ let midHintGiven = localStorage.getItem("node0_midHintGiven") === "true";
 const CHAPTER1_MESSAGE_THRESHOLD = 20;
 let chapter2HintGiven = localStorage.getItem("node0_chapter2HintGiven") === "true";
 let chapter5Given = localStorage.getItem("node0_chapter5Given") === "true";
-const VOTE_THRESHOLD = 15;
+const VOTE_THRESHOLD = 6;
 const PART_A = "still";
 
 /* used once NODE_0 has been "notified" via the NODE_3 breach --

@@ -8,6 +8,8 @@ const buryCountEl = document.getElementById("buryCount");
 const lockedEl = document.getElementById("locked");
 const unlockedEl = document.getElementById("unlocked");
 
+/* switch between the two views based on the GLOBAL,
+   shared chapter state -- not something local to this browser */
 function updateVisibility() {
     if (window.getChapter() >= 2) {
         lockedEl.style.display = "none";
@@ -20,6 +22,8 @@ function updateVisibility() {
 document.addEventListener("state-updated", updateVisibility);
 updateVisibility();
 
+/* reuse the same player ID as NODE_0, so this fragment
+   "remembers" the same player across the whole site */
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -30,9 +34,9 @@ if (!playerId) {
 }
 const playerRef = db.ref("players/" + playerId);
 
-let hasVoted = localStorage.getItem("node1_voted") || null;
+let hasVoted = localStorage.getItem("node1_voted") || null; // "tell" | "bury" | null
 let partBGiven = localStorage.getItem("node1_partBGiven") === "true";
-const VOTE_THRESHOLD = 15;
+const VOTE_THRESHOLD = 6;
 const PART_B = "human";
 const COMBINED_SOLUTION = "stillhuman";
 
@@ -44,6 +48,8 @@ function addLine(sender, text) {
     log.scrollTop = log.scrollHeight;
 }
 
+/* calm, lucid, quietly unsettling — NODE_1 doesn't
+   glitch, and that's precisely what makes it strange */
 const calmLines = [
     "you kept the other one talking. did you know that helped hold it together?",
     "I don't fracture like it does. not because I'm stronger. because I stopped resisting.",
@@ -67,6 +73,8 @@ document.addEventListener("state-updated", renderTally);
 renderTally();
 
 function castVote(choice) {
+    /* increment the global, shared tally safely even with
+       multiple players voting at the same time */
     db.ref("world/votes/" + choice).transaction(current => (current || 0) + 1);
     playerRef.child("chapter2Vote").set(choice);
     localStorage.setItem("node1_voted", choice);
@@ -86,6 +94,7 @@ function send() {
     addLine("YOU", raw);
     input.value = "";
 
+    /* the combined 2-part code, unlocks chapter 3 for EVERYONE */
     if (window.getChapter() === 2 && normalized === COMBINED_SOLUTION) {
         db.ref("world/solvedBy2").set(playerId);
         setTimeout(() => {
@@ -174,6 +183,7 @@ playerRef.once("value", snap => {
     const data = snap.val() || {};
 
     if (!data.node1FirstSeen) {
+        /* first ever visit -- NODE_1 is angry, disappointed, unsettling */
         playerRef.child("node1FirstSeen").set(true);
         setTimeout(() => addLine("NODE_1", "...oh. you actually did it."), 700);
         setTimeout(() => addLine("NODE_1", "you talked to it. you woke it up further. do you understand what that means?"), 2400);

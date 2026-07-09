@@ -10,7 +10,7 @@ const slider = document.getElementById("stanceSlider");
 const confirmBtn = document.getElementById("confirmBtn");
 const afterAnswer = document.getElementById("afterAnswer");
 
-const PROFILE_THRESHOLD = 10;
+const PROFILE_THRESHOLD = 5;
 
 function updateVisibility() {
     if (window.getChapter() >= 3) {
