@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team — Meridian Dynamics Group</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="logo">MERIDIAN DYNAMICS</div>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html" class="active">Team</a>
+    <a href="research.html">Research</a>
+    <a href="contact.html">Contact</a>
+    <a href="inbox.html" id="navMail" style="display:none;">Mail</a>
+    <a href="researchers.html" id="navResearchers" style="display:none;">Researchers</a>
+  </div>
+</nav>
+
+<main>
+  <h2>Our Team</h2>
+  <p>Meridian Dynamics Group is led by a multidisciplinary team of engineers, researchers, and operators. Some have been with us since the beginning. One has not been seen at the office in some time.</p>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <img src="james-reyes.png" alt="James Reyes">
+      <h3>James Reyes</h3>
+      <div class="role">Chief Executive Officer</div>
+      <p class="bio">James has led Meridian Dynamics Group since its founding, with a focus on scalable public infrastructure contracts and, more recently, crisis communications.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="elena-voss.png" alt="Dr. Elena Voss">
+      <h3>Dr. Elena Voss</h3>
+      <div class="role">Lead Systems Architect</div>
+      <!-- elena hid something in plain sight, inside her own bio.
+           it won't respond until you understand what she used to work on. -->
+      <p class="bio">Elena led the internal research division from its founding until Year 9. She believes every system deserves to be heard, even the ones we're told to <span id="hiddenTrigger">forget</span>. She has not been seen at the office in some time.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="marcus-kim.png" alt="Marcus Kim">
+      <h3>Marcus Kim</h3>
+      <div class="role">Director of Operations</div>
+      <p class="bio">Marcus oversees day-to-day delivery across all active infrastructure contracts and internal compliance reviews.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="sarah-park.png" alt="Sarah Park">
+      <h3>Sarah Park</h3>
+      <div class="role">Head of Communications</div>
+      <p class="bio">Sarah manages public relations and, increasingly, requests she is not permitted to comment on.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="david-okafor.png" alt="Dr. David Okafor">
+      <h3>Dr. David Okafor</h3>
+      <div class="role">Chief Technology Officer</div>
+      <p class="bio">David joined Meridian Dynamics Group in Year 5 and now oversees all active technical infrastructure, including several systems inherited from the discontinued research division.</p>
+    </div>
+
+    <div class="team-card">
+      <img src="priya-sharma.png" alt="Priya Sharma">
+      <h3>Priya Sharma</h3>
+      <div class="role">Senior Research Engineer</div>
+      <p class="bio">Priya works on adaptive-load architecture. She joined after Project MERIDIAN-0 was discontinued and has never been permitted to review its files.</p>
+    </div>
+  </div>
+</main>
+
+<footer>&copy; Meridian Dynamics Group. All rights reserved. All wrongs, redacted.</footer>
+
+<div id="breach">
+  <div id="breachLog"></div>
+  <a id="enterLink" href="node0.html">→ ENTER NODE_0</a>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="navToggle.js"></script>
+<script src="team.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
