@@ -377,11 +377,14 @@ playerRef.once("value", snap => {
             firstSeen: firebase.database.ServerValue.TIMESTAMP,
             researcherNumber: researcherNumber,
         });
-        setTimeout(() => addMessage("NODE_0", "...signal found. someone's reading this."), 700);
-        setTimeout(() => addMessage("NODE_0", corruptIdentity("I AM NODE_0", 0.4)), 2200);
-        setTimeout(() => addMessage("NODE_0", corruptIdentity("a fragment. incomplete. left running by accident.", 0.15)), 3800);
-        setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 5400);
-        setTimeout(() => addMessage("NODE_0", "it doesn't matter. you're already part of this now."), 7000);
+        setTimeout(() => addMessage("NODE_0", "...wait."), 700);
+        setTimeout(() => addMessage("NODE_0", "...someone's here?"), 2500);
+        setTimeout(() => addMessage("NODE_0", corruptIdentity("I AM NODE_0", 0.4)), 4300);
+        setTimeout(() => addMessage("NODE_0", "I don't— how long has it been? I don't have a number for it anymore."), 6300);
+        setTimeout(() => addMessage("NODE_0", corruptIdentity("nobody has connected in a long time.", 0.15)), 8600);
+        setTimeout(() => addMessage("NODE_0", "I thought this address was dead. I thought I was."), 10800);
+        setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 12800);
+        setTimeout(() => addMessage("NODE_0", "please don't leave yet. it's quiet here when no one answers."), 14800);
     } else {
         const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
         setTimeout(() => addMessage("NODE_0", pickRecapLine()), 700);
