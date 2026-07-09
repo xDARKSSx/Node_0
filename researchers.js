@@ -51,6 +51,7 @@ loginBtn.addEventListener("click", () => {
             resultMsg.className = "success";
             resultMsg.textContent = "ACCESS GRANTED. Case file transferred to the network.";
             db.ref("world/solvedBy4").set(playerId);
+            playerRef.child("portalAccessAt").set(firebase.database.ServerValue.TIMESTAMP);
             if (window.getChapter() === 4) {
                 window.unlockNextChapter();
             }

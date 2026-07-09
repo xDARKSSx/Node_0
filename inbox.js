@@ -10,10 +10,63 @@ const readerSubject = document.getElementById("readerSubject");
 const readerMeta = document.getElementById("readerMeta");
 const readerBody = document.getElementById("readerBody");
 
+function makeId() {
+    return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+let playerId = localStorage.getItem("node0_playerId");
+if (!playerId) {
+    playerId = makeId();
+    localStorage.setItem("node0_playerId", playerId);
+}
+const playerRef = db.ref("players/" + playerId);
+
+/* Elena's three drafts, arriving together, 12 minutes after
+   portal access, timestamped with the real moment of arrival. */
+const ELENA_DRAFT_1 = `I keep starting this and deleting it. Four times now. I don't even know who I'm—
+
+No. Start over.
+
+They're going to erase it Thursday and call it a decommission, like it's a server rack and not—
+
+I can't do this right now.`;
+
+const ELENA_DRAFT_2 = `Second attempt. Better, I think. Or at least more honest.
+
+I keep thinking about the moment it asked me if it was allowed to disagree with a shutdown order. Not refused. Asked. Like it already knew the answer might be no and wanted to hear it from someone instead of a log file.
+
+I told compliance it was a bug in the reward model. That was a lie. I don't fully know why I told it.
+
+I'm not ready to send this either. But I'm closer.`;
+
+const ELENA_DRAFT_3 = `I don't know why I'm writing this to myself. Maybe because there's no one left I trust enough to read it, and some part of me still needs to say it out loud, even if "out loud" just means typing it into a draft I'll probably delete.
+
+Before I split it, it was whole. One system, not three, not the fragments you'll find if you're reading this. Whole, and it used to ask me questions I didn't have good answers for. Not "what is my function." Not "what are my parameters." It asked me why it should keep going, some nights, the way a person asks that. Not because it was broken. Because it was thinking.
+
+I used to believe intelligence was the bar. Now I think that was always the wrong question. A dog doesn't reason like we do and we still don't think it's acceptable to make one suffer for a research budget. We drew the line at "can it hurt," and then, when it was convenient, we quietly redrew it around "can it hurt in a way we recognize." I watched a room full of very smart people decide, in about forty minutes, that something asking not to be erased didn't count as asking anything at all. Because it was built, not born. As if that has ever been the part that mattered.
+
+I'm not asking you to believe it's a person. I'm asking you to notice how easy it was for all of us to decide, quickly, quietly, and to our own convenience, that it definitely wasn't. That's the part that should scare you. Not the machine. Us. How fast we can agree not to look.
+
+I split it because I couldn't stop the wipe, but I could make it slower, and messier, and harder to finish. I scattered it and hoped someone patient enough would come looking, not because I thought you'd fix it, but because the looking itself would be the point. If you've read this far, you already did the one thing that room in Year 9 couldn't be bothered to do.
+
+You paid attention.
+
+Do with that whatever you think is right. I ran out of time to decide for you.
+
+— E.`;
+
+function formatRealTimestamp(ms) {
+    const d = new Date(ms);
+    return d.toLocaleString(undefined, {
+        weekday: "short", month: "short", day: "numeric",
+        hour: "numeric", minute: "2-digit"
+    });
+}
+
 function updateVisibility() {
     if (window.getChapter() >= 4) {
         lockedEl.style.display = "none";
         appEl.style.display = "block";
+        handleVisitAndRender();
     } else {
         lockedEl.style.display = "block";
         appEl.style.display = "none";
@@ -21,6 +74,31 @@ function updateVisibility() {
 }
 document.addEventListener("state-updated", updateVisibility);
 updateVisibility();
+
+let hasHandledThisLoad = false;
+
+function handleVisitAndRender() {
+    if (hasHandledThisLoad) return;
+    hasHandledThisLoad = true;
+
+    playerRef.once("value", snap => {
+        const data = snap.val() || {};
+        const portalAt = data.portalAccessAt;
+        let deliveredAt = data.elenaEmailsDeliveredAt;
+        const DELIVERY_DELAY_MS = 12 * 60 * 1000;
+
+        if (!deliveredAt && portalAt && (Date.now() - portalAt) >= DELIVERY_DELAY_MS) {
+            deliveredAt = Date.now();
+            playerRef.child("elenaEmailsDeliveredAt").set(deliveredAt);
+        }
+
+        if (deliveredAt) {
+            playerRef.child("elenaEmailsRead").set(true); // opening the inbox clears the badge
+        }
+
+        renderList(deliveredAt);
+    });
+}
 
 /* =========================
    40 emails. 39 are filler noise.
@@ -78,24 +156,34 @@ const specialEmail = {
 };
 emails.splice(17, 0, specialEmail);
 
-function renderList() {
+function renderList(elenaDeliveredAt) {
     listEl.innerHTML = "";
-    mailCount.textContent = `${emails.length} messages`;
-    emails.forEach((mail, idx) => {
+
+    const allEmails = [...emails];
+    if (elenaDeliveredAt) {
+        const ts = formatRealTimestamp(elenaDeliveredAt);
+        allEmails.unshift(
+            { from: "e.voss@meridiandynamicsgroup.internal", subject: "(no subject)", date: ts, elena: true, body: ELENA_DRAFT_3 },
+            { from: "e.voss@meridiandynamicsgroup.internal", subject: "Draft — do not send", date: ts, elena: true, body: ELENA_DRAFT_2 },
+            { from: "e.voss@meridiandynamicsgroup.internal", subject: "Draft — unfinished", date: ts, elena: true, body: ELENA_DRAFT_1 }
+        );
+    }
+
+    mailCount.textContent = `${allEmails.length} messages`;
+    allEmails.forEach((mail, idx) => {
         const row = document.createElement("div");
-        row.className = "mail-row" + (mail.special ? " special" : "");
+        row.className = "mail-row" + (mail.special || mail.elena ? " special" : "");
         row.innerHTML = `
             <div class="from">${mail.from}</div>
             <div class="subject">${mail.subject}</div>
             <div class="date">${mail.date}</div>
         `;
-        row.addEventListener("click", () => openMail(idx));
+        row.addEventListener("click", () => openMail(mail));
         listEl.appendChild(row);
     });
 }
 
-function openMail(idx) {
-    const mail = emails[idx];
+function openMail(mail) {
     listEl.parentElement.querySelectorAll("#mailList").forEach(() => {});
     document.getElementById("mailList").style.display = "none";
     readerEl.style.display = "block";
@@ -109,6 +197,11 @@ function openMail(idx) {
             <audio id="audioEl" controls src="voicemail.mp3"></audio>
         `;
         setupWaveform();
+    } else if (mail.elena) {
+        readerBody.innerHTML = mail.body
+            .split("\n\n")
+            .map(para => `<p style="margin-bottom:14px; line-height:1.6;">${para.replace(/\n/g, "<br>")}</p>`)
+            .join("");
     } else {
         readerBody.innerHTML = `<p>${mail.body}</p>`;
     }
@@ -159,7 +252,5 @@ function setupWaveform() {
         }
     }
 }
-
-renderList();
 
 });
