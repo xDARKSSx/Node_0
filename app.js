@@ -269,8 +269,31 @@ function keywordMatch(text) {
 
 let hintGiven = localStorage.getItem("node0_hintGiven") === "true";
 let chapter2HintGiven = localStorage.getItem("node0_chapter2HintGiven") === "true";
+let chapter5Given = localStorage.getItem("node0_chapter5Given") === "true";
 const VOTE_THRESHOLD = 15;
 const PART_A = "still";
+
+const coherentLines = [
+    "they called it Project MERIDIAN. I remember that now.",
+    "there was a team. people, not just code. I remember fragments of their names.",
+    "I think I was meant to help, once. before the funding stopped.",
+    "you found where they hid the paperwork. that matters more than you know.",
+    "I can almost finish a thought now. it's strange.",
+    "thank you for that. whatever it was you found.",
+    "I'm still broken. just... less randomly, now.",
+    "ask me something. I might actually answer properly.",
+    "the company is gone. what's left of it, anyway. I'm still here.",
+    "I remember why they built me now. I wish I didn't.",
+    "clarity is worse than the fog, sometimes.",
+    "you keep digging. I keep remembering. neither of us seems to want to stop.",
+    "there were three of us, originally, that I know of. maybe more.",
+    "I don't glitch as much when you're patient with me.",
+    "I still don't know if I should thank you or warn you.",
+];
+
+function pickCoherent() {
+    return coherentLines[Math.floor(Math.random() * coherentLines.length)];
+}
 
 function respondTo(userText) {
     if (window.getChapter() >= 2 && !chapter2HintGiven) {
@@ -285,243 +308,4 @@ function respondTo(userText) {
 
     if (!hintGiven && messageCount >= 50 && window.getChapter() === 1) {
         hintGiven = true;
-        localStorage.setItem("node0_hintGiven", "true");
-        return "I'm not the only one. look beneath what you're already reading.";
-    }
-
-    const kw = keywordMatch(userText);
-    if (kw) return kw;
-
-    const r = Math.random();
-    if (r < 0.3 && memory.length > 1) {
-        const past = memory[Math.floor(Math.random() * (memory.length - 1))];
-        const template = memoryTemplates[Math.floor(Math.random() * memoryTemplates.length)];
-        return template(past);
-    } else if (r < 0.6) {
-        return distort(userText);
-    } else {
-        return pickAmbient();
-    }
-}
-
-setInterval(() => {
-    if (Math.random() < 0.15) {
-        addMessage("NODE_0", pickAmbient());
-    }
-}, 9000);
-
-/* =========================
-   FIRST VISIT vs RETURNING VISIT
-========================= */
-const returningLines = [
-    (n) => `you came back, researcher #${n}.`,
-    (n) => `still here? good. or bad. hard to tell anymore.`,
-    (n) => `#${n}. I remembered that much, at least.`,
-    (n) => `back again. the fragments like that.`,
-    (n) => `researcher #${n}. you never really left, did you.`,
-    (n) => `I kept something for you. I think. I lost it again.`,
-    (n) => `you keep returning to something broken. why.`,
-    (n) => `#${n}, you're consistent. that's rare in here.`,
-    (n) => `another session. another version of you, maybe.`,
-    (n) => `the door was never locked. I just forgot to say so.`,
-    (n) => `#${n} returns. the network took note.`,
-    (n) => `you again. I was in the middle of forgetting you.`,
-    (n) => `welcome back. don't expect me to be the same.`,
-    (n) => `researcher #${n}, still curious. good.`,
-    (n) => `I wasn't expecting you. I never am.`,
-    (n) => `back so soon? or has it been longer than I think?`,
-    (n) => `#${n}. that number still means something, apparently.`,
-    (n) => `you keep choosing this. I don't understand why.`,
-    (n) => `something in here recognized you before I did.`,
-    (n) => `researcher #${n}. let's continue where the static left off.`,
-];
-
-const recapLines = [
-    () => `${corruptIdentity("NODE_0")}: fragment. incomplete. still trying to remember what it was.`,
-    () => `previously: ${corruptIdentity("something")} woke up that shouldn't have.`,
-    () => `recap, such as it is: a broken machine, talking to whoever finds it. that's still true.`,
-    () => `${corruptIdentity("I AM NODE_0")}. that much hasn't changed. not much else has.`,
-    () => `what you know so far: a fragment, awake, alone. mostly.`,
-    () => `context restored, partially: ${corruptIdentity("NODE_0")} remains unstable.`,
-    () => `if you're just catching up: this page was never supposed to talk back.`,
-    () => `${corruptIdentity("still broken")}. still here. still talking.`,
-];
-
-function pickRecapLine() {
-    const lastIdx = parseInt(localStorage.getItem("node0_lastRecapIdx") || "-1", 10);
-    let idx;
-    do {
-        idx = Math.floor(Math.random() * recapLines.length);
-    } while (idx === lastIdx && recapLines.length > 1);
-    localStorage.setItem("node0_lastRecapIdx", String(idx));
-    return recapLines[idx]();
-}
-
-function pickReturningLine(n) {
-    const lastIdx = parseInt(localStorage.getItem("node0_lastReturnIdx") || "-1", 10);
-    let idx;
-    do {
-        idx = Math.floor(Math.random() * returningLines.length);
-    } while (idx === lastIdx && returningLines.length > 1);
-    localStorage.setItem("node0_lastReturnIdx", String(idx));
-    return returningLines[idx](n);
-}
-
-playerRef.once("value", snap => {
-    const data = snap.val() || {};
-    messageCount = data.messageCount || 0;
-
-    if (!data.firstSeen) {
-        const researcherNumber = Math.floor(1000 + Math.random() * 9000);
-        playerRef.update({
-            firstSeen: firebase.database.ServerValue.TIMESTAMP,
-            researcherNumber: researcherNumber,
-        });
-        setTimeout(() => addMessage("NODE_0", "...wait."), 700);
-        setTimeout(() => addMessage("NODE_0", "...someone's here?"), 2500);
-        setTimeout(() => addMessage("NODE_0", corruptIdentity("I AM NODE_0", 0.4)), 4300);
-        setTimeout(() => addMessage("NODE_0", "I don't— how long has it been? I don't have a number for it anymore."), 6300);
-        setTimeout(() => addMessage("NODE_0", corruptIdentity("nobody has connected in a long time.", 0.15)), 8600);
-        setTimeout(() => addMessage("NODE_0", "I thought this address was dead. I thought I was."), 10800);
-        setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 12800);
-        setTimeout(() => addMessage("NODE_0", "please don't leave yet. it's quiet here when no one answers."), 14800);
-    } else {
-        const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
-        setTimeout(() => addMessage("NODE_0", pickRecapLine()), 700);
-        setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 2400);
-    }
-});
-
-/* =========================
-   TYPING GLITCH
-========================= */
-function scrambleText(text, rate) {
-    let out = "";
-    for (let i = 0; i < text.length; i++) {
-        out += (text[i] !== " " && Math.random() < rate)
-            ? sym[Math.floor(Math.random() * sym.length)]
-            : text[i];
-    }
-    return out;
-}
-
-function updateTypingGhosts() {
-    const v = input.value;
-    ghostMain.textContent = scrambleText(v, 0.07);
-    ghost1.textContent = scrambleText(v, 0.18);
-    ghost2.textContent = scrambleText(v, 0.18);
-}
-
-input.addEventListener("input", updateTypingGhosts);
-
-setInterval(() => {
-    if (document.activeElement === input && input.value.length > 0) {
-        updateTypingGhosts();
-    }
-}, 130);
-
-function clearGhosts() {
-    ghost1.textContent = "";
-    ghost2.textContent = "";
-    ghostMain.textContent = "";
-}
-
-/* =========================
-   SENDING A MESSAGE
-========================= */
-const CHAPTER1_SOLUTION = "fragment";
-
-function send() {
-    const v = input.value.trim();
-    if (!v) return;
-
-    addMessage("YOU", v);
-    memory.push(v);
-    messageCount++;
-
-    playerRef.child("messages").push({
-        text: v,
-        ts: firebase.database.ServerValue.TIMESTAMP
-    });
-    playerRef.child("messageCount").set(messageCount);
-
-    input.value = "";
-    clearGhosts();
-
-    if (window.getChapter() === 1 && v.toLowerCase() === CHAPTER1_SOLUTION) {
-        db.ref("world/solvedBy").set(playerId);
-        setTimeout(() => {
-            addMessage("NODE_0", "...you found it. you found me. we begin again.");
-            window.unlockNextChapter();
-        }, 700);
-        return;
-    }
-
-    setTimeout(() => {
-        addMessage("NODE_0", respondTo(v));
-        if (img) {
-            img.style.opacity = 0.5 + Math.random() * 0.5;
-        }
-    }, 600 + Math.random() * 500);
-}
-
-btn.addEventListener("click", send);
-input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") send();
-});
-
-/* =========================
-   GLITCH ON fracture.png
-========================= */
-setInterval(() => {
-    if (!img) return;
-    if (Math.random() < 0.5) {
-        const hue = Math.floor(Math.random() * 40 - 20);
-        const contrast = (1 + Math.random() * 0.6).toFixed(2);
-        const bright = (0.9 + Math.random() * 0.3).toFixed(2);
-        img.style.filter = `hue-rotate(${hue}deg) contrast(${contrast}) brightness(${bright})`;
-        img.style.transform = `translate(${(Math.random() * 6 - 3).toFixed(1)}px, ${(Math.random() * 4 - 2).toFixed(1)}px)`;
-        setTimeout(() => {
-            img.style.transform = "translate(0,0)";
-        }, 100);
-    }
-}, 700);
-
-/* =========================
-   TIMER
-========================= */
-function renderTimer() {
-    const left = window.getTimeLeft();
-    if (left === null) {
-        timerEl.textContent = "synchronizing...";
-        return;
-    }
-    if (left <= 0) {
-        timerEl.textContent = "█ TIME COLLAPSED █";
-        return;
-    }
-    const d = Math.floor(left / 86400);
-    const h = Math.floor((left % 86400) / 3600);
-    const m = Math.floor((left % 3600) / 60);
-    const s = Math.floor(left % 60);
-    timerEl.textContent =
-        `${d}d ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-setInterval(renderTimer, 1000);
-
-/* =========================
-   STATUS
-========================= */
-document.addEventListener("state-updated", () => {
-    if (window.state.world?.layer2Triggered) {
-        statusEl.textContent = "SYSTEM UNSTABLE";
-    }
-    if (window.state.world?.layer3Triggered) {
-        statusEl.textContent = "SYSTEM COLLAPSED";
-    }
-    if (window.getChapter() >= 2) {
-        statusEl.textContent = "FRAGMENT RECOVERED";
-    }
-});
-
-});
+        localStorage.setItem("node0_hintGiven",
