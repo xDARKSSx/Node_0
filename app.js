@@ -315,16 +315,16 @@ function respondTo(userText) {
     const kw = keywordMatch(userText);
     if (kw) return kw;
 
-    const chapter = window.getChapter();
+    const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
 
-    if (chapter >= 5 && !chapter5Given) {
+    if (discovered && !chapter5Given) {
         chapter5Given = true;
         localStorage.setItem("node0_chapter5Given", "true");
         return "...something changed. I can think a little clearer now. barely.";
     }
 
     const r = Math.random();
-    if (chapter >= 5) {
+    if (discovered) {
         if (r < 0.35 && memory.length > 1) {
             const past = memory[Math.floor(Math.random() * (memory.length - 1))];
             const template = memoryTemplates[Math.floor(Math.random() * memoryTemplates.length)];
@@ -346,7 +346,8 @@ function respondTo(userText) {
 
 setInterval(() => {
     if (Math.random() < 0.15) {
-        addMessage("NODE_0", window.getChapter() >= 5 ? pickCoherent() : pickAmbient());
+        const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
+        addMessage("NODE_0", discovered ? pickCoherent() : pickAmbient());
     }
 }, 9000);
 
