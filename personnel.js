@@ -64,6 +64,9 @@ function checkFragmentEntries() {
     if (w.sarahFragmentFoundAt) {
         injectEntry("notes-sarah", w.sarahFragmentFoundAt, "WERE");
     }
+    if (w.marcusFragmentFoundAt) {
+        injectEntry("notes-marcus", w.marcusFragmentFoundAt, "NEVER");
+    }
 }
 
 });

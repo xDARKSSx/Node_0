@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpEx Portal — Meridian Dynamics Group</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{ background:#d8d4c8; color:#2b2b2b; font-family: Arial, Helvetica, sans-serif; }
+  header{ background:#3d4a3d; color:#e8e4d4; padding:16px 24px; }
+  header h1{ font-size:16px; letter-spacing:0.5px; }
+  header .sub{ font-size:11px; opacity:0.7; margin-top:2px; }
+  #locked{ text-align:center; margin-top:100px; color:#5a5648; }
+  #app{ display:none; padding:20px; max-width:900px; margin:0 auto; }
+  nav.years{ display:flex; gap:2px; margin-bottom:14px; }
+  nav.years button{
+      background:#c4bfa8; border:1px solid #9a9480; color:#3d3a2e;
+      font-family:inherit; font-size:12px; padding:8px 16px; cursor:pointer;
+  }
+  nav.years button.active{ background:#3d4a3d; color:#fff; }
+  table{ width:100%; border-collapse:collapse; background:#f0ede0; font-size:12px; }
+  th{ background:#8a8570; color:#fff; text-align:left; padding:8px 10px; font-weight:normal; }
+  td{ padding:7px 10px; border-bottom:1px solid #d0cbb8; }
+  tr.expenseRow{ cursor:pointer; }
+  tr.expenseRow:hover{ background:#e0dcc8; }
+  #reader{ display:none; background:#f0ede0; padding:24px; margin-top:14px; border:1px solid #9a9480; }
+  #reader .backBtn{ background:none; border:none; color:#3d4a3d; cursor:pointer; font-size:12px; margin-bottom:14px; }
+  #reader h2{ font-size:16px; margin-bottom:6px; }
+  #reader .meta{ font-size:11px; color:#6a6552; margin-bottom:16px; }
+  #reader .body p{ margin-bottom:12px; font-size:13px; line-height:1.7; }
+  footer{ text-align:center; padding:20px; font-size:10px; color:#7a7562; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MERIDIAN DYNAMICS GROUP — OPEX / PROCUREMENT PORTAL</h1>
+  <div class="sub">expense report archive · retention: 7 years per policy</div>
+</header>
+
+<div id="locked">
+  <p>[ portal offline — clearance required ]</p>
+</div>
+
+<div id="app">
+  <nav class="years">
+    <button data-year="7" class="active">Year 7</button>
+    <button data-year="8">Year 8</button>
+    <button data-year="9">Year 9</button>
+  </nav>
+
+  <table id="expenseTable">
+    <thead>
+      <tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Filed by</th></tr>
+    </thead>
+    <tbody id="expenseBody"></tbody>
+  </table>
+
+  <div id="reader">
+    <button class="backBtn" id="backBtn">&larr; back to ledger</button>
+    <h2 id="readerTitle"></h2>
+    <div class="meta" id="readerMeta"></div>
+    <div class="body" id="readerBody"></div>
+  </div>
+</div>
+
+<footer>Internal use only. Meridian Dynamics Group Finance Systems.</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="opex-portal.js"></script>
+</body>
+</html>
