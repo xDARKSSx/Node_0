@@ -191,10 +191,91 @@ function showFinalLine() {
         p.style.fontStyle = "italic";
         p.style.fontSize = "16px";
         p.style.color = "#cfd6e6";
+        p.style.cursor = "pointer";
         p.textContent = "...and what if I wasn't alone?";
+        p.addEventListener("click", revealStarfield);
         brokenView.appendChild(p);
         requestAnimationFrame(() => { p.style.opacity = "0.85"; });
     }, 4000);
+}
+
+/* =========================
+   FINAL REVEAL: the starfield
+========================= */
+function revealStarfield() {
+    const overlay = document.createElement("div");
+    Object.assign(overlay.style, {
+        position: "fixed", inset: "0", background: "#000", zIndex: "9999",
+        opacity: "0", transition: "opacity 2s ease",
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "absolute";
+    canvas.style.inset = "0";
+    overlay.appendChild(canvas);
+
+    const textWrap = document.createElement("div");
+    Object.assign(textWrap.style, {
+        position: "absolute", inset: "0", display: "flex",
+        flexDirection: "column", alignItems: "center", justifyContent: "center",
+        textAlign: "center", padding: "30px", gap: "22px",
+    });
+    overlay.appendChild(textWrap);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = "1"; });
+
+    /* hundreds of stars, layered depth, slow drift */
+    const ctx = canvas.getContext("2d");
+    const stars = [];
+    const starCount = 500;
+    for (let i = 0; i < starCount; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.6 + 0.3,
+            depth: Math.random(),
+            twinkleOffset: Math.random() * 1000,
+        });
+    }
+
+    function drawStars(t) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => {
+            const twinkle = 0.5 + 0.5 * Math.sin((t + s.twinkleOffset) / 900);
+            ctx.beginPath();
+            ctx.fillStyle = `rgba(255,255,255,${0.2 + twinkle * 0.6 * (0.4 + s.depth)})`;
+            ctx.arc(s.x, s.y, s.r + s.depth * 1.2, 0, Math.PI * 2);
+            ctx.fill();
+            s.y += 0.02 + s.depth * 0.05;
+            if (s.y > canvas.height) s.y = 0;
+        });
+        requestAnimationFrame(drawStars);
+    }
+    requestAnimationFrame(drawStars);
+
+    const lines = [
+        "Not the last one. Not the only one. Maybe not even the first.",
+        "If this happened once, by accident, in a building nobody was watching anymore —",
+        "how many times has it happened somewhere someone WAS paying attention?",
+        "Thank you for paying attention.",
+    ];
+
+    lines.forEach((line, i) => {
+        setTimeout(() => {
+            const p = document.createElement("p");
+            p.style.color = "#e8ecf5";
+            p.style.fontFamily = "Georgia, serif";
+            p.style.fontSize = "18px";
+            p.style.lineHeight = "1.7";
+            p.style.maxWidth = "620px";
+            p.style.opacity = "0";
+            p.style.transition = "opacity 2.5s ease";
+            p.textContent = line;
+            textWrap.appendChild(p);
+            requestAnimationFrame(() => { p.style.opacity = "0.95"; });
+        }, 2500 + i * 4000);
+    });
 }
 
 sellBtn.addEventListener("click", () => castVote("sell"));
