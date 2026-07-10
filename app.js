@@ -580,12 +580,6 @@ setInterval(() => {
    STATUS
 ========================= */
 document.addEventListener("state-updated", () => {
-    if (window.state.world?.layer2Triggered) {
-        statusEl.textContent = "SYSTEM UNSTABLE";
-    }
-    if (window.state.world?.layer3Triggered) {
-        statusEl.textContent = "SYSTEM COLLAPSED";
-    }
     if (window.getChapter() >= 2) {
         statusEl.textContent = "FRAGMENT RECOVERED";
     }
