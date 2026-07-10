@@ -36,7 +36,6 @@ const playerRef = db.ref("players/" + playerId);
 
 let hasVoted = localStorage.getItem("node1_voted") || null; // "tell" | "bury" | null
 let partBGiven = localStorage.getItem("node1_partBGiven") === "true";
-const VOTE_THRESHOLD = 6;
 const PART_B = "human";
 const COMBINED_SOLUTION = "stillhuman";
 
@@ -101,6 +100,9 @@ function send() {
             addLine("NODE_1", "...both halves. someone finally listened to both of us.");
             window.unlockNextChapter();
         }, 700);
+        setTimeout(() => {
+            addLine("NODE_1", "there's a third one. it's never been found. try node2.html.");
+        }, 2600);
         return;
     }
 
