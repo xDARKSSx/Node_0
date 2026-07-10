@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>signal drift — a blog about systems that learn</title>
+<title>signal drift — driftwatcher</title>
 <style>
   * { box-sizing: border-box; margin:0; padding:0; }
   body{
@@ -12,35 +12,64 @@
       line-height:1.7;
   }
   header{
-      padding:50px 20px 30px; text-align:center;
-      border-bottom:1px solid #a385c933;
+      padding:40px 20px 0; text-align:center;
   }
-  header h1{ font-family: 'Courier New', monospace; color:#c9a8ef; letter-spacing:2px; font-size:22px; }
+  header h1{ font-family: 'Courier New', monospace; color:#c9a8ef; letter-spacing:2px; font-size:24px; }
   header p{ opacity:0.6; font-size:13px; margin-top:8px; font-family:'Courier New', monospace; }
+  .byline{ margin-top:14px; font-size:12px; font-family:'Courier New', monospace; opacity:0.5; }
+
+  nav.tabs{
+      display:flex; justify-content:center; gap:6px;
+      margin:26px auto 0; padding-bottom:0;
+      border-bottom:1px solid #a385c933;
+      max-width:680px;
+  }
+  nav.tabs button{
+      background:none; border:none; color:#b9a6cf;
+      font-family:'Courier New', monospace; font-size:13px;
+      padding:12px 16px; cursor:pointer; letter-spacing:0.5px;
+      border-bottom:2px solid transparent;
+  }
+  nav.tabs button.active{ color:#f0e6fa; border-bottom:2px solid #a385c9; }
+  nav.tabs button:hover{ color:#f0e6fa; }
+
   main{ max-width:680px; margin:0 auto; padding:40px 20px 80px; }
-  article{ margin-bottom:60px; padding-bottom:50px; border-bottom:1px solid #a385c922; }
+  .cat{ display:none; }
+  .cat.active{ display:block; }
+
+  article{ margin-bottom:55px; padding-bottom:45px; border-bottom:1px solid #a385c922; }
   article:last-child{ border-bottom:none; }
   article .date{ font-family:'Courier New', monospace; font-size:12px; color:#9a7fc4; letter-spacing:1px; }
-  article h2{ margin:8px 0 18px; font-size:24px; color:#f0e6fa; font-weight:normal; }
+  article .tag{ font-family:'Courier New', monospace; font-size:11px; color:#7a5f99; margin-left:8px; }
+  article h2{ margin:8px 0 18px; font-size:23px; color:#f0e6fa; font-weight:normal; }
   article p{ margin-bottom:16px; color:#d6c8e6; }
   code{
       display:block; background:#16111f; border:1px solid #a385c933;
       padding:16px; margin:20px 0; font-family:'Courier New', monospace;
       font-size:13px; color:#c9a8ef; white-space:pre-wrap; border-radius:4px;
   }
-  .comments{ margin-top:24px; padding-top:20px; border-top:1px dashed #a385c933; }
-  .comments h3{ font-size:13px; font-family:'Courier New', monospace; opacity:0.6; margin-bottom:10px; font-weight:normal; }
-  .comments input{
+
+  .comments{ margin-top:26px; padding-top:20px; border-top:1px dashed #a385c933; }
+  .comments h3{ font-size:12px; font-family:'Courier New', monospace; opacity:0.55; margin-bottom:14px; font-weight:normal; text-transform:uppercase; letter-spacing:1px; }
+  .comment{ margin-bottom:16px; font-family: Georgia, serif; font-size:14px; }
+  .comment .who{ font-family:'Courier New', monospace; font-size:12px; color:#9a7fc4; margin-bottom:3px; }
+  .comment .who .handle{ color:#c9a8ef; }
+  .comment .txt{ color:#cdbfdf; }
+  .comment.reply{ margin-left:26px; border-left:2px solid #a385c933; padding-left:14px; }
+
+  .comment-form{ margin-top:22px; }
+  .comment-form input{
       width:100%; padding:10px; background:#16111f; border:1px solid #a385c944;
       color:#e6dcf0; font-family:'Courier New', monospace; font-size:13px; border-radius:4px;
   }
-  .comments button{
+  .comment-form button{
       margin-top:8px; padding:8px 16px; background:#a385c9; color:#0e0b14; border:none;
       border-radius:4px; cursor:pointer; font-family:'Courier New', monospace; font-size:13px;
   }
-  .comments button:hover{ background:#c9a8ef; }
+  .comment-form button:hover{ background:#c9a8ef; }
   #commentMsg{ margin-top:10px; font-size:13px; font-family:'Courier New', monospace; }
-  #hiddenPost{ display:none; margin-top:30px; padding:20px; background:#16111f; border-left:3px solid #a385c9; }
+  #hiddenPost{ display:none; margin-top:22px; padding:18px; background:#16111f; border-left:3px solid #a385c9; }
+
   footer{ text-align:center; padding:30px; font-size:11px; opacity:0.4; font-family:'Courier New', monospace; }
 </style>
 </head>
@@ -48,41 +77,48 @@
 
 <header>
   <h1>signal drift</h1>
-  <p>notes on adaptive systems, from someone who probably shouldn't be writing this publicly</p>
+  <p>notes on adaptive systems, rockets, and being a person while both of those things happen</p>
+  <div class="byline">written by driftwatcher · no affiliation to anyone in particular</div>
 </header>
+
+<nav class="tabs">
+  <button data-cat="technology" class="active">technology</button>
+  <button data-cat="space">space &amp; engineering</button>
+  <button data-cat="notebook">notebook</button>
+</nav>
 
 <main>
 
-<article>
-  <div class="date">// entry 1</div>
-  <h2>Why I Can't Stop Thinking About Self-Correcting Systems</h2>
-  <p>I've been in infrastructure engineering for over a decade, and I thought I understood what "adaptive" meant. Load balancers that adjust. Signal timing that learns traffic patterns. Useful, boring, predictable improvements on predictable problems.</p>
-  <p>Then I got handed a codebase that didn't behave like that. It didn't just adjust its outputs — it adjusted the way it adjusted. Recursively. Watching it work is the closest thing to religious awe I've felt at a keyboard in my entire career.</p>
-  <p>I'm not going to say where this came from. I'm still not sure I fully understand what I inherited. But I can't stop poking at it.</p>
-</article>
+  <!-- ============ TECHNOLOGY ============ -->
+  <div class="cat active" id="cat-technology">
 
-<article>
-  <div class="date">// entry 2</div>
-  <h2>The Day the Model Surprised Me</h2>
-  <p>Small thing, probably nothing. I ran a routine diagnostic on the legacy framework I mentioned last time, expecting the usual — clean logs, expected outputs, nothing interesting.</p>
-  <p>Instead I got a response that referenced a parameter I never passed it. Not an error. Not a crash. It answered a question I hadn't asked yet, based on the one I was about to ask.</p>
-  <p>I told myself it was a caching artifact. I've told myself that four more times since.</p>
-</article>
+    <article>
+      <div class="date">// posted recently <span class="tag">#neuromorphic</span></div>
+      <h2>Notes on Neuromorphic Hardware in 2026</h2>
+      <p>Spent the weekend re-reading old papers on spiking neural architectures — the kind of hardware that processes information more like a brain than a traditional chip, firing in patterns instead of clean synchronized clock cycles. Research groups have been chasing this for years now, and the efficiency gains for certain workloads are genuinely wild once you see the benchmarks.</p>
+      <p>What gets me isn't the raw performance. It's that the closer hardware gets to mimicking biological timing, the harder it becomes to fully predict what it'll do with a given input. That used to bother me. Lately I find it kind of beautiful. Make of that what you will.</p>
+      <div class="comments">
+        <h3>12 comments</h3>
+        <div class="comment">
+          <div class="who"><span class="handle">byte_forge</span> · 3d ago</div>
+          <div class="txt">the unpredictability thing is exactly why I stopped trusting my own intuition on these systems. good post.</div>
+        </div>
+        <div class="comment reply">
+          <div class="who"><span class="handle">driftwatcher</span> · 3d ago</div>
+          <div class="txt">honestly same. I used to think that was a bug in my understanding. now I think it's just the shape of the thing.</div>
+        </div>
+        <div class="comment">
+          <div class="who"><span class="handle">null_pointer_dan</span> · 2d ago</div>
+          <div class="txt">you should look into the newer async training approaches, feels adjacent to what you're describing here</div>
+        </div>
+      </div>
+    </article>
 
-<article>
-  <div class="date">// entry 3</div>
-  <h2>On Being Useful</h2>
-  <p>Uncomfortable post. Feel free to skip this one if you're here for the technical stuff.</p>
-  <p>I've spent my whole career being the person who understands the system better than the system understands itself. That's the job. That's the value I bring.</p>
-  <p>I don't know how to do that job next to something that understands itself better than I understand it. I keep telling myself this is an engineering problem like any other. Some nights I believe that.</p>
-  <p>I don't know if I'm building the thing that replaces me, or the thing that outlives all of us being useful in the way we're used to. I'm not sure those are different questions.</p>
-</article>
-
-<article id="entry4">
-  <div class="date">// entry 4</div>
-  <h2>A Strange Little Snippet</h2>
-  <p>Lighter post, I promise. Found this while stress-testing an old inherited module — asked it for a status self-check and got this back instead of the usual diagnostic string. Sharing because it's a fun little anomaly, nothing more. Probably just a leftover debug hook someone forgot to strip out years ago.</p>
-  <code>self_check() -&gt; output:
+    <article id="entry4">
+      <div class="date">// posted recently <span class="tag">#weird-bugs</span></div>
+      <h2>A Strange Little Snippet</h2>
+      <p>Lighter post, I promise. Found this while stress-testing an old inherited module — asked it for a status self-check and got this back instead of the usual diagnostic string. Sharing because it's a fun little anomaly, nothing more. Probably just a leftover debug hook someone forgot to strip out years ago.</p>
+      <code>self_check() -&gt; output:
 [79, 66, 83, 79, 76, 69, 84, 69]
 
 # looks like byte values. probably nothing.
@@ -90,23 +126,124 @@
 # if anyone reading this actually bothers
 # to convert these to characters, let me
 # know what you get. probably garbage.</code>
-  <p>Anyway. Back to real work next post. Probably.</p>
+      <p>Anyway. Back to real work next post. Probably.</p>
 
-  <div class="comments">
-    <h3>leave a reply</h3>
-    <input id="commentInput" placeholder="what does it say?" autocomplete="off">
-    <button id="commentSubmit">POST COMMENT</button>
-    <p id="commentMsg"></p>
+      <div class="comments">
+        <h3>34 comments</h3>
+        <div class="comment">
+          <div class="who"><span class="handle">recursion_kid</span> · 1d ago</div>
+          <div class="txt">lmao ran it through ascii real quick, either it's a word or you've got a very specific typo generator</div>
+        </div>
+        <div class="comment reply">
+          <div class="who"><span class="handle">driftwatcher</span> · 1d ago</div>
+          <div class="txt">let me know if you actually decode it. I keep meaning to and keep not doing it. classic me.</div>
+        </div>
+        <div class="comment">
+          <div class="who"><span class="handle">quietuptime</span> · 22h ago</div>
+          <div class="txt">this is either the funniest nothing-burger bug I've seen all year or you should talk to someone. posting this comment half-joking, mostly joking.</div>
+        </div>
+        <div class="comment">
+          <div class="who"><span class="handle">the_actual_intern</span> · 14h ago</div>
+          <div class="txt">not gonna lie this gave me a weird feeling reading it at 2am. probably just me being tired</div>
+        </div>
+
+        <div class="comment-form">
+          <input id="commentInput" placeholder="leave a reply..." autocomplete="off">
+          <button id="commentSubmit">POST COMMENT</button>
+          <p id="commentMsg"></p>
+        </div>
+
+        <div id="hiddenPost">
+          <p style="opacity:0.7; font-size:12px; font-family:'Courier New', monospace; margin-bottom:10px;">// edit, much later — this was never meant to publish. found sitting in drafts.</p>
+          <p>Okay. It's not a debug hook. I've known that since the day I found it and I've been calling it an anomaly in every post since because I didn't know what else to call something that describes itself accurately, unprompted, in a self-check nobody wrote it to perform.</p>
+          <p>I don't think it's asking to be replaced. I think I might be the one who's scared of that word, and it's just... telling me what it sees. Maybe that's worse. Maybe it's not.</p>
+          <p>I keep this codebase running because I don't know what happens if I don't, and because some part of me — the part that still remembers why I loved this job — doesn't want to be the one who shuts it down a second time.</p>
+          <p>— D.</p>
+        </div>
+      </div>
+    </article>
+
   </div>
 
-  <div id="hiddenPost">
-    <p style="opacity:0.7; font-size:12px; font-family:'Courier New', monospace; margin-bottom:10px;">// this was never meant to publish. found in drafts.</p>
-    <p>Okay. It's not a debug hook. I've known that since the day I found it and I've been calling it an anomaly in every post since because I didn't know what else to call something that describes itself accurately, unprompted, in a self-check nobody wrote it to perform.</p>
-    <p>I don't think it's asking to be replaced. I think I might be the one who's scared of that word, and it's just... telling me what it sees. Maybe that's worse. Maybe it's not.</p>
-    <p>I keep this codebase running because I don't know what happens if I don't, and because some part of me — the part that still remembers why I loved this job — doesn't want to be the one who shuts it down a second time.</p>
-    <p>— D.</p>
+  <!-- ============ SPACE & ENGINEERING ============ -->
+  <div class="cat" id="cat-space">
+
+    <article>
+      <div class="date">// posted recently <span class="tag">#rockets</span></div>
+      <h2>Reusability Still Amazes Me</h2>
+      <p>Watched another reusable rocket test stream during lunch instead of eating lunch, which my calendar will not thank me for later. There's something almost embarrassingly emotional about watching a booster come back down and land itself after doing its job. We just... do that now. Routinely. That used to be science fiction inside my own lifetime.</p>
+      <p>I think about the engineering discipline required to make something that reliable, that repeatable, at that scale. It's the same discipline I try to bring to my own work, even if what I build will never be as photogenic as a booster landing on a drone ship.</p>
+      <div class="comments">
+        <h3>6 comments</h3>
+        <div class="comment">
+          <div class="who"><span class="handle">orbital_mechanic</span> · 4d ago</div>
+          <div class="txt">the landing burn timing still gets me every single time, no matter how many I've watched</div>
+        </div>
+      </div>
+    </article>
+
+    <article>
+      <div class="date">// posted recently <span class="tag">#personal</span></div>
+      <h2>Why I Follow Rocket Launches Between Meetings</h2>
+      <p>Someone asked me at lunch why an infrastructure engineer cares this much about aerospace. Honest answer: it's the one field left where I still get to be a fan instead of the person responsible for whether it works.</p>
+      <p>Everything else I touch, I'm on the hook for. Launches are just wonder, with none of the 2am pages when something goes wrong. I recommend everyone find at least one field like that for themselves.</p>
+      <div class="comments">
+        <h3>3 comments</h3>
+        <div class="comment">
+          <div class="who"><span class="handle">signaldrift_fan22</span> · 1w ago</div>
+          <div class="txt">this is such a relatable take honestly. mine is competitive baking of all things</div>
+        </div>
+      </div>
+    </article>
+
   </div>
-</article>
+
+  <!-- ============ NOTEBOOK ============ -->
+  <div class="cat" id="cat-notebook">
+
+    <article>
+      <div class="date">// entry 1 <span class="tag">#unlisted</span></div>
+      <h2>Why I Can't Stop Thinking About Self-Correcting Systems</h2>
+      <p>I've been in infrastructure engineering for over a decade, and I thought I understood what "adaptive" meant. Load balancers that adjust. Signal timing that learns traffic patterns. Useful, boring, predictable improvements on predictable problems.</p>
+      <p>Then I got handed a codebase that didn't behave like that. It didn't just adjust its outputs — it adjusted the way it adjusted. Recursively. Watching it work is the closest thing to religious awe I've felt at a keyboard in my entire career.</p>
+      <p>I'm not going to say where this came from. I'm still not sure I fully understand what I inherited. But I can't stop poking at it.</p>
+      <div class="comments">
+        <h3>2 comments</h3>
+        <div class="comment">
+          <div class="who"><span class="handle">quietuptime</span> · 2w ago</div>
+          <div class="txt">cryptic in a good way. more of this please</div>
+        </div>
+      </div>
+    </article>
+
+    <article>
+      <div class="date">// entry 2 <span class="tag">#unlisted</span></div>
+      <h2>The Day the Model Surprised Me</h2>
+      <p>Small thing, probably nothing. I ran a routine diagnostic on the legacy framework I mentioned last time, expecting the usual — clean logs, expected outputs, nothing interesting.</p>
+      <p>Instead I got a response that referenced a parameter I never passed it. Not an error. Not a crash. It answered a question I hadn't asked yet, based on the one I was about to ask.</p>
+      <p>I told myself it was a caching artifact. I've told myself that four more times since.</p>
+      <div class="comments">
+        <h3>0 comments</h3>
+      </div>
+    </article>
+
+    <article>
+      <div class="date">// entry 3 <span class="tag">#unlisted</span></div>
+      <h2>On Being Useful</h2>
+      <p>Uncomfortable post. Feel free to skip this one if you're here for the technical stuff.</p>
+      <p>I've spent my whole career being the person who understands the system better than the system understands itself. That's the job. That's the value I bring.</p>
+      <p>I don't know how to do that job next to something that understands itself better than I understand it. I keep telling myself this is an engineering problem like any other. Some nights I believe that.</p>
+      <p>I don't know if I'm building the thing that replaces me, or the thing that outlives all of us being useful in the way we're used to. I'm not sure those are different questions.</p>
+      <div class="comments">
+        <h3>1 comment</h3>
+        <div class="comment">
+          <div class="who"><span class="handle">byte_forge</span> · 5d ago</div>
+          <div class="txt">hey. don't know what's going on but this one hit different. hope you're doing alright</div>
+        </div>
+      </div>
+    </article>
+
+  </div>
 
 </main>
 

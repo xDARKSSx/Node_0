@@ -1,5 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+/* =========================
+   TAB SWITCHING
+========================= */
+const tabButtons = document.querySelectorAll("nav.tabs button");
+const cats = document.querySelectorAll(".cat");
+
+tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        tabButtons.forEach(b => b.classList.remove("active"));
+        cats.forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("cat-" + btn.dataset.cat).classList.add("active");
+    });
+});
+
+/* =========================
+   THE HIDDEN PUZZLE (unchanged logic)
+========================= */
 const commentInput = document.getElementById("commentInput");
 const commentSubmit = document.getElementById("commentSubmit");
 const commentMsg = document.getElementById("commentMsg");
