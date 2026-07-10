@@ -7,10 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const show5 = window.getChapter() >= 5;
         const mail = document.getElementById("navMail");
         const res = document.getElementById("navResearchers");
+        const pers = document.getElementById("navPersonnel");
         const arch = document.getElementById("navArchive");
         const net = document.getElementById("navNetwork");
         if (mail) mail.style.display = show4 ? "inline" : "none";
         if (res) res.style.display = show4 ? "inline" : "none";
+        if (pers) pers.style.display = show4 ? "inline" : "none";
         if (arch) arch.style.display = show5 ? "inline" : "none";
         if (net) net.style.display = show5 ? "inline" : "none";
     }
