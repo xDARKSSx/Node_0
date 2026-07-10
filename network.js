@@ -31,9 +31,14 @@ const milestones = [
 
 function updateVisibility() {
     if (!window.ready) return;
-    lockedEl.style.display = "none";
-    mapWrapEl.style.display = "block";
-    render();
+    if (window.getChapter() >= 5) {
+        lockedEl.style.display = "none";
+        mapWrapEl.style.display = "block";
+        render();
+    } else {
+        lockedEl.style.display = "block";
+        mapWrapEl.style.display = "none";
+    }
 }
 document.addEventListener("state-updated", updateVisibility);
 updateVisibility();
@@ -120,9 +125,35 @@ window.addEventListener("resize", () => {
    THE HIDDEN STAR
 ========================= */
 hiddenStar.addEventListener("click", () => {
-    db.ref("world/hiddenStarFoundBy").set(playerId);
+    if (revealPanel.dataset.expanded === "true") return;
+    revealPanel.dataset.expanded = "true";
     revealPanel.style.display = "block";
-    revealPanel.textContent = "??? — something is still forming here. this connection isn't ready yet.";
+    revealPanel.innerHTML = `
+        <p style="margin-bottom:10px;">something is still forming here.</p>
+        <input id="phraseInput" placeholder="..." autocomplete="off"
+            style="background:#0a0a0a; border:1px solid #444; color:#cfe8ff; padding:8px; font-family:'Courier New', monospace; font-size:13px; width:260px;">
+        <button id="phraseSubmit"
+            style="background:#1a1a1a; border:1px solid #7fe7c4; color:#7fe7c4; padding:8px 14px; font-family:'Courier New', monospace; font-size:12px; cursor:pointer; margin-left:6px;">ENTER</button>
+        <p id="phraseMsg" style="margin-top:10px; font-size:12px;"></p>
+    `;
+
+    document.getElementById("phraseSubmit").addEventListener("click", () => {
+        const attempt = document.getElementById("phraseInput").value
+            .trim().toLowerCase().replace(/\s+/g, "");
+        const expected = "theywereneverjusttools";
+        const msg = document.getElementById("phraseMsg");
+
+        if (attempt === expected) {
+            db.ref("world/combinedPhraseSolvedBy").set(playerId);
+            localStorage.setItem("recognition_unlocked", "true");
+            msg.style.color = "#7fe7c4";
+            msg.textContent = "...redirecting.";
+            setTimeout(() => { window.location.href = "recognition.html"; }, 900);
+        } else {
+            msg.style.color = "#ff6a6a";
+            msg.textContent = "not yet.";
+        }
+    });
 });
 
 });

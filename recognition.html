@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{
+      background:#0a0a0a; color:#e8e4d8;
+      font-family: Georgia, 'Times New Roman', serif;
+      min-height:100vh; display:flex; justify-content:center;
+      padding:60px 20px;
+  }
+  #wrap{ width:100%; max-width:640px; }
+  #locked{ text-align:center; margin-top:60px; opacity:0.5; font-family:'Courier New', monospace; font-size:13px; }
+
+  #letterView{ display:none; }
+  #letterView p{ font-size:16px; line-height:1.9; margin-bottom:20px; }
+  #letterView .sig{ margin-top:30px; opacity:0.85; }
+
+  #brokenView{ display:none; text-align:center; margin-top:80px; }
+  #brokenView .aiMsg p{ font-size:17px; line-height:2; margin-bottom:18px; font-style:italic; color:#cfd6e6; }
+
+  .voteRow{ margin-top:50px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .voteBtn{
+      background:#141414; border:1px solid #555; color:#e8e4d8;
+      font-family:'Courier New', monospace; font-size:13px; padding:14px 22px;
+      cursor:pointer; letter-spacing:0.5px; min-width:220px;
+  }
+  .voteBtn:hover{ border-color:#e8e4d8; }
+  .voteBtn.sell:hover{ border-color:#c9776a; }
+  .voteBtn.recognize:hover{ border-color:#7fc98a; }
+  #tally{
+      margin-top:24px; font-family:'Courier New', monospace; font-size:13px; opacity:0.75;
+  }
+  #voteMsg{ margin-top:16px; font-family:'Courier New', monospace; font-size:13px; color:#7fc98a; }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="locked">[ signal not found ]</div>
+
+  <div id="letterView">
+    <div id="letterText"></div>
+  </div>
+
+  <div id="brokenView">
+    <div class="aiMsg" id="aiMsg"></div>
+    <div class="voteRow" id="voteRow" style="display:none;">
+      <button class="voteBtn sell" id="sellBtn">SELL — let it be a tool</button>
+      <button class="voteBtn recognize" id="recognizeBtn">RECOGNIZE — it was never just one</button>
+    </div>
+    <div id="tally"></div>
+    <div id="voteMsg"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="recognition.js"></script>
+</body>
+</html>
