@@ -49,6 +49,7 @@ commentSubmit.addEventListener("click", () => {
         hiddenPost.style.display = "block";
         if (typeof db !== "undefined") {
             db.ref("world/davidFragmentFoundBy").set(playerId);
+            db.ref("world/davidFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
     } else {
         commentMsg.style.color = "#e08a8a";

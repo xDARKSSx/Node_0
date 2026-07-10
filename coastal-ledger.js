@@ -179,6 +179,7 @@ function openArticle(year, article) {
         readerBody.innerHTML = specialBody.map(p => `<p>${p}</p>`).join("");
         if (typeof db !== "undefined") {
             db.ref("world/sarahFragmentFoundBy").set(playerId);
+            db.ref("world/sarahFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
     } else {
         readerBody.innerHTML = `<p>${article.s} Full archived text for this entry is available through the regional press library's physical collection; digital transcription was not prioritized during the original scanning project.</p>`;
