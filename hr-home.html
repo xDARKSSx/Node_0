@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StaffLink — Employee Portal</title>
+<link rel="stylesheet" href="hrstyle.css">
+</head>
+<body>
+
+<nav>
+  <div class="logo">StaffLink</div>
+  <div class="navlinks">
+    <a href="hr-home.html" class="active">Home</a>
+    <a href="hr-inbox.html" id="navMail">Inbox</a>
+    <a href="hr-personnel.html">Directory</a>
+  </div>
+</nav>
+
+<div id="locked" style="display:none;">
+  <p>Session expired or invalid. Please authenticate through your organization's access portal.</p>
+</div>
+
+<main id="homeApp">
+  <h2>Welcome back</h2>
+  <p class="subtitle">StaffLink Employee Portal — Meridian Dynamics Group workspace</p>
+
+  <div class="card">
+    <strong>Inbox</strong>
+    <p style="color:#6b7280; font-size:13px; margin-top:6px;">Internal mail, archived messages, and shared correspondence.</p>
+    <p style="margin-top:10px;"><a href="hr-inbox.html" style="color:#0f766e; font-size:13px; font-weight:600;">Open Inbox →</a></p>
+  </div>
+
+  <div class="card">
+    <strong>Employee Directory</strong>
+    <p style="color:#6b7280; font-size:13px; margin-top:6px;">Personnel records for verified staff with clearance tier 2 access.</p>
+    <p style="margin-top:10px;"><a href="hr-personnel.html" style="color:#0f766e; font-size:13px; font-weight:600;">Open Directory →</a></p>
+  </div>
+</main>
+
+<footer>StaffLink is a third-party HR platform used by Meridian Dynamics Group and other organizations. Not affiliated with Meridian Dynamics Group's public communications.</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="mailNotify.js"></script>
+</body>
+</html>

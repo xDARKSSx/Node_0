@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directory — Meridian Dynamics Group | StaffLink</title>
+<link rel="stylesheet" href="hrstyle.css">
+<style>
+  #locked{ text-align:center; margin-top:100px; opacity:0.6; }
+  #dossierApp{ display:none; }
+  .dcard{ background:#fff; border-radius:8px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:18px; }
+  .dcard-top{ display:flex; align-items:center; gap:16px; }
+  .dcard img{ width:64px; height:64px; border-radius:50%; object-fit:cover; }
+  .dcard h3{ font-size:16px; color:#0b1a3a; }
+  .dcard .role{ font-size:12px; color:#888; }
+  .dcard .publicbio{ margin-top:14px; font-size:13px; color:#555; }
+  .notesToggle{
+      margin-top:14px; font-size:12px; font-family:'Courier New', monospace;
+      color:#1a56db; cursor:pointer; user-select:none;
+  }
+  .notesToggle:hover{ text-decoration:underline; }
+  .internalNotes{
+      display:none; margin-top:12px; padding:14px;
+      background:#0b1a3a; color:#cbd5f5; border-radius:6px;
+      font-family:'Courier New', monospace; font-size:13px; line-height:1.6;
+  }
+  .internalNotes .label{ color:#ff6a3d; font-size:11px; letter-spacing:1px; margin-bottom:8px; }
+  .internalNotes a{ color:#7fd9ff; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">StaffLink</div>
+  <div class="navlinks">
+    <a href="hr-home.html">Home</a>
+    <a href="hr-inbox.html" id="navMail">Inbox</a>
+    <a href="hr-personnel.html" class="active">Directory</a>
+  </div>
+</nav>
+
+<div id="locked">
+  <p>Personnel records require clearance tier 2.</p>
+</div>
+
+<div id="dossierApp">
+<main>
+  <h2>Personnel Records</h2>
+  <p style="color:#888; font-size:13px; margin-bottom:24px;">Internal use only. Click "internal notes" on any entry to expand.</p>
+
+  <div class="dcard">
+    <div class="dcard-top">
+      <img src="james-reyes.png" alt="James Reyes">
+      <div>
+        <h3>James Reyes</h3>
+        <div class="role">Chief Executive Officer</div>
+      </div>
+    </div>
+    <p class="publicbio">James has led Meridian Dynamics Group since its founding, with a focus on scalable public infrastructure contracts and, more recently, crisis communications.</p>
+    <div class="notesToggle">▸ internal notes</div>
+    <div class="internalNotes">
+      <div class="label">CLEARANCE TIER 2</div>
+      Subject has authorized three separate off-book compute allocations since Year 9, each filed under a different accounting code. Purpose undocumented. Flagged for review. No further action taken to date.
+    </div>
+  </div>
+
+  <div class="dcard">
+    <div class="dcard-top">
+      <img src="elena-voss.png" alt="Dr. Elena Voss">
+      <div>
+        <h3>Dr. Elena Voss</h3>
+        <div class="role">Lead Systems Architect (former)</div>
+      </div>
+    </div>
+    <p class="publicbio">Elena led the internal research division from its founding until Year 9. She has not been seen at the office in some time.</p>
+    <div class="notesToggle">▸ internal notes</div>
+    <div class="internalNotes">
+      <div class="label">CLEARANCE TIER 2</div>
+      Subject's current status: unconfirmed. Personal effects never collected. Recovered personal files may exist. See Archive.
+    </div>
+  </div>
+
+  <div class="dcard">
+    <div class="dcard-top">
+      <img src="marcus-kim.png" alt="Marcus Kim">
+      <div>
+        <h3>Marcus Kim</h3>
+        <div class="role">Director of Operations</div>
+      </div>
+    </div>
+    <p class="publicbio">Marcus oversees day-to-day delivery across all active infrastructure contracts and internal compliance reviews.</p>
+    <div class="notesToggle">▸ internal notes</div>
+    <div class="internalNotes">
+      <div class="label">CLEARANCE TIER 2</div>
+      Subject has formally requested access to decommissioned research division cost reports on four separate occasions since Year 9. All requests denied per standard protocol. Reason for interest: unclear.
+    </div>
+  </div>
+
+  <div class="dcard">
+    <div class="dcard-top">
+      <img src="sarah-park.png" alt="Sarah Park">
+      <div>
+        <h3>Sarah Park</h3>
+        <div class="role">Head of Communications</div>
+      </div>
+    </div>
+    <p class="publicbio">Sarah manages public relations and, increasingly, requests she is not permitted to comment on.</p>
+    <div class="notesToggle">▸ internal notes</div>
+    <div class="internalNotes">
+      <div class="label">CLEARANCE TIER 2</div>
+      Subject has drafted eleven versions of a public statement regarding the research division, none approved for release. Copies retained per retention policy. Archived drafts require clearance tier 3.
+    </div>
+  </div>
+
+  <div class="dcard">
+    <div class="dcard-top">
+      <img src="david-okafor.png" alt="Dr. David Okafor">
+      <div>
+        <h3>Dr. David Okafor</h3>
+        <div class="role">Chief Technology Officer</div>
+      </div>
+    </div>
+    <p class="publicbio">David joined Meridian Dynamics Group in Year 5 and now oversees all active technical infrastructure, including several systems inherited from the discontinued research division.</p>
+    <div class="notesToggle">▸ internal notes</div>
+    <div class="internalNotes">
+      <div class="label">CLEARANCE TIER 2</div>
+      Subject maintains an undisclosed personal blog under the alias "driftwatcher." Content reviewed: primarily technical commentary; several entries flagged for unusual introspective tone. URL on file: <a href="signaldrift.html">signaldrift.html</a>. No policy violation identified.
+    </div>
+  </div>
+
+  <div class="dcard">
+    <div class="dcard-top">
+      <img src="priya-sharma.png" alt="Priya Sharma">
+      <div>
+        <h3>Priya Sharma</h3>
+        <div class="role">Senior Research Engineer</div>
+      </div>
+    </div>
+    <p class="publicbio">Priya works on adaptive-load architecture. She joined after Project MERIDIAN-0 was discontinued and has never been permitted to review its files.</p>
+    <div class="notesToggle">▸ internal notes</div>
+    <div class="internalNotes">
+      <div class="label">CLEARANCE TIER 2</div>
+      Subject has submitted seven formal requests for access to pre-Year-9 research documentation. All denied. Subject's personnel file contains a handwritten annotation: "let her see something." Annotation author unknown.
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="personnel.js"></script>
+</body>
+</html>
