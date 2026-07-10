@@ -50,7 +50,7 @@ function injectEntry(containerId, timestamp, clueText) {
     entry.style.paddingTop = "12px";
     entry.style.borderTop = "1px dashed #ffffff33";
     entry.style.color = "#ff9f4a";
-    entry.innerHTML = `NEW ENTRY — ${formatRealTimestamp(timestamp)}<br>External access to subject's personal disclosure detected. Compiler's note: <strong>${clueText}</strong>`;
+    entry.innerHTML = `NEW ENTRY — ${formatRealTimestamp(timestamp)}<br>External access to subject's personal disclosure detected. Compiler's note: <strong>${clueText}</strong><br><span style="opacity:0.7; font-size:0.9em; font-weight:normal;">(similar entries have surfaced elsewhere. five, so far. context unclear.)</span>`;
     container.appendChild(entry);
 }
 
