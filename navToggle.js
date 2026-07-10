@@ -3,12 +3,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     function update() {
         if (!window.getChapter) return;
-        const show4 = window.getChapter() >= 4;
         const show5 = window.getChapter() >= 5;
-        const res = document.getElementById("navResearchers");
         const arch = document.getElementById("navArchive");
         const net = document.getElementById("navNetwork");
-        if (res) res.style.display = show4 ? "inline" : "none";
         if (arch) arch.style.display = show5 ? "inline" : "none";
         if (net) net.style.display = show5 ? "inline" : "none";
     }

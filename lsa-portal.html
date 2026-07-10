@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LSA — Legacy Systems Access</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{
+      background:#1a1a1a; color:#c4c0b8;
+      font-family:'Courier New', Consolas, monospace;
+      display:flex; justify-content:center; align-items:flex-start;
+      min-height:100vh; padding:80px 20px;
+  }
+  #wrap{ width:100%; max-width:380px; }
+  h1{ font-size:14px; color:#d4a24e; letter-spacing:1px; font-weight:normal; margin-bottom:2px; }
+  .subtitle{ font-size:11px; color:#6b6860; margin-bottom:30px; }
+  #locked{ text-align:center; margin-top:60px; opacity:0.5; font-size:13px; }
+  #portal{ display:none; }
+  label{ display:block; font-size:11px; color:#8a8478; margin-top:16px; margin-bottom:5px; letter-spacing:0.5px; }
+  input{
+      width:100%; padding:9px; background:#0f0f0f; border:1px solid #3a3a3a;
+      color:#c4c0b8; font-family:inherit; font-size:13px;
+  }
+  input:focus{ outline:none; border-color:#d4a24e; }
+  button{
+      width:100%; margin-top:22px; padding:10px; background:#2a2a2a; color:#d4a24e;
+      border:1px solid #d4a24e55; font-family:inherit; font-size:12px; letter-spacing:1px;
+      cursor:pointer;
+  }
+  button:hover{ background:#d4a24e15; }
+  #hint{ font-size:11px; color:#6b6860; margin-top:18px; line-height:1.5; }
+  #resultMsg{ margin-top:16px; font-size:12px; line-height:1.6; }
+  #resultMsg.error{ color:#b06a5a; }
+  #resultMsg.success{ color:#8faa6e; }
+  #resultMsg a{ color:#d4a24e; }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <h1>LSA // LEGACY SYSTEMS ACCESS</h1>
+  <div class="subtitle">inherited infrastructure — unmodernized since Year 9</div>
+
+  <div id="locked">
+    <p>[ access point offline ]</p>
+  </div>
+
+  <div id="portal">
+    <label for="numInput">RESEARCHER NUMBER</label>
+    <input id="numInput" type="text" placeholder="e.g. 4471" autocomplete="off">
+
+    <label for="passInput">ACCESS PHRASE</label>
+    <input id="passInput" type="text" placeholder="..." autocomplete="off">
+
+    <button id="loginBtn">AUTHENTICATE</button>
+
+    <div id="hint">hint: how did she sign off, the last time anyone heard her voice?</div>
+    <div id="resultMsg"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="lsa-portal.js"></script>
+</body>
+</html>

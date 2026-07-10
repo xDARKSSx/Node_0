@@ -199,7 +199,7 @@ codeSubmit.addEventListener("click", () => {
             window.unlockNextChapter();
         }
         setTimeout(() => {
-            codeMsg.textContent += " new tabs just surfaced on the parent network. check your mail.";
+            codeMsg.innerHTML += " a separate access point just came online: <a href='lsa-portal.html' style='color:#4fd18a;'>lsa-portal.html</a>";
         }, 1200);
     } else {
         codeMsg.style.color = "#ff6a6a";
