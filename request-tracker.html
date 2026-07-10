@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Request Tracker — Meridian Dynamics Group</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{ background:#f4f6fb; color:#1f2430; font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  header{ background:#1a2b4a; color:#e8edf7; padding:16px 24px; }
+  header h1{ font-size:16px; letter-spacing:0.3px; }
+  header .sub{ font-size:11px; opacity:0.65; margin-top:2px; }
+  #locked{ text-align:center; margin-top:100px; color:#6b7488; }
+  #app{ display:none; padding:24px; max-width:820px; margin:0 auto; }
+  .ticketRow{
+      background:#fff; border:1px solid #e2e6ef; border-radius:6px;
+      padding:14px 16px; margin-bottom:10px; cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center;
+  }
+  .ticketRow:hover{ border-color:#3a5ba0; }
+  .ticketRow .left{ flex:1; }
+  .ticketRow .id{ font-family:'Courier New', monospace; font-size:11px; color:#8892a6; }
+  .ticketRow .subj{ font-size:14px; margin-top:2px; }
+  .ticketRow .filedby{ font-size:11px; color:#8892a6; margin-top:2px; }
+  .status{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:12px; letter-spacing:0.3px; }
+  .status.denied{ background:#fbe4e4; color:#b3261e; }
+  .status.approved{ background:#e2f5e6; color:#1e7d34; }
+
+  #reader{ display:none; background:#fff; border:1px solid #e2e6ef; border-radius:6px; padding:24px; }
+  #reader .backBtn{ background:none; border:none; color:#3a5ba0; cursor:pointer; font-size:13px; margin-bottom:16px; }
+  #reader h2{ font-size:16px; margin-bottom:4px; }
+  #reader .meta{ font-size:11px; color:#8892a6; margin-bottom:18px; }
+  #reader .section{ margin-bottom:16px; }
+  #reader .section .label{ font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#8892a6; margin-bottom:6px; }
+  #reader p{ font-size:13px; line-height:1.7; color:#2a3040; }
+
+  footer{ text-align:center; padding:24px; font-size:10px; color:#9aa2b5; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MERIDIAN DYNAMICS GROUP — ACCESS REQUEST TRACKER</h1>
+  <div class="sub">Data & documentation access requests, all departments</div>
+</header>
+
+<div id="locked">
+  <p>[ tracker offline — clearance required ]</p>
+</div>
+
+<div id="app">
+  <div id="ticketList"></div>
+
+  <div id="reader">
+    <button class="backBtn" id="backBtn">&larr; back to tracker</button>
+    <h2 id="readerTitle"></h2>
+    <div class="meta" id="readerMeta"></div>
+    <div class="section">
+      <div class="label">Request</div>
+      <p id="readerRequest"></p>
+    </div>
+    <div class="section">
+      <div class="label">Response</div>
+      <p id="readerResponse"></p>
+    </div>
+  </div>
+</div>
+
+<footer>Internal use only. Meridian Dynamics Group IT Access Systems.</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="request-tracker.js"></script>
+</body>
+</html>
