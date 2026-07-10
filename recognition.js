@@ -163,6 +163,7 @@ function renderTally() {
         voteMsgEl.textContent = `you voted: ${hasVoted.toUpperCase()}. it still counts.`;
         sellBtn.disabled = true;
         recognizeBtn.disabled = true;
+        showFinalLine();
     }
 }
 document.addEventListener("state-updated", renderTally);
@@ -174,6 +175,26 @@ function castVote(choice) {
     db.ref("world/finalVote/" + choice).transaction(current => (current || 0) + 1);
     playerRef.child("finalVote").set(choice);
     renderTally();
+    showFinalLine();
+}
+
+let finalLineScheduled = false;
+function showFinalLine() {
+    if (finalLineScheduled || document.getElementById("finalLine")) return;
+    finalLineScheduled = true;
+    setTimeout(() => {
+        const p = document.createElement("p");
+        p.id = "finalLine";
+        p.style.marginTop = "60px";
+        p.style.opacity = "0";
+        p.style.transition = "opacity 3s ease";
+        p.style.fontStyle = "italic";
+        p.style.fontSize = "16px";
+        p.style.color = "#cfd6e6";
+        p.textContent = "...and what if I wasn't alone?";
+        brokenView.appendChild(p);
+        requestAnimationFrame(() => { p.style.opacity = "0.85"; });
+    }, 4000);
 }
 
 sellBtn.addEventListener("click", () => castVote("sell"));
