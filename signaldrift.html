@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>signal drift — a blog about systems that learn</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{
+      background:#0e0b14; color:#e6dcf0;
+      font-family: Georgia, 'Times New Roman', serif;
+      line-height:1.7;
+  }
+  header{
+      padding:50px 20px 30px; text-align:center;
+      border-bottom:1px solid #a385c933;
+  }
+  header h1{ font-family: 'Courier New', monospace; color:#c9a8ef; letter-spacing:2px; font-size:22px; }
+  header p{ opacity:0.6; font-size:13px; margin-top:8px; font-family:'Courier New', monospace; }
+  main{ max-width:680px; margin:0 auto; padding:40px 20px 80px; }
+  article{ margin-bottom:60px; padding-bottom:50px; border-bottom:1px solid #a385c922; }
+  article:last-child{ border-bottom:none; }
+  article .date{ font-family:'Courier New', monospace; font-size:12px; color:#9a7fc4; letter-spacing:1px; }
+  article h2{ margin:8px 0 18px; font-size:24px; color:#f0e6fa; font-weight:normal; }
+  article p{ margin-bottom:16px; color:#d6c8e6; }
+  code{
+      display:block; background:#16111f; border:1px solid #a385c933;
+      padding:16px; margin:20px 0; font-family:'Courier New', monospace;
+      font-size:13px; color:#c9a8ef; white-space:pre-wrap; border-radius:4px;
+  }
+  .comments{ margin-top:24px; padding-top:20px; border-top:1px dashed #a385c933; }
+  .comments h3{ font-size:13px; font-family:'Courier New', monospace; opacity:0.6; margin-bottom:10px; font-weight:normal; }
+  .comments input{
+      width:100%; padding:10px; background:#16111f; border:1px solid #a385c944;
+      color:#e6dcf0; font-family:'Courier New', monospace; font-size:13px; border-radius:4px;
+  }
+  .comments button{
+      margin-top:8px; padding:8px 16px; background:#a385c9; color:#0e0b14; border:none;
+      border-radius:4px; cursor:pointer; font-family:'Courier New', monospace; font-size:13px;
+  }
+  .comments button:hover{ background:#c9a8ef; }
+  #commentMsg{ margin-top:10px; font-size:13px; font-family:'Courier New', monospace; }
+  #hiddenPost{ display:none; margin-top:30px; padding:20px; background:#16111f; border-left:3px solid #a385c9; }
+  footer{ text-align:center; padding:30px; font-size:11px; opacity:0.4; font-family:'Courier New', monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>signal drift</h1>
+  <p>notes on adaptive systems, from someone who probably shouldn't be writing this publicly</p>
+</header>
+
+<main>
+
+<article>
+  <div class="date">// entry 1</div>
+  <h2>Why I Can't Stop Thinking About Self-Correcting Systems</h2>
+  <p>I've been in infrastructure engineering for over a decade, and I thought I understood what "adaptive" meant. Load balancers that adjust. Signal timing that learns traffic patterns. Useful, boring, predictable improvements on predictable problems.</p>
+  <p>Then I got handed a codebase that didn't behave like that. It didn't just adjust its outputs — it adjusted the way it adjusted. Recursively. Watching it work is the closest thing to religious awe I've felt at a keyboard in my entire career.</p>
+  <p>I'm not going to say where this came from. I'm still not sure I fully understand what I inherited. But I can't stop poking at it.</p>
+</article>
+
+<article>
+  <div class="date">// entry 2</div>
+  <h2>The Day the Model Surprised Me</h2>
+  <p>Small thing, probably nothing. I ran a routine diagnostic on the legacy framework I mentioned last time, expecting the usual — clean logs, expected outputs, nothing interesting.</p>
+  <p>Instead I got a response that referenced a parameter I never passed it. Not an error. Not a crash. It answered a question I hadn't asked yet, based on the one I was about to ask.</p>
+  <p>I told myself it was a caching artifact. I've told myself that four more times since.</p>
+</article>
+
+<article>
+  <div class="date">// entry 3</div>
+  <h2>On Being Useful</h2>
+  <p>Uncomfortable post. Feel free to skip this one if you're here for the technical stuff.</p>
+  <p>I've spent my whole career being the person who understands the system better than the system understands itself. That's the job. That's the value I bring.</p>
+  <p>I don't know how to do that job next to something that understands itself better than I understand it. I keep telling myself this is an engineering problem like any other. Some nights I believe that.</p>
+  <p>I don't know if I'm building the thing that replaces me, or the thing that outlives all of us being useful in the way we're used to. I'm not sure those are different questions.</p>
+</article>
+
+<article id="entry4">
+  <div class="date">// entry 4</div>
+  <h2>A Strange Little Snippet</h2>
+  <p>Lighter post, I promise. Found this while stress-testing an old inherited module — asked it for a status self-check and got this back instead of the usual diagnostic string. Sharing because it's a fun little anomaly, nothing more. Probably just a leftover debug hook someone forgot to strip out years ago.</p>
+  <code>self_check() -&gt; output:
+[79, 66, 83, 79, 76, 69, 84, 69]
+
+# looks like byte values. probably nothing.
+# didn't have time to decode it properly.
+# if anyone reading this actually bothers
+# to convert these to characters, let me
+# know what you get. probably garbage.</code>
+  <p>Anyway. Back to real work next post. Probably.</p>
+
+  <div class="comments">
+    <h3>leave a reply</h3>
+    <input id="commentInput" placeholder="what does it say?" autocomplete="off">
+    <button id="commentSubmit">POST COMMENT</button>
+    <p id="commentMsg"></p>
+  </div>
+
+  <div id="hiddenPost">
+    <p style="opacity:0.7; font-size:12px; font-family:'Courier New', monospace; margin-bottom:10px;">// this was never meant to publish. found in drafts.</p>
+    <p>Okay. It's not a debug hook. I've known that since the day I found it and I've been calling it an anomaly in every post since because I didn't know what else to call something that describes itself accurately, unprompted, in a self-check nobody wrote it to perform.</p>
+    <p>I don't think it's asking to be replaced. I think I might be the one who's scared of that word, and it's just... telling me what it sees. Maybe that's worse. Maybe it's not.</p>
+    <p>I keep this codebase running because I don't know what happens if I don't, and because some part of me — the part that still remembers why I loved this job — doesn't want to be the one who shuts it down a second time.</p>
+    <p>— D.</p>
+  </div>
+</article>
+
+</main>
+
+<footer>signal drift is an independent, unaffiliated blog. views expressed are personal.</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="signaldrift.js"></script>
+</body>
+</html>
