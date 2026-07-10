@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Room — Project Horizon</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{ background:#0c1220; color:#d8dced; font-family: Georgia, 'Times New Roman', serif; }
+  header{ background:#0a0e1a; border-bottom:2px solid #b89550; padding:26px 24px 18px; text-align:center; }
+  header h1{ font-size:20px; color:#e6ceA0; letter-spacing:1px; font-weight:normal; }
+  header .sub{ font-size:11px; color:#8a91a8; margin-top:6px; letter-spacing:1px; text-transform:uppercase; }
+  .confidential{ background:#b89550; color:#0c1220; text-align:center; font-size:11px; padding:6px; letter-spacing:1px; font-family: Arial, sans-serif; }
+  #locked{ text-align:center; margin-top:100px; color:#6b7290; }
+  #app{ display:none; max-width:780px; margin:0 auto; padding:30px 20px 60px; }
+  .docRow{
+      background:#111830; border:1px solid #2a3252; border-radius:4px;
+      padding:16px 18px; margin-bottom:10px; cursor:pointer;
+  }
+  .docRow:hover{ border-color:#b89550; }
+  .docRow .docTitle{ font-size:14px; color:#e8ecf5; }
+  .docRow .docMeta{ font-size:11px; color:#6b7290; margin-top:3px; font-family: Arial, sans-serif; }
+  #reader{ display:none; background:#111830; border:1px solid #2a3252; border-radius:4px; padding:26px; }
+  #reader .backBtn{ background:none; border:none; color:#b89550; cursor:pointer; font-size:12px; margin-bottom:16px; font-family: Arial, sans-serif; }
+  #reader h2{ font-size:17px; color:#e6ceA0; margin-bottom:4px; font-weight:normal; }
+  #reader .meta{ font-size:11px; color:#6b7290; margin-bottom:18px; font-family: Arial, sans-serif; }
+  #reader p{ font-size:14px; line-height:1.75; margin-bottom:14px; color:#d8dced; }
+  footer{ text-align:center; padding:24px; font-size:10px; color:#4a5070; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DATA ROOM — PROJECT HORIZON</h1>
+  <div class="sub">Phase 1 Due Diligence · Access Restricted</div>
+</header>
+<div class="confidential">CONFIDENTIAL — DO NOT DISTRIBUTE</div>
+
+<div id="locked">
+  <p>[ data room access restricted ]</p>
+</div>
+
+<div id="app">
+  <div id="docList"></div>
+
+  <div id="reader">
+    <button class="backBtn" id="backBtn">&larr; back to document index</button>
+    <h2 id="readerTitle"></h2>
+    <div class="meta" id="readerMeta"></div>
+    <div id="readerBody"></div>
+  </div>
+</div>
+
+<footer>Project Horizon Data Room. Access logged. Meridian Dynamics Group.</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="dealroom.js"></script>
+</body>
+</html>

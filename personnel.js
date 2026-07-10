@@ -70,6 +70,9 @@ function checkFragmentEntries() {
     if (w.priyaFragmentFoundAt) {
         injectEntry("notes-priya", w.priyaFragmentFoundAt, "JUST");
     }
+    if (w.jamesFragmentFoundAt) {
+        injectEntry("notes-james", w.jamesFragmentFoundAt, "TOOLS");
+    }
 }
 
 });
