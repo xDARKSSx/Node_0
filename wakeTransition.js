@@ -66,11 +66,11 @@
                 voiceover.play().catch(() => {
                     setTimeout(unlock, 2500); // audio missing/blocked -- unlock anyway
                 });
-            }, 900);
+            }, 2400);
 
             /* absolute safety net: never leave a player stuck, even
                if both audio files are missing or fail entirely */
-            setTimeout(unlock, 7000);
+            setTimeout(unlock, 9000);
         }
     });
 })();
