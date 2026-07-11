@@ -93,8 +93,21 @@
         () => `not every door is a card. sometimes it's a sentence.`,
     ];
 
+    const forgetHints = [
+        () => `she hid something in her own words. read slowly.`,
+        () => `not every door is a card. sometimes it's a sentence.`,
+        () => `look at the team page again. someone doesn't fit.`,
+    ];
+
     function pickLine() {
         const n = Math.floor(1000 + Math.random() * 9000);
+        const isFirstEverFlash = !localStorage.getItem("node0_hadFirstFlash");
+        localStorage.setItem("node0_hadFirstFlash", "true");
+
+        if (isFirstEverFlash) {
+            const fn = forgetHints[Math.floor(Math.random() * forgetHints.length)];
+            return fn(n);
+        }
         const fn = teaseLines[Math.floor(Math.random() * teaseLines.length)];
         return fn(n);
     }
