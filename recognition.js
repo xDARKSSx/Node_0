@@ -345,7 +345,12 @@ recognizeBtn.addEventListener("click", () => castVote("recognize"));
 /* =========================
    ENTRY POINT
 ========================= */
+let experienceStarted = false;
+
 function showExperience() {
+    if (experienceStarted) return; // Firebase syncs repeatedly -- only set up once
+    experienceStarted = true;
+
     lockedEl.style.display = "none";
     startLetterMusic();
 
@@ -382,6 +387,7 @@ function startLetterMusic() {
 }
 
 function showAiMessageInstant() {
+    aiMsg.innerHTML = ""; // never duplicate, even if this ever gets called twice
     aiLines.forEach(line => {
         const p = document.createElement("p");
         p.textContent = line;
