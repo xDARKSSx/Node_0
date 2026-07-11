@@ -5,9 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>...</title>
 <style>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
   * { box-sizing: border-box; margin:0; padding:0; }
   body{
-      background:#0a0a0a; color:#e8e4d8;
+      background: radial-gradient(ellipse at center, #1a130c 0%, #0a0704 100%);
+      color:#e8e4d8;
       font-family: Georgia, 'Times New Roman', serif;
       min-height:100vh; display:flex; justify-content:center;
       padding:60px 20px;
@@ -16,8 +19,22 @@
   #locked{ text-align:center; margin-top:60px; opacity:0.5; font-family:'Courier New', monospace; font-size:13px; }
 
   #letterView{ display:none; }
-  #letterView p{ font-size:16px; line-height:1.9; margin-bottom:20px; }
-  #letterView .sig{ margin-top:30px; opacity:0.85; }
+  #letterPage{
+      background:#f2e6c9;
+      background-image: radial-gradient(circle at 20% 30%, rgba(0,0,0,0.03), transparent 60%);
+      padding:50px 46px; border-radius:3px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.55);
+      font-family:'Caveat', cursive; color:#2c2214;
+  }
+  #letterView p{ font-size:22px; line-height:1.65; margin-bottom:18px; transition: transform 0.4s ease, clip-path 0.4s ease; }
+  #letterView .sig{ margin-top:20px; opacity:0.9; }
+
+  #fallingPage{
+      display:none; position:fixed; top:20%; left:50%;
+      width:220px; padding:24px; background:#f2e6c9;
+      font-family:'Caveat', cursive; font-size:20px; color:#2c2214;
+      box-shadow:0 10px 30px rgba(0,0,0,0.5); z-index:9998;
+  }
 
   #brokenView{ display:none; text-align:center; margin-top:80px; }
   #brokenView .aiMsg p{ font-size:17px; line-height:2; margin-bottom:18px; font-style:italic; color:#cfd6e6; }
@@ -43,8 +60,12 @@
   <div id="locked">[ signal not found ]</div>
 
   <div id="letterView">
-    <div id="letterText"></div>
+    <div id="letterPage">
+      <div id="letterText"></div>
+    </div>
   </div>
+
+  <div id="fallingPage">— E.</div>
 
   <div id="brokenView">
     <div class="aiMsg" id="aiMsg"></div>
@@ -56,6 +77,10 @@
     <div id="voteMsg"></div>
   </div>
 </div>
+
+<audio id="letterMusic" loop preload="auto">
+  <source src="letter-music.mp3" type="audio/mpeg">
+</audio>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>

@@ -53,15 +53,6 @@ const READ_UNTIL_MS = 4 * 60 * 1000;      // fully readable
 const GLITCH_LIGHT_MS = 4.5 * 60 * 1000;  // light glitch
 const BROKEN_MS = 5 * 60 * 1000;          // permanent breakdown
 
-const sym = ["█", "#", "%", "&", "@", "?", "Δ", "Ξ", "▓", "░"];
-function scramble(text, rate) {
-    let out = "";
-    for (const ch of text) {
-        out += (ch !== " " && Math.random() < rate) ? sym[Math.floor(Math.random() * sym.length)] : ch;
-    }
-    return out;
-}
-
 function renderLetter() {
     letterText.innerHTML = "";
     letterParagraphs.forEach(p => {
@@ -75,16 +66,30 @@ function renderLetter() {
     letterText.appendChild(sig);
 }
 
-function applyGlitch(rate) {
+/* instead of digital glitch, the page itself tears --
+   jagged clip-path eating into the paragraph, slight
+   rotation/skew jitter, increasing with intensity */
+function applyTear(rate) {
     letterText.querySelectorAll("p").forEach(p => {
-        if (!p.dataset.original) p.dataset.original = p.textContent;
-        p.textContent = scramble(p.dataset.original, rate);
+        if (rate <= 0) {
+            p.style.clipPath = "none";
+            p.style.transform = "none";
+            return;
+        }
+        const tearDepth = 100 - rate * 55; // how much of the paragraph remains visible
+        const jag1 = tearDepth - Math.random() * 10 * rate;
+        const jag2 = tearDepth - Math.random() * 15 * rate;
+        p.style.clipPath = `polygon(0 0, 100% 0, 100% ${jag1}%, 60% ${tearDepth}%, 30% ${jag2}%, 0 ${tearDepth}%)`;
+        const skew = (Math.random() * 4 - 2) * rate;
+        const rot = (Math.random() * 3 - 1.5) * rate;
+        p.style.transform = `skewX(${skew}deg) rotate(${rot}deg)`;
     });
 }
 
 function restoreText() {
     letterText.querySelectorAll("p").forEach(p => {
-        if (p.dataset.original) p.textContent = p.dataset.original;
+        p.style.clipPath = "none";
+        p.style.transform = "none";
     });
 }
 
@@ -104,9 +109,9 @@ function tickLetter(arrivedAt) {
 
     if (elapsed >= GLITCH_LIGHT_MS) {
         const progress = (elapsed - GLITCH_LIGHT_MS) / (BROKEN_MS - GLITCH_LIGHT_MS);
-        applyGlitch(0.05 + progress * 0.35);
+        applyTear(0.15 + progress * 0.85);
     } else if (elapsed >= READ_UNTIL_MS) {
-        applyGlitch(0.03);
+        applyTear(0.08);
     } else {
         restoreText();
     }
@@ -115,14 +120,45 @@ function tickLetter(arrivedAt) {
 }
 
 function triggerBreakdown() {
+    /* the music fades out with the page -- silence, then the AI's voice */
+    const music = document.getElementById("letterMusic");
+    if (music && !music.paused) {
+        const fadeStep = music.volume / 20;
+        const fadeOut = setInterval(() => {
+            music.volume = Math.max(0, music.volume - fadeStep);
+            if (music.volume <= 0.01) {
+                music.pause();
+                clearInterval(fadeOut);
+            }
+        }, 90);
+    }
+
+    /* the whole page tears loose and falls, before revealing what's left */
+    const fallingPage = document.getElementById("fallingPage");
+    const pageRect = document.getElementById("letterPage").getBoundingClientRect();
+    fallingPage.style.left = (pageRect.left + pageRect.width / 2 - 110) + "px";
+    fallingPage.style.top = (pageRect.top + pageRect.height / 2 - 40) + "px";
+    fallingPage.style.display = "block";
+    fallingPage.style.transition = "none";
+    fallingPage.style.transform = "translateY(0) rotate(0deg)";
+    fallingPage.style.opacity = "1";
+
     letterView.style.opacity = "1";
-    letterView.style.transition = "opacity 1.2s ease";
+    letterView.style.transition = "opacity 0.6s ease";
     letterView.style.opacity = "0";
+
+    requestAnimationFrame(() => {
+        fallingPage.style.transition = "transform 1.8s cubic-bezier(.5,0,.9,1), opacity 1.8s ease";
+        fallingPage.style.transform = "translateY(70vh) rotate(35deg)";
+        fallingPage.style.opacity = "0";
+    });
+
     setTimeout(() => {
         letterView.style.display = "none";
+        fallingPage.style.display = "none";
         brokenView.style.display = "block";
         showAiMessage();
-    }, 1300);
+    }, 2000);
 }
 
 const aiLines = [
@@ -276,6 +312,32 @@ function revealStarfield() {
             requestAnimationFrame(() => { p.style.opacity = "0.95"; });
         }, 2500 + i * 4000);
     });
+
+    /* a page drifts down and settles -- something to pick up */
+    setTimeout(() => {
+        const page = document.createElement("div");
+        Object.assign(page.style, {
+            position: "absolute", bottom: "-200px", left: "50%",
+            transform: "translateX(-50%) rotate(-6deg)",
+            width: "180px", padding: "20px", background: "#f2e6c9",
+            fontFamily: "'Caveat', cursive", fontSize: "17px", color: "#2c2214",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)", cursor: "pointer",
+            transition: "bottom 2.5s ease-out",
+        });
+        page.textContent = "— E.";
+        textWrap.parentElement.appendChild(page);
+
+        requestAnimationFrame(() => { page.style.bottom = "40px"; });
+
+        page.addEventListener("click", () => {
+            page.style.cursor = "default";
+            page.style.transition = "transform 0.6s ease";
+            page.style.transform = "translateX(-50%) rotate(0deg) scale(1.15)";
+            page.textContent = "what if this was only the beginning?";
+            page.style.fontSize = "16px";
+            page.style.width = "220px";
+        }, { once: true });
+    }, 2500 + lines.length * 4000 + 2000);
 }
 
 sellBtn.addEventListener("click", () => castVote("sell"));
@@ -286,6 +348,7 @@ recognizeBtn.addEventListener("click", () => castVote("recognize"));
 ========================= */
 function showExperience() {
     lockedEl.style.display = "none";
+    startLetterMusic();
 
     if (localStorage.getItem("recognition_broken") === "true") {
         brokenView.style.display = "block";
@@ -303,6 +366,20 @@ function showExperience() {
     }
 
     requestAnimationFrame(() => tickLetter(arrivedAt));
+}
+
+/* browsers often block audio with sound until the visitor
+   has clicked somewhere on the page -- try immediately, and
+   quietly retry on the first click if it was blocked */
+function startLetterMusic() {
+    const music = document.getElementById("letterMusic");
+    if (!music) return;
+    music.volume = 0.4;
+    music.play().catch(() => {
+        document.addEventListener("click", () => {
+            music.play().catch(() => {});
+        }, { once: true });
+    });
 }
 
 function showAiMessageInstant() {
