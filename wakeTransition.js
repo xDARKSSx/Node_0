@@ -69,8 +69,9 @@
             }, 2400);
 
             /* absolute safety net: never leave a player stuck, even
-               if both audio files are missing or fail entirely */
-            setTimeout(unlock, 9000);
+               if both audio files are missing or fail entirely.
+               Voiceover: ~11s, starting 2.4s after this point. */
+            setTimeout(unlock, 14900);
         }
     });
 })();
