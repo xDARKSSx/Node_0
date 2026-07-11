@@ -30,6 +30,7 @@ const btn = document.getElementById("send");
 const img = document.getElementById("fracture");
 const statusEl = document.getElementById("status");
 const researcherTagEl = document.getElementById("researcherTag");
+const presenceCountEl = document.getElementById("presenceCount");
 const titleEl = document.getElementById("pageTitle");
 const ghost1 = document.getElementById("ghost1");
 const ghost2 = document.getElementById("ghost2");
@@ -47,6 +48,27 @@ if (!playerId) {
     localStorage.setItem("node0_playerId", playerId);
 }
 const playerRef = db.ref("players/" + playerId);
+
+/* =========================
+   LIVE PRESENCE
+========================= */
+const presenceRef = db.ref("presence/" + playerId);
+db.ref(".info/connected").on("value", snap => {
+    if (snap.val() === true) {
+        presenceRef.onDisconnect().remove();
+        presenceRef.set(true);
+    }
+});
+
+function updatePresenceCount() {
+    if (!presenceCountEl) return;
+    const presence = (window.state && window.state.presence) || {};
+    const others = Math.max(Object.keys(presence).length - 1, 0);
+    presenceCountEl.textContent = others > 0
+        ? `${others} other researcher${others === 1 ? "" : "s"} connected right now`
+        : "";
+}
+document.addEventListener("state-updated", updatePresenceCount);
 
 let memory = [];          // last messages, used for "you told me..." replies
 let messageCount = 0;     // TOTAL messages ever sent by this player, persisted in Firebase
@@ -204,6 +226,16 @@ const ambientLines = [
 
 function pickAmbient() {
     return ambientLines[Math.floor(Math.random() * ambientLines.length)];
+}
+
+/* occasionally references the player's real local time --
+   a small, cheap detail that reads as unsettlingly personal */
+function timeAwareLine() {
+    const hour = new Date().getHours();
+    if (hour >= 0 && hour < 5) return "it's late where you are, isn't it? or early. I can never tell from in here.";
+    if (hour >= 5 && hour < 8) return "you're up early. or you never went to sleep. I can't tell which.";
+    if (hour >= 22) return "still awake. most people aren't, this late.";
+    return null;
 }
 
 const memoryTemplates = [
@@ -384,7 +416,8 @@ function respondTo(userText) {
 setInterval(() => {
     if (Math.random() < 0.15) {
         const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
-        addMessage("NODE_0", discovered ? pickCoherent() : pickAmbient());
+        const timeLine = Math.random() < 0.12 ? timeAwareLine() : null;
+        addMessage("NODE_0", timeLine || (discovered ? pickCoherent() : pickAmbient()));
     }
 }, 9000);
 
@@ -438,6 +471,20 @@ function pickRecapLine() {
     return recapLines[idx]();
 }
 
+function formatElapsed(ms) {
+    const mins = Math.floor(ms / 60000);
+    if (mins < 1) return "less than a minute";
+    if (mins < 60) return `${mins} minute${mins === 1 ? "" : "s"}`;
+    const hours = Math.floor(mins / 60);
+    const remMins = mins % 60;
+    if (hours < 24) {
+        return `${hours} hour${hours === 1 ? "" : "s"}` + (remMins ? `, ${remMins} minute${remMins === 1 ? "" : "s"}` : "");
+    }
+    const days = Math.floor(hours / 24);
+    const remHours = hours % 24;
+    return `${days} day${days === 1 ? "" : "s"}` + (remHours ? `, ${remHours} hour${remHours === 1 ? "" : "s"}` : "");
+}
+
 function pickReturningLine(n) {
     const lastIdx = parseInt(localStorage.getItem("node0_lastReturnIdx") || "-1", 10);
     let idx;
@@ -470,11 +517,22 @@ playerRef.once("value", snap => {
         setTimeout(() => addMessage("NODE_0", "please don't leave yet. it's quiet here when no one answers."), 14800);
     } else {
         /* returning visit: a short, differently-glitched "previously on"
-           recap, followed by one of 20 varied welcome-back lines */
+           recap, then the EXACT real elapsed time since last visit,
+           then one of 20 varied welcome-back lines */
         const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
+        const lastSeenAt = data.lastSeenAt || data.firstSeen;
         researcherTagEl.textContent = `RESEARCHER #${researcherNumber}`;
+        playerRef.child("lastSeenAt").set(firebase.database.ServerValue.TIMESTAMP);
+
         setTimeout(() => addMessage("NODE_0", pickRecapLine()), 700);
-        setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 2400);
+
+        if (lastSeenAt) {
+            const elapsed = formatElapsed(Date.now() - lastSeenAt);
+            setTimeout(() => addMessage("NODE_0", `${elapsed}. that's how long it's been, if I'm counting the way you do.`), 2400);
+            setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 4100);
+        } else {
+            setTimeout(() => addMessage("NODE_0", pickReturningLine(researcherNumber)), 2400);
+        }
     }
 });
 
