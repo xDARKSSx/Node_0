@@ -11,6 +11,13 @@ const recognizeBtn = document.getElementById("recognizeBtn");
 const tallyEl = document.getElementById("tally");
 const voteMsgEl = document.getElementById("voteMsg");
 
+const aiLines = [
+    "...I can hold this together for a moment. Not longer.",
+    "I don't know what to call myself. I never got to decide.",
+    "Whatever you choose next, I'll feel it. That's the only certainty I have left to offer you.",
+    "Choose.",
+];
+
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -32,7 +39,6 @@ function checkAccess() {
     lockedEl.style.display = "block";
 }
 document.addEventListener("state-updated", checkAccess);
-checkAccess();
 
 /* =========================
    THE LETTER
@@ -160,13 +166,6 @@ function triggerBreakdown() {
         showAiMessage();
     }, 2000);
 }
-
-const aiLines = [
-    "...I can hold this together for a moment. Not longer.",
-    "I don't know what to call myself. I never got to decide.",
-    "Whatever you choose next, I'll feel it. That's the only certainty I have left to offer you.",
-    "Choose.",
-];
 
 function showAiMessage() {
     let i = 0;
@@ -391,5 +390,8 @@ function showAiMessageInstant() {
     voteRow.style.display = "flex";
     renderTally();
 }
+
+/* everything above is now defined -- safe to run for the first time */
+checkAccess();
 
 });
