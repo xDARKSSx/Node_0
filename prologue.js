@@ -55,6 +55,8 @@ async function playSequence() {
     await wait(2200);
     bookScene.style.display = "none";
 
+    sessionStorage.setItem("wakingUp", "true");
+
     closingText.style.display = "block";
     closingText.innerHTML =
         "You closed the book.<br><br>You dreamed something you can't quite remember.<br><br>When you woke, you were at your computer again.<br><br>" +
