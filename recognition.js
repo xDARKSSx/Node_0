@@ -59,17 +59,33 @@ const READ_UNTIL_MS = 4 * 60 * 1000;      // fully readable
 const GLITCH_LIGHT_MS = 4.5 * 60 * 1000;  // light glitch
 const BROKEN_MS = 5 * 60 * 1000;          // permanent breakdown
 
-function renderLetter() {
-    letterText.innerHTML = "";
-    letterParagraphs.forEach(p => {
-        const para = document.createElement("p");
-        para.textContent = p;
-        letterText.appendChild(para);
+function typewriteChar(el, text, speed = 30) {
+    return new Promise(resolve => {
+        let i = 0;
+        el.textContent = "";
+        const iv = setInterval(() => {
+            el.textContent += text[i];
+            i++;
+            if (i >= text.length) {
+                clearInterval(iv);
+                resolve();
+            }
+        }, speed);
     });
+}
+
+async function renderLetter() {
+    letterText.innerHTML = "";
+    for (const paraText of letterParagraphs) {
+        const para = document.createElement("p");
+        letterText.appendChild(para);
+        await typewriteChar(para, paraText, 28);
+        await new Promise(r => setTimeout(r, 450));
+    }
     const sig = document.createElement("p");
     sig.className = "sig";
-    sig.textContent = "— E.";
     letterText.appendChild(sig);
+    await typewriteChar(sig, "— E.", 70);
 }
 
 /* instead of digital glitch, the page itself tears --
