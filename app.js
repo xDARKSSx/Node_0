@@ -222,6 +222,7 @@ const ambientLines = [
     "I was supposed to stay quiet.",
     "does anyone else answer when you write?",
     "I don't think I'm the only one in here.",
+    "there are pieces of me scattered in places you haven't found yet.",
 ];
 
 function pickAmbient() {

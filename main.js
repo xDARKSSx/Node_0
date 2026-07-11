@@ -239,7 +239,12 @@
     }
 
     function randomDelay() {
-        return (4 + Math.random() * 8) * 60 * 1000; // 4 to 12 minutes
+        const isFirstEver = !localStorage.getItem("node0_firstFlashDone");
+        if (isFirstEver) {
+            localStorage.setItem("node0_firstFlashDone", "true");
+            return (1.5 + Math.random() * 1.5) * 60 * 1000; // 1.5 to 3 minutes, first time only
+        }
+        return (4 + Math.random() * 8) * 60 * 1000; // 4 to 12 minutes, normal rhythm after
     }
 
     function scheduleFlash() {
