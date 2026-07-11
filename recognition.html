@@ -17,6 +17,8 @@
   #wrap{ width:100%; max-width:640px; }
   #locked{ text-align:center; margin-top:60px; opacity:0.5; font-family:'Courier New', monospace; font-size:13px; }
 
+  @keyframes softPulse{ 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+
   #letterView{ display:none; }
   #letterPage{
       background:#f2e6c9;
@@ -57,6 +59,8 @@
 
 <div id="wrap">
   <div id="locked">[ signal not found ]</div>
+
+  <div id="openPrompt" style="display:none; text-align:center; margin-top:100px; font-family:'Caveat', cursive; font-size:28px; color:#c9b48a; cursor:pointer; opacity:0.85; animation: softPulse 2.5s ease-in-out infinite;">...open the letter</div>
 
   <div id="letterView">
     <div id="letterPage">

@@ -362,12 +362,22 @@ recognizeBtn.addEventListener("click", () => castVote("recognize"));
    ENTRY POINT
 ========================= */
 let experienceStarted = false;
+const openPromptEl = document.getElementById("openPrompt");
 
 function showExperience() {
     if (experienceStarted) return; // Firebase syncs repeatedly -- only set up once
     experienceStarted = true;
 
     lockedEl.style.display = "none";
+    openPromptEl.style.display = "block";
+
+    openPromptEl.addEventListener("click", () => {
+        openPromptEl.style.display = "none";
+        beginExperience();
+    }, { once: true });
+}
+
+function beginExperience() {
     startLetterMusic();
 
     if (localStorage.getItem("recognition_broken") === "true") {
