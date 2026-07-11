@@ -36,6 +36,41 @@
             overlay.remove();
             document.body.style.transition = "";
             document.body.style.filter = "";
+            lockAndPlayWakeVoice();
         }, 3800);
+
+        function lockAndPlayWakeVoice() {
+            const blockOverlay = document.createElement("div");
+            Object.assign(blockOverlay.style, {
+                position: "fixed", inset: "0", zIndex: "99998",
+                cursor: "not-allowed", background: "transparent",
+            });
+            blockOverlay.addEventListener("click", e => e.stopPropagation());
+            blockOverlay.addEventListener("mousedown", e => e.stopPropagation());
+            document.body.appendChild(blockOverlay);
+
+            let unlocked = false;
+            function unlock() {
+                if (unlocked) return;
+                unlocked = true;
+                blockOverlay.remove();
+            }
+
+            const yawn = new Audio("yawn-sfx.mp3");
+            const voiceover = new Audio("wake-voiceover.mp3");
+
+            yawn.play().catch(() => {});
+
+            setTimeout(() => {
+                voiceover.addEventListener("ended", unlock);
+                voiceover.play().catch(() => {
+                    setTimeout(unlock, 2500); // audio missing/blocked -- unlock anyway
+                });
+            }, 900);
+
+            /* absolute safety net: never leave a player stuck, even
+               if both audio files are missing or fail entirely */
+            setTimeout(unlock, 7000);
+        }
     });
 })();
