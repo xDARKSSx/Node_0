@@ -20,27 +20,47 @@
   @keyframes softPulse{ 0%,100%{opacity:0.6;} 50%{opacity:1;} }
 
   #letterView{ display:none; }
-  #letterView{ position:relative; }
+
+  #letterCover{
+      width:820px; max-width:92vw; height:auto; min-height:460px;
+      padding:20px;
+      background: linear-gradient(135deg, #4a2f1c, #2e1a0f 60%, #1c0f08);
+      border-radius:8px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.75), inset 0 0 0 2px rgba(212,180,120,0.22), inset 0 0 34px rgba(0,0,0,0.6);
+  }
+  #letterSpread{
+      position:relative; width:100%; display:flex;
+      border-radius:3px; overflow:hidden;
+      box-shadow: inset 0 0 70px rgba(0,0,0,0.18);
+  }
+  .letterLeftPage{
+      flex:1; position:relative; display:flex; align-items:center; justify-content:center;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(120,90,50,0.12), transparent 40%),
+        radial-gradient(circle at 82% 78%, rgba(120,90,50,0.10), transparent 45%),
+        #ecdfba;
+      font-family:'Caveat', cursive; font-size:64px; color:#8a6d3f; opacity:0.55;
+  }
+  .letterGutter{
+      width:24px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.38), rgba(0,0,0,0.04) 42%, rgba(0,0,0,0.04) 58%, rgba(0,0,0,0.38));
+  }
   #letterPage{
-      background:#f2e6c9;
-      background-image: radial-gradient(circle at 20% 30%, rgba(0,0,0,0.03), transparent 60%);
-      padding:50px 46px 50px 62px; border-radius:3px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.55);
+      position:relative; flex:1; padding:46px 44px 46px 38px;
+      background:
+        radial-gradient(circle at 25% 22%, rgba(120,90,50,0.11), transparent 40%),
+        radial-gradient(circle at 78% 72%, rgba(120,90,50,0.09), transparent 45%),
+        #f2e6c9;
       font-family:'Caveat', cursive; color:#2c2214;
-      position:relative; z-index:2;
   }
-  #letterPage::before, #letterPage::after{
-      content:""; position:absolute; inset:0;
-      background:#e6d8b8; border-radius:3px;
-      box-shadow:0 20px 60px rgba(0,0,0,0.4);
-      z-index:-1;
+  #letterPage::before{
+      content:""; position:absolute; inset:14px;
+      box-shadow: 0 0 0 1px rgba(120,90,50,0.35), 0 0 0 5px rgba(120,90,50,0.12);
+      pointer-events:none;
   }
-  #letterPage::before{ transform: translate(6px, 6px) rotate(0.6deg); }
-  #letterPage::after{ transform: translate(11px, 11px) rotate(1.1deg); background:#ddcda8; }
-  #letterPage .spine{
-      position:absolute; left:0; top:0; bottom:0; width:26px;
-      background: linear-gradient(90deg, rgba(0,0,0,0.35), transparent);
-      z-index:5; pointer-events:none; border-radius:3px 0 0 3px;
+  #letterPage::after{
+      content:"❦"; position:absolute; bottom:16px; right:26px;
+      font-size:20px; color:#8a6d3f; opacity:0.4; pointer-events:none;
   }
   #letterView p{ font-size:22px; line-height:1.65; margin-bottom:18px; transition: transform 0.4s ease, clip-path 0.4s ease; }
   #letterView .sig{ margin-top:20px; opacity:0.9; }
@@ -78,9 +98,14 @@
   <div id="openPrompt" style="display:none; text-align:center; margin-top:100px; font-family:'Caveat', cursive; font-size:28px; color:#c9b48a; cursor:pointer; opacity:0.85; animation: softPulse 2.5s ease-in-out infinite;">...open the letter</div>
 
   <div id="letterView">
-    <div id="letterPage">
-      <div class="spine"></div>
-      <div id="letterText"></div>
+    <div id="letterCover">
+      <div id="letterSpread">
+        <div class="letterLeftPage">❦</div>
+        <div class="letterGutter"></div>
+        <div id="letterPage">
+          <div id="letterText"></div>
+        </div>
+      </div>
     </div>
   </div>
 

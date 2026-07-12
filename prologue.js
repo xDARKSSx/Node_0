@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
 const startPrompt = document.getElementById("startPrompt");
 const bookScene = document.getElementById("bookScene");
 const book = document.getElementById("book");
+const bookCover = document.getElementById("bookCover");
+const leftPageNum = document.getElementById("leftPageNum");
+const romanNumerals = ["I", "II", "III"];
 const closingText = document.getElementById("closingText");
 const bgMusic = document.getElementById("bgMusic");
 
@@ -47,11 +50,12 @@ async function playSequence() {
         await wait(2800);
         if (i < pages.length - 1) {
             await turnPage(pages[i].el);
+            leftPageNum.textContent = romanNumerals[i + 1];
         }
     }
 
     await wait(12742);
-    book.classList.add("closing");
+    bookCover.classList.add("closing");
     await wait(2200);
     bookScene.style.display = "none";
 
