@@ -20,12 +20,27 @@
   @keyframes softPulse{ 0%,100%{opacity:0.6;} 50%{opacity:1;} }
 
   #letterView{ display:none; }
+  #letterView{ position:relative; }
   #letterPage{
       background:#f2e6c9;
       background-image: radial-gradient(circle at 20% 30%, rgba(0,0,0,0.03), transparent 60%);
-      padding:50px 46px; border-radius:3px;
+      padding:50px 46px 50px 62px; border-radius:3px;
       box-shadow:0 20px 60px rgba(0,0,0,0.55);
       font-family:'Caveat', cursive; color:#2c2214;
+      position:relative; z-index:2;
+  }
+  #letterPage::before, #letterPage::after{
+      content:""; position:absolute; inset:0;
+      background:#e6d8b8; border-radius:3px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.4);
+      z-index:-1;
+  }
+  #letterPage::before{ transform: translate(6px, 6px) rotate(0.6deg); }
+  #letterPage::after{ transform: translate(11px, 11px) rotate(1.1deg); background:#ddcda8; }
+  #letterPage .spine{
+      position:absolute; left:0; top:0; bottom:0; width:26px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.35), transparent);
+      z-index:5; pointer-events:none; border-radius:3px 0 0 3px;
   }
   #letterView p{ font-size:22px; line-height:1.65; margin-bottom:18px; transition: transform 0.4s ease, clip-path 0.4s ease; }
   #letterView .sig{ margin-top:20px; opacity:0.9; }
@@ -64,6 +79,7 @@
 
   <div id="letterView">
     <div id="letterPage">
+      <div class="spine"></div>
       <div id="letterText"></div>
     </div>
   </div>
