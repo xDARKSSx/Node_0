@@ -30,10 +30,27 @@
   }
   #book.closing{ transform: scaleX(0.015) rotateY(30deg); opacity:0; }
 
+  /* stacked page edges behind, for real thickness */
+  #book::before, #book::after{
+      content:""; position:absolute; inset:0;
+      background:#e6d8b8; border-radius:3px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);
+      z-index:-1;
+  }
+  #book::before{ transform: translate(6px, 6px) rotate(0.6deg); }
+  #book::after{ transform: translate(11px, 11px) rotate(1.1deg); background:#ddcda8; }
+
+  /* the spine/binding crease down the left edge */
+  #book .spine{
+      position:absolute; left:0; top:0; bottom:0; width:26px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.35), transparent);
+      z-index:5; pointer-events:none; border-radius:3px 0 0 3px;
+  }
+
   .page{
       position:absolute; inset:0; background:#f2e6c9;
       background-image: radial-gradient(circle at 20% 30%, rgba(0,0,0,0.03), transparent 60%);
-      padding:50px 46px; border-radius:3px;
+      padding:50px 46px 50px 62px; border-radius:3px;
       box-shadow:0 20px 60px rgba(0,0,0,0.65);
       font-family:'Caveat', cursive; font-size:25px; line-height:1.6; color:#2c2214;
       backface-visibility:hidden; transform-origin:left center;
@@ -62,6 +79,7 @@
 
 <div id="bookScene">
   <div id="book">
+    <div class="spine"></div>
     <div class="page" id="page1"></div>
     <div class="page" id="page2"></div>
     <div class="page" id="page3"></div>

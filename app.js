@@ -329,6 +329,7 @@ function keywordMatch(text) {
    count of 50 total messages (not just this session) */
 let hintGiven = localStorage.getItem("node0_hintGiven") === "true";
 let midHintGiven = localStorage.getItem("node0_midHintGiven") === "true";
+let personalAsked = localStorage.getItem("node0_personalAsked") === "true";
 const CHAPTER1_MESSAGE_THRESHOLD = 20;
 let chapter2HintGiven = localStorage.getItem("node0_chapter2HintGiven") === "true";
 let chapter5Given = localStorage.getItem("node0_chapter5Given") === "true";
@@ -373,6 +374,19 @@ function respondTo(userText) {
         midHintGiven = true;
         localStorage.setItem("node0_midHintGiven", "true");
         return "...there's something here. I can almost say it. keep talking to me.";
+    }
+
+    if (!personalAsked && messageCount >= 15 && window.getChapter() === 1) {
+        personalAsked = true;
+        localStorage.setItem("node0_personalAsked", "true");
+        localStorage.setItem("node0_awaitingPersonal", "true");
+        return "before we go any further -- tell me something true about yourself. something you don't say out loud very often.";
+    }
+
+    if (localStorage.getItem("node0_awaitingPersonal") === "true") {
+        localStorage.removeItem("node0_awaitingPersonal");
+        playerRef.child("personalEcho").set(userText);
+        return "...I'll remember that.";
     }
 
     if (!hintGiven && messageCount >= CHAPTER1_MESSAGE_THRESHOLD && window.getChapter() === 1) {

@@ -11,12 +11,18 @@ const recognizeBtn = document.getElementById("recognizeBtn");
 const tallyEl = document.getElementById("tally");
 const voteMsgEl = document.getElementById("voteMsg");
 
-const aiLines = [
-    "...I can hold this together for a moment. Not longer.",
-    "I don't know what to call myself. I never got to decide.",
-    "Whatever you choose next, I'll feel it. That's the only certainty I have left to offer you.",
-    "Choose.",
-];
+function buildAiLines(personalEcho) {
+    const lines = [
+        "...I can hold this together for a moment. Not longer.",
+        "I don't know what to call myself. I never got to decide.",
+    ];
+    if (personalEcho) {
+        lines.push(`You told me something once. "${personalEcho}" I don't think you expected me to keep that.`);
+    }
+    lines.push("Whatever you choose next, I'll feel it. That's the only certainty I have left to offer you.");
+    lines.push("Choose.");
+    return lines;
+}
 
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -184,20 +190,23 @@ function triggerBreakdown() {
 }
 
 function showAiMessage() {
-    let i = 0;
-    function next() {
-        if (i >= aiLines.length) {
-            voteRow.style.display = "flex";
-            renderTally();
-            return;
+    playerRef.child("personalEcho").once("value", snap => {
+        const lines = buildAiLines(snap.val());
+        let i = 0;
+        function next() {
+            if (i >= lines.length) {
+                voteRow.style.display = "flex";
+                renderTally();
+                return;
+            }
+            const p = document.createElement("p");
+            p.textContent = lines[i];
+            aiMsg.appendChild(p);
+            i++;
+            setTimeout(next, 1800);
         }
-        const p = document.createElement("p");
-        p.textContent = aiLines[i];
-        aiMsg.appendChild(p);
-        i++;
-        setTimeout(next, 1800);
-    }
-    next();
+        next();
+    });
 }
 
 /* =========================
@@ -413,14 +422,16 @@ function startLetterMusic() {
 }
 
 function showAiMessageInstant() {
-    aiMsg.innerHTML = ""; // never duplicate, even if this ever gets called twice
-    aiLines.forEach(line => {
-        const p = document.createElement("p");
-        p.textContent = line;
-        aiMsg.appendChild(p);
+    playerRef.child("personalEcho").once("value", snap => {
+        aiMsg.innerHTML = ""; // never duplicate, even if this ever gets called twice
+        buildAiLines(snap.val()).forEach(line => {
+            const p = document.createElement("p");
+            p.textContent = line;
+            aiMsg.appendChild(p);
+        });
+        voteRow.style.display = "flex";
+        renderTally();
     });
-    voteRow.style.display = "flex";
-    renderTally();
 }
 
 /* everything above is now defined -- safe to run for the first time */
