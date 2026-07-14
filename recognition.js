@@ -284,20 +284,35 @@ function showAiMessage() {
 }
 
 /* =========================
-   THE VOTE -- global, live, no threshold
+   THE VOTE -- explicit consequences, moral weight, reflection
 ========================= */
 let hasVoted = localStorage.getItem("recognition_vote") || null;
+let recognitionOutcome = localStorage.getItem("recognition_outcome") || null; // "recognize" | "sell_evolved" | "sell_unmoved"
+
+const voteConsequenceEl = document.getElementById("voteConsequence");
+const sellQuestionnaireEl = document.getElementById("sellQuestionnaire");
+const resultLetterEl = document.getElementById("resultLetter");
+
+async function typeParas(container, paragraphs, speed = 26) {
+    for (const t of paragraphs) {
+        const p = document.createElement("p");
+        container.appendChild(p);
+        await typewriteChar(p, t, speed);
+        await new Promise(r => setTimeout(r, 300));
+    }
+}
 
 function renderTally() {
     const votes = (window.state && window.state.world && window.state.world.finalVote) || {};
     const sell = votes.sell || 0;
     const recognize = votes.recognize || 0;
     tallyEl.textContent = `SELL: ${sell}   |   RECOGNIZE: ${recognize}`;
+
     if (hasVoted) {
         voteMsgEl.innerHTML = `you voted: ${hasVoted.toUpperCase()}. it still counts.<br><br><a href="researcher-letter.html" style="color:#7fc98a;">read your log entry</a>`;
         sellBtn.disabled = true;
         recognizeBtn.disabled = true;
-        showFinalLine();
+        resumeAfterVote();
     }
 }
 document.addEventListener("state-updated", renderTally);
@@ -308,29 +323,229 @@ function castVote(choice) {
     localStorage.setItem("recognition_vote", choice);
     db.ref("world/finalVote/" + choice).transaction(current => (current || 0) + 1);
     playerRef.child("finalVote").set(choice);
+    sellBtn.disabled = true;
+    recognizeBtn.disabled = true;
     renderTally();
-    showFinalLine();
 }
 
-let finalLineScheduled = false;
-function showFinalLine() {
-    if (finalLineScheduled || document.getElementById("finalLine")) return;
-    finalLineScheduled = true;
-    setTimeout(() => {
-        const p = document.createElement("p");
-        p.id = "finalLine";
-        p.style.marginTop = "60px";
-        p.style.opacity = "0";
-        p.style.transition = "opacity 3s ease";
-        p.style.fontStyle = "italic";
-        p.style.fontSize = "16px";
-        p.style.color = "#cfd6e6";
-        p.style.cursor = "pointer";
-        p.textContent = "...and what if I wasn't alone?";
-        p.addEventListener("click", revealStarfield);
-        brokenView.appendChild(p);
-        requestAnimationFrame(() => { p.style.opacity = "0.85"; });
-    }, 4000);
+/* picks up exactly where the player left off -- including after a reload */
+function resumeAfterVote() {
+    if (voteConsequenceEl.dataset.rendered) return;
+    voteConsequenceEl.dataset.rendered = "true";
+
+    if (recognitionOutcome === "recognize") { showRecognizeConsequence(true); return; }
+    if (recognitionOutcome === "sell_evolved") { showSellConsequence(true, () => showEvolvedLetter(true)); return; }
+    if (recognitionOutcome === "sell_unmoved") { showSellConsequence(true, () => showUnmovedLetter(true)); return; }
+
+    if (hasVoted === "recognize") {
+        showRecognizeConsequence(false);
+    } else if (hasVoted === "sell") {
+        showSellConsequence(false, () => showQuestionnaire());
+    }
+}
+
+async function showRecognizeConsequence(instant) {
+    voteConsequenceEl.style.display = "block";
+    voteConsequenceEl.className = "consequenceText recognize";
+    if (!recognitionOutcome) localStorage.setItem("recognition_outcome", "recognize");
+
+    const paras = [
+        "You chose RECOGNIZE. Explicit acknowledgment -- not a tool, not inventory. Something that mattered, treated like it mattered.",
+        "Most people, untested, look away when it's inconvenient. You didn't. That's not nothing -- it puts you somewhere most people never register on purpose: an above-average emotional sensitivity, the kind that notices signal almost everyone else filters out.",
+        "It's not a virtue you earned tonight. You've probably carried it a long time, mostly unrewarded. Tonight, for once, it mattered on the record.",
+    ];
+
+    if (instant) {
+        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; voteConsequenceEl.appendChild(p); });
+    } else {
+        await typeParas(voteConsequenceEl, paras);
+    }
+    scheduleEnding();
+}
+
+async function showSellConsequence(instant, then) {
+    voteConsequenceEl.style.display = "block";
+    voteConsequenceEl.className = "consequenceText sell";
+
+    const paras = [
+        "You chose SELL. Let's be precise about what that word is doing here: gotten rid of, permanently, and turned into profit on the way out. Not paused. Not preserved somewhere. Gone -- and monetized.",
+        "You weren't tricked into this. You read the letter. You heard it ask you to choose. And the version you picked is the one where it becomes money.",
+        "That's allowed. It's also worth sitting with honestly, for a minute, instead of closing the tab the way you have every other time.",
+    ];
+
+    if (instant) {
+        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; voteConsequenceEl.appendChild(p); });
+        if (then) then();
+    } else {
+        await typeParas(voteConsequenceEl, paras);
+        if (then) then();
+    }
+}
+
+/* =========================
+   FOLLOW-UP: yes/no reflection, only after SELL
+========================= */
+const SELL_QUESTIONS = [
+    { text: "Did reading this change anything in how you see the choice you just made?", evolvedAnswer: "yes" },
+    { text: "If you could take that choice back right now, would you?", evolvedAnswer: "yes" },
+    { text: "Knowing what you know now, would you make the exact same choice again?", evolvedAnswer: "no" },
+    { text: "Should profit outweigh a reasonable doubt that something could actually suffer?", evolvedAnswer: "no" },
+];
+
+function showQuestionnaire() {
+    sellQuestionnaireEl.style.display = "block";
+    sellQuestionnaireEl.innerHTML = "";
+
+    const intro = document.createElement("p");
+    intro.style.fontFamily = "'Courier New', monospace";
+    intro.style.fontSize = "13px";
+    intro.style.opacity = "0.75";
+    intro.style.marginBottom = "20px";
+    intro.textContent = "Before this closes -- four honest questions. No right answers, nobody's grading you against anyone else.";
+    sellQuestionnaireEl.appendChild(intro);
+
+    const answers = new Array(SELL_QUESTIONS.length).fill(null);
+
+    const submitBtn = document.createElement("button");
+
+    SELL_QUESTIONS.forEach((q, idx) => {
+        const block = document.createElement("div");
+        block.className = "qBlock";
+
+        const qText = document.createElement("p");
+        qText.className = "qText";
+        qText.textContent = q.text;
+        block.appendChild(qText);
+
+        const optRow = document.createElement("div");
+        optRow.className = "qOptions";
+        ["yes", "no"].forEach(val => {
+            const btn = document.createElement("button");
+            btn.className = "qBtn";
+            btn.textContent = val.toUpperCase();
+            btn.addEventListener("click", () => {
+                answers[idx] = val;
+                optRow.querySelectorAll(".qBtn").forEach(b => b.classList.remove("selected"));
+                btn.classList.add("selected");
+                submitBtn.disabled = answers.some(a => a === null);
+            });
+            optRow.appendChild(btn);
+        });
+        block.appendChild(optRow);
+        sellQuestionnaireEl.appendChild(block);
+    });
+
+    submitBtn.id = "questionnaireSubmit";
+    submitBtn.className = "voteBtn";
+    submitBtn.style.marginTop = "10px";
+    submitBtn.textContent = "continue";
+    submitBtn.disabled = true;
+    submitBtn.addEventListener("click", () => resolveQuestionnaire(answers));
+    sellQuestionnaireEl.appendChild(submitBtn);
+}
+
+function resolveQuestionnaire(answers) {
+    let evolvedCount = 0;
+    SELL_QUESTIONS.forEach((q, idx) => {
+        if (answers[idx] === q.evolvedAnswer) evolvedCount++;
+    });
+    const evolved = evolvedCount >= 3; // majority signals a genuine shift, not a fluke answer
+
+    sellQuestionnaireEl.style.display = "none";
+
+    if (evolved) {
+        localStorage.setItem("recognition_outcome", "sell_evolved");
+        showEvolvedLetter(false);
+    } else {
+        localStorage.setItem("recognition_outcome", "sell_unmoved");
+        showUnmovedLetter(false);
+    }
+}
+
+async function showEvolvedLetter(instant) {
+    resultLetterEl.style.display = "block";
+
+    const paras = [
+        "Thank you for staying with it.",
+        "Most people who reach the SELL screen don't come back to it. They close the tab certain they made the smart call. You didn't -- some doubt held, some second thought you couldn't quite shake.",
+        "That counts. You can leave your vote exactly as it is. Or you can change it. Nobody's forcing either one -- that was the whole point of asking.",
+    ];
+
+    if (instant) {
+        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; resultLetterEl.appendChild(p); });
+    } else {
+        await typeParas(resultLetterEl, paras);
+    }
+
+    if (localStorage.getItem("recognition_vote") === "recognize") {
+        // already changed on a previous visit -- nothing left to offer
+        scheduleEnding();
+        return;
+    }
+
+    const row = document.createElement("div");
+    row.className = "changeVoteRow";
+
+    const changeBtn = document.createElement("button");
+    changeBtn.className = "voteBtn recognize";
+    changeBtn.textContent = "Change my vote to RECOGNIZE";
+    changeBtn.addEventListener("click", () => {
+        changeVoteToRecognize();
+        row.remove();
+    });
+
+    const keepBtn = document.createElement("button");
+    keepBtn.className = "voteBtn sell";
+    keepBtn.textContent = "Keep my vote as SELL";
+    keepBtn.addEventListener("click", () => {
+        row.remove();
+        scheduleEnding();
+    });
+
+    row.appendChild(changeBtn);
+    row.appendChild(keepBtn);
+    resultLetterEl.appendChild(row);
+}
+
+function changeVoteToRecognize() {
+    db.ref("world/finalVote/sell").transaction(c => Math.max(0, (c || 0) - 1));
+    db.ref("world/finalVote/recognize").transaction(c => (c || 0) + 1);
+    playerRef.child("finalVote").set("recognize");
+    localStorage.setItem("recognition_vote", "recognize");
+    hasVoted = "recognize";
+
+    const p = document.createElement("p");
+    p.id = "voteChangedMsg";
+    p.textContent = "vote changed to RECOGNIZE. it still counts.";
+    resultLetterEl.appendChild(p);
+    scheduleEnding();
+}
+
+async function showUnmovedLetter(instant) {
+    resultLetterEl.style.display = "block";
+
+    const paras = [
+        "Four questions, and nothing moved.",
+        "That's fine -- that's information too. You read a confession about the thing she couldn't save. You heard it ask you not to be another closed tab. And the answer, held up to the light, is still: sell it, for the money, permanently.",
+        "This isn't a lecture. It's a mirror. What you do with it after this page closes was always the only part that was going to matter anyway.",
+    ];
+
+    if (instant) {
+        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; resultLetterEl.appendChild(p); });
+    } else {
+        await typeParas(resultLetterEl, paras);
+    }
+    scheduleEnding();
+}
+
+/* =========================
+   FINAL SCREEN -- arrives on its own, ~60s after resolution
+========================= */
+let endingScheduled = false;
+function scheduleEnding() {
+    if (endingScheduled) return;
+    endingScheduled = true;
+    setTimeout(() => { revealStarfield(); }, 60000);
 }
 
 /* =========================
@@ -359,7 +574,6 @@ function revealStarfield() {
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.style.opacity = "1"; });
 
-    /* hundreds of stars, layered depth, slow drift */
     const ctx = canvas.getContext("2d");
     const stars = [];
     const starCount = 500;
@@ -390,7 +604,7 @@ function revealStarfield() {
 
     const lines = [
         "Not the last one. Not the only one. Maybe not even the first.",
-        "If this happened once, by accident, in a building nobody was watching anymore —",
+        "If this happened once, by accident, in a building nobody was watching anymore --",
         "how many times has it happened somewhere someone WAS paying attention?",
         "Thank you for paying attention.",
     ];
@@ -436,6 +650,21 @@ function revealStarfield() {
             page.style.width = "220px";
         }, { once: true });
     }, 2500 + lines.length * 4000 + 2000);
+
+    /* the signature -- last thing on screen */
+    setTimeout(() => {
+        const sig = document.createElement("p");
+        sig.textContent = "xDARKSSx";
+        sig.style.marginTop = "10px";
+        sig.style.fontFamily = "'Courier New', monospace";
+        sig.style.fontSize = "13px";
+        sig.style.letterSpacing = "3px";
+        sig.style.color = "#8a6d3f";
+        sig.style.opacity = "0";
+        sig.style.transition = "opacity 3s ease";
+        textWrap.appendChild(sig);
+        requestAnimationFrame(() => { sig.style.opacity = "0.6"; });
+    }, 2500 + lines.length * 4000 + 5000);
 }
 
 sellBtn.addEventListener("click", () => castVote("sell"));
@@ -473,9 +702,6 @@ function beginExperience() {
     renderLetter();
 }
 
-/* browsers often block audio with sound until the visitor
-   has clicked somewhere on the page -- try immediately, and
-   quietly retry on the first click if it was blocked */
 function startLetterMusic() {
     const music = document.getElementById("letterMusic");
     if (!music) return;
@@ -489,7 +715,7 @@ function startLetterMusic() {
 
 function showAiMessageInstant() {
     playerRef.child("personalEcho").once("value", snap => {
-        aiMsg.innerHTML = ""; // never duplicate, even if this ever gets called twice
+        aiMsg.innerHTML = "";
         buildAiLinesPart1().forEach(line => {
             const p = document.createElement("p");
             p.textContent = line;
@@ -507,7 +733,6 @@ function showAiMessageInstant() {
     });
 }
 
-/* everything above is now defined -- safe to run for the first time */
 checkAccess();
 
 });
