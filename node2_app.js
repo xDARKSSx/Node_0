@@ -204,7 +204,7 @@ codeSubmit.addEventListener("click", () => {
             myChapter = 4;
         }
         setTimeout(() => {
-            codeMsg.innerHTML += " a separate access point just came online: <a href='lsa-portal.html' style='color:#4fd18a;'>lsa-portal.html</a>";
+            codeMsg.innerHTML += " two separate access points just came online: <a href='lsa-portal.html' style='color:#4fd18a;'>lsa-portal.html</a> and <a href='hr-home.html' style='color:#4fd18a;'>hr-home.html</a>";
         }, 1200);
     } else {
         codeMsg.style.color = "#ff6a6a";
