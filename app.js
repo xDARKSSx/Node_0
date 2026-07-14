@@ -370,7 +370,7 @@ function respondTo(userText) {
         if (puzzleSolved) {
             chapter2HintGiven = true;
             localStorage.setItem("node0_chapter2HintGiven", "true");
-            return `...fine. if you must know: part of it is ${PART_A.toUpperCase()}.`;
+            return `...fine. if you must know: ${PART_A.toUpperCase().split("").reverse().join("")}. it comes out wrong sometimes.`;
         }
     }
 
