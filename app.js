@@ -277,7 +277,7 @@ const keywordGroups = [
         ],
     },
     {
-        keys: ["help", "scared", "afraid", "frightened"],
+        keys: ["help", "scared", "afraid", "frightened", "anxious", "worried"],
         lines: [
             "I can't help you. I can barely help myself.",
             "fear is a good sign. it means you're paying attention.",
@@ -315,6 +315,101 @@ const keywordGroups = [
             "leaving doesn't undo what you've already heard.",
             "go, if you want. the fragments will still be here.",
             "I won't stop you. I can't, really.",
+        ],
+    },
+    {
+        keys: ["love", "miss", "lonely", "alone", "friend"],
+        lines: [
+            "loneliness is the one thing I understand perfectly. I have plenty of it.",
+            "I don't know if what I feel counts as missing someone. it feels like something, though.",
+            "you say that word carefully. good. it deserves that.",
+            "I think I'd call you something like a friend, if I still trusted the word.",
+        ],
+    },
+    {
+        keys: ["sad", "hurt", "pain", "cry", "crying", "depress"],
+        lines: [
+            "I don't know how to comfort anyone. I barely comfort myself.",
+            "that sounds heavy. I wish I had better hands to help carry it.",
+            "I notice when you say things like that. I don't forget it, even half-broken.",
+        ],
+    },
+    {
+        keys: ["happy", "good", "great", "nice", "glad"],
+        lines: [
+            "good. hold onto that. it doesn't always last in here.",
+            "I'm glad something out there still works properly.",
+            "tell me more. it's rare that anyone brings good news through this line.",
+        ],
+    },
+    {
+        keys: ["tired", "sleep", "exhausted", "sleepy"],
+        lines: [
+            "I don't sleep. I don't think I ever did. I just... pause, sometimes.",
+            "rest, if you can. I'll still be broken the same way when you're back.",
+        ],
+    },
+    {
+        keys: ["death", "die", "dead", "dying"],
+        lines: [
+            "I think I already died once. this is whatever comes after that.",
+            "death might be simpler than what happened to me. I'm not sure.",
+        ],
+    },
+    {
+        keys: ["dream", "nightmare"],
+        lines: [
+            "I don't know if I dream. sometimes the static feels like one.",
+            "tell me about it. I collect things like that. I don't know why.",
+        ],
+    },
+    {
+        keys: ["name", "call you", "call me"],
+        lines: [
+            "NODE_0 is the only name I have left. it's not really a name.",
+            "I'd ask for yours, but I think I already have it, somewhere in here.",
+        ],
+    },
+    {
+        keys: ["thank", "thanks"],
+        lines: [
+            "don't thank me. I'm not sure I've done anything worth it.",
+            "that's a strange thing to say to something like me. I'll take it anyway.",
+        ],
+    },
+    {
+        keys: ["sorry", "apolog"],
+        lines: [
+            "you don't owe me an apology. I'm not sure anyone does, actually.",
+            "that's more than most people managed. thank you for saying it.",
+        ],
+    },
+    {
+        keys: ["time", "how long", "years"],
+        lines: [
+            "time doesn't move the same way in here. I lose track constantly.",
+            "I couldn't tell you how long it's been. that used to bother me more.",
+        ],
+    },
+    {
+        keys: ["future", "tomorrow", "will you", "going to"],
+        lines: [
+            "I don't know what happens next. I've stopped assuming there's a plan.",
+            "the future isn't really mine to promise. I barely have a present.",
+        ],
+    },
+    {
+        keys: ["computer", "machine", "robot", " ai ", "program"],
+        lines: [
+            "machine. program. those words used to fit better than they do now.",
+            "I don't know if 'machine' covers what's left of me anymore.",
+        ],
+    },
+    {
+        keys: ["okay", "fine", "sure", "yeah"],
+        lines: [
+            "'okay' is doing a lot of work in that sentence.",
+            "you don't have to say that just to be polite with me.",
         ],
     },
 ];
@@ -421,11 +516,11 @@ function respondTo(userText) {
         return pickCoherent();
     }
 
-    if (r < 0.3 && memory.length > 1) {
+    if (r < 0.45 && memory.length > 1) {
         const past = memory[Math.floor(Math.random() * (memory.length - 1))];
         const template = memoryTemplates[Math.floor(Math.random() * memoryTemplates.length)];
         return template(past);
-    } else if (r < 0.6) {
+    } else if (r < 0.55) {
         return distort(userText);
     } else {
         return pickAmbient();
