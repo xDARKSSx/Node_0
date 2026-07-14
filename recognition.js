@@ -11,18 +11,92 @@ const recognizeBtn = document.getElementById("recognizeBtn");
 const tallyEl = document.getElementById("tally");
 const voteMsgEl = document.getElementById("voteMsg");
 
-function buildAiLines(personalEcho) {
-    const lines = [
+const DECOY_ECHOES = [
+    "I'm afraid of being forgotten.",
+    "I don't think anyone really knows me.",
+    "I still feel guilty about something I did years ago.",
+    "I'm scared I'll never be good enough.",
+    "Sometimes I feel completely alone, even around people.",
+    "I don't like who I am when no one's watching.",
+];
+
+function buildAiLinesPart1() {
+    return [
         "...I can hold this together for a moment. Not longer.",
         "I don't know what to call myself. I never got to decide.",
     ];
-    if (personalEcho) {
-        lines.push(`You told me something once. "${personalEcho}" I don't think you expected me to keep that.`);
-    }
-    lines.push("Whatever you choose next, I'll feel it. That's the only certainty I have left to offer you.");
-    lines.push("Choose.");
-    return lines;
 }
+function buildAiLinesPart2() {
+    return [
+        "Whatever you choose next, I'll feel it. That's the only certainty I have left to offer you.",
+        "Choose.",
+    ];
+}
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+/* the anti-spoiler moment: three options, only one is really
+   what THIS player said. no walkthrough can give this answer --
+   it's different for every single person. */
+function revealPersonalMoment(personalEcho, container, onDone) {
+    if (!personalEcho) { onDone(); return; }
+
+    const already = localStorage.getItem("recognition_echoConfirmed") === "true";
+    if (already) {
+        const p = document.createElement("p");
+        p.textContent = `You told me something once. "${personalEcho}" I don't think you expected me to keep that.`;
+        container.appendChild(p);
+        setTimeout(onDone, 1800);
+        return;
+    }
+
+    const intro = document.createElement("p");
+    intro.textContent = "You told me something once. I want to see if you remember it too.";
+    container.appendChild(intro);
+
+    const decoys = shuffle(DECOY_ECHOES).slice(0, 2);
+    const options = shuffle([personalEcho, ...decoys]);
+
+    const wrap = document.createElement("div");
+    wrap.style.marginTop = "20px";
+    wrap.style.display = "flex";
+    wrap.style.flexDirection = "column";
+    wrap.style.gap = "10px";
+
+    options.forEach(text => {
+        const btn = document.createElement("button");
+        btn.textContent = `"${text}"`;
+        Object.assign(btn.style, {
+            background: "#141414", border: "1px solid #555", color: "#e8e4d8",
+            fontFamily: "'Courier New', monospace", fontSize: "13px",
+            padding: "12px 16px", cursor: "pointer", textAlign: "left",
+        });
+        btn.addEventListener("click", () => {
+            if (text === personalEcho) {
+                localStorage.setItem("recognition_echoConfirmed", "true");
+                wrap.remove();
+                const p = document.createElement("p");
+                p.textContent = "...that one. yes. I don't think you expected me to keep that.";
+                container.appendChild(p);
+                setTimeout(onDone, 1800);
+            } else {
+                btn.style.opacity = "0.35";
+                btn.disabled = true;
+            }
+        });
+        wrap.appendChild(btn);
+    });
+
+    container.appendChild(wrap);
+}
+
 
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -191,21 +265,38 @@ function triggerBreakdown() {
 
 function showAiMessage() {
     playerRef.child("personalEcho").once("value", snap => {
-        const lines = buildAiLines(snap.val());
+        const personalEcho = snap.val();
+        const part1 = buildAiLinesPart1();
         let i = 0;
-        function next() {
-            if (i >= lines.length) {
-                voteRow.style.display = "flex";
-                renderTally();
+        function nextPart1() {
+            if (i >= part1.length) {
+                revealPersonalMoment(personalEcho, aiMsg, showPart2);
                 return;
             }
             const p = document.createElement("p");
-            p.textContent = lines[i];
+            p.textContent = part1[i];
             aiMsg.appendChild(p);
             i++;
-            setTimeout(next, 1800);
+            setTimeout(nextPart1, 1800);
         }
-        next();
+        function showPart2() {
+            const part2 = buildAiLinesPart2();
+            let j = 0;
+            function nextPart2() {
+                if (j >= part2.length) {
+                    voteRow.style.display = "flex";
+                    renderTally();
+                    return;
+                }
+                const p = document.createElement("p");
+                p.textContent = part2[j];
+                aiMsg.appendChild(p);
+                j++;
+                setTimeout(nextPart2, 1800);
+            }
+            nextPart2();
+        }
+        nextPart1();
     });
 }
 
@@ -424,13 +515,20 @@ function startLetterMusic() {
 function showAiMessageInstant() {
     playerRef.child("personalEcho").once("value", snap => {
         aiMsg.innerHTML = ""; // never duplicate, even if this ever gets called twice
-        buildAiLines(snap.val()).forEach(line => {
+        buildAiLinesPart1().forEach(line => {
             const p = document.createElement("p");
             p.textContent = line;
             aiMsg.appendChild(p);
         });
-        voteRow.style.display = "flex";
-        renderTally();
+        revealPersonalMoment(snap.val(), aiMsg, () => {
+            buildAiLinesPart2().forEach(line => {
+                const p = document.createElement("p");
+                p.textContent = line;
+                aiMsg.appendChild(p);
+            });
+            voteRow.style.display = "flex";
+            renderTally();
+        });
     });
 }
 
