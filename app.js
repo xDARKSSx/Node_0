@@ -370,7 +370,7 @@ function respondTo(userText) {
         if (puzzleSolved) {
             chapter2HintGiven = true;
             localStorage.setItem("node0_chapter2HintGiven", "true");
-            return `...fine. if you must know: ${PART_A.toUpperCase().split("").reverse().join("")}. it comes out wrong sometimes.`;
+            return `...fine. if you must know: ${PART_A.toUpperCase().split("").reverse().join("")}. it comes out wrong sometimes. put both halves together, and say it where you found her voice.`;
         }
     }
 
