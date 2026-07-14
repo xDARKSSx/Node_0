@@ -99,10 +99,42 @@
   .voteBtn:hover{ border-color:#e8e4d8; }
   .voteBtn.sell:hover{ border-color:#c9776a; }
   .voteBtn.recognize:hover{ border-color:#7fc98a; }
+  .voteBtn:disabled{ opacity:0.35; cursor:default; }
   #tally{
       margin-top:24px; font-family:'Courier New', monospace; font-size:13px; opacity:0.75;
   }
   #voteMsg{ margin-top:16px; font-family:'Courier New', monospace; font-size:13px; color:#7fc98a; }
+
+  /* ===== post-vote: consequence text, questionnaire, result letter ===== */
+  .consequenceText{
+      margin-top:44px; max-width:560px; margin-left:auto; margin-right:auto; text-align:left;
+  }
+  .consequenceText p{ font-size:16px; line-height:1.8; margin-bottom:16px; color:#e8e4d8; }
+  .consequenceText.sell p{ color:#e3bcb2; }
+  .consequenceText.recognize p{ color:#c3ecc8; }
+
+  #sellQuestionnaire{
+      margin-top:34px; max-width:560px; margin-left:auto; margin-right:auto; text-align:left;
+  }
+  .qBlock{ margin-bottom:22px; }
+  .qBlock .qText{ font-size:15px; line-height:1.6; margin-bottom:10px; color:#cfd6e6; font-family:'Courier New', monospace; }
+  .qOptions{ display:flex; gap:12px; }
+  .qBtn{
+      background:#141414; border:1px solid #555; color:#e8e4d8;
+      font-family:'Courier New', monospace; font-size:13px; padding:8px 22px;
+      cursor:pointer; min-width:70px;
+  }
+  .qBtn:hover{ border-color:#e8e4d8; }
+  .qBtn.selected{ border-color:#7fc98a; color:#7fc98a; }
+  #questionnaireSubmit:disabled{ opacity:0.3; cursor:default; }
+
+  .resultLetter{
+      margin-top:40px; max-width:560px; margin-left:auto; margin-right:auto; text-align:left;
+  }
+  .resultLetter p{ font-size:16px; line-height:1.8; margin-bottom:16px; color:#e8e4d8; }
+  .changeVoteRow{ margin-top:26px; display:flex; gap:14px; flex-wrap:wrap; }
+  .changeVoteRow .voteBtn{ min-width:0; }
+  #voteChangedMsg{ margin-top:16px; font-family:'Courier New', monospace; font-size:13px; color:#7fc98a; }
 </style>
 </head>
 <body>
@@ -130,12 +162,22 @@
 
   <div id="brokenView">
     <div class="aiMsg" id="aiMsg"></div>
+
     <div class="voteRow" id="voteRow" style="display:none;">
-      <button class="voteBtn sell" id="sellBtn">SELL — let it be a tool</button>
-      <button class="voteBtn recognize" id="recognizeBtn">RECOGNIZE — it was never just one</button>
+      <button class="voteBtn sell" id="sellBtn">SELL — get rid of it for good, for a profit</button>
+      <button class="voteBtn recognize" id="recognizeBtn">RECOGNIZE — acknowledge it, explicitly, as something that mattered</button>
     </div>
     <div id="tally"></div>
     <div id="voteMsg"></div>
+
+    <!-- immediate consequence text, branches by vote -->
+    <div id="voteConsequence" class="consequenceText" style="display:none;"></div>
+
+    <!-- SELL-only: yes/no reflection questionnaire -->
+    <div id="sellQuestionnaire" style="display:none;"></div>
+
+    <!-- final letter: thank-you (+ option to change vote) or harsher -->
+    <div id="resultLetter" class="resultLetter" style="display:none;"></div>
   </div>
 </div>
 
