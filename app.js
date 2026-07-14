@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
    breach (the "forget" trigger) has actually happened.
 ========================= */
 const lockedEl = document.getElementById("locked");
-const containerEl = document.getElementById("container");
+const containerEl = document.getElementById("dashboard");
 
 function updateAccess() {
     const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
