@@ -41,8 +41,10 @@
       letter-spacing:2px;
   }
 
+  /* chapter 1 state: not unlocked yet for anyone */
   #locked p{ opacity:0.7; }
 
+  /* chapter 2 state: NODE_1's real interface */
   #unlocked{ display:none; text-align:left; }
   #log{
       height:300px;
@@ -83,11 +85,14 @@
 
 <div id="container">
   <h1>NODE_1</h1>
+  <canvas id="pulse1" width="220" height="220" style="width:180px; height:180px; display:block; border-radius:50%; margin-top:10px;"></canvas>
 
+  <!-- shown only while chapter 1 is still unsolved for everyone -->
   <div id="locked">
     <p id="status">connection unstable...</p>
   </div>
 
+  <!-- shown once chapter 1 has been solved by anyone, for everyone -->
   <div id="unlocked">
     <p id="status2">connection stable</p>
     <div id="log"></div>
@@ -100,9 +105,14 @@
   </div>
 </div>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<!-- Shared engine (Firebase connection) -->
 <script src="engine.js"></script>
+<script src="node1Pulse.js"></script>
+<!-- NODE_1's own interface -->
 <script src="node1_app.js"></script>
 
 </body>

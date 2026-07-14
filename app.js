@@ -27,7 +27,6 @@ updateAccess();
 const log = document.getElementById("log");
 const input = document.getElementById("input");
 const btn = document.getElementById("send");
-const img = document.getElementById("fracture");
 const statusEl = document.getElementById("status");
 const researcherTagEl = document.getElementById("researcherTag");
 const presenceCountEl = document.getElementById("presenceCount");
@@ -621,9 +620,7 @@ function send() {
 
     setTimeout(() => {
         addMessage("NODE_0", respondTo(v));
-        if (img) {
-            img.style.opacity = 0.5 + Math.random() * 0.5;
-        }
+        if (window.pulseIntensify) window.pulseIntensify();
     }, 600 + Math.random() * 500);
 }
 
@@ -631,23 +628,6 @@ btn.addEventListener("click", send);
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") send();
 });
-
-/* =========================
-   GLITCH ON fracture.png
-========================= */
-setInterval(() => {
-    if (!img) return;
-    if (Math.random() < 0.5) {
-        const hue = Math.floor(Math.random() * 40 - 20);
-        const contrast = (1 + Math.random() * 0.6).toFixed(2);
-        const bright = (0.9 + Math.random() * 0.3).toFixed(2);
-        img.style.filter = `hue-rotate(${hue}deg) contrast(${contrast}) brightness(${bright})`;
-        img.style.transform = `translate(${(Math.random() * 6 - 3).toFixed(1)}px, ${(Math.random() * 4 - 2).toFixed(1)}px)`;
-        setTimeout(() => {
-            img.style.transform = "translate(0,0)";
-        }, 100);
-    }
-}, 700);
 
 /* =========================
    STATUS
