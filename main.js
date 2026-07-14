@@ -95,8 +95,8 @@
 
     const forgetHints = [
         () => `go to the team page. read every bio carefully.`,
-        () => `one word on the team page isn't like the others.`,
-        () => `Elena's bio has something clickable in it. find it.`,
+        () => `some pages aren't only made of what you can read.`,
+        () => `look at how the team page is built, not just what it says.`,
     ];
 
     function pickLine() {
