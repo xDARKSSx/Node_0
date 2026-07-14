@@ -133,7 +133,7 @@ function send() {
             );
         }, 600);
         setTimeout(() => {
-            addLine("NODE_1", "if you want more than a vote, earn it. numbers, in order, if you still remember your alphabet: 12-9-19-20-5-14.");
+            addLine("NODE_1", "if you want more than a vote, earn it. 12-9-19-20-5-14.");
         }, 1800);
         return;
     }
