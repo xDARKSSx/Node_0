@@ -40,10 +40,16 @@
 
         const pulse = 0.5 + 0.5 * Math.sin(t * 1.4) + flare * 0.5;
 
+        /* pseudo-3D rotating rings: squash the ellipse's vertical
+           radius with a sine wave to fake perspective rotation --
+           a classic 2D trick, no real 3D involved */
         rings.forEach((r, i) => {
+            const squash = Math.cos(t * 0.5 + i * 0.7); // -1 to 1, simulates spin
+            const ry = r * Math.max(0.15, Math.abs(squash));
             ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(${COLOR},${0.15 + 0.1 * Math.sin(t * 0.8 + i)})`;
+            ctx.ellipse(cx, cy, r, ry, 0, 0, Math.PI * 2);
+            const depth = squash > 0 ? 1 : 0.4; // "front" half brighter than "back" half
+            ctx.strokeStyle = `rgba(214,190,255,${(0.18 + 0.12 * Math.sin(t * 0.8 + i)) * depth})`;
             ctx.lineWidth = 1;
             ctx.stroke();
         });
