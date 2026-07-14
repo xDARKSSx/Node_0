@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Play — Optional Guide</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  main{ max-width:720px; margin:40px auto; padding:0 20px 60px; }
+  h1{ color:#0b1a3a; }
+  h2{ margin-top:36px; color:#0b1a3a; font-size:19px; }
+  .box{ background:#fff; border:1px solid #e2e6ef; border-radius:8px; padding:18px 20px; margin-top:14px; }
+  .tool{ background:#f4f6fb; border-radius:8px; padding:18px 20px; margin-top:14px; }
+  .tool input[type=text]{ width:100%; padding:8px; font-family:monospace; font-size:14px; margin-top:6px; }
+  .tool input[type=range]{ width:100%; margin-top:10px; }
+  .tool output{ display:block; margin-top:10px; font-family:monospace; font-size:16px; color:#1a56db; background:#fff; padding:10px; border-radius:4px; }
+  code{ background:#eef1f7; padding:2px 6px; border-radius:3px; font-size:13px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">MERIDIAN DYNAMICS GROUP</div>
+  <div>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="contact.html">Contact</a>
+    <a href="tutorial.html" class="active">How to Play</a>
+  </div>
+</nav>
+
+<main>
+  <h1>How to Play (optional)</h1>
+  <p>This is not part of the story — it's just a quick, spoiler-free guide to a couple of techniques this kind of game sometimes uses. If you've done this before, skip it. If not, this should help.</p>
+
+  <h2>1. Viewing a page's source code</h2>
+  <div class="box">
+    <p>Every web page is built from text (HTML) that your browser turns into what you see. You can look at that raw text directly — sometimes there's more written there than what's shown on screen.</p>
+    <p style="margin-top:10px;"><strong>How:</strong> right-click anywhere on a page and choose <code>View Page Source</code> (or press <code>Ctrl+U</code> on Windows / <code>Cmd+Option+U</code> on Mac). A new tab opens showing the raw code. You can search it with <code>Ctrl+F</code> like any page.</p>
+    <p style="margin-top:10px;">Some of what's hidden there looks like this: <code>&lt;!-- a comment, like this one --&gt;</code> — text left behind that isn't meant to be seen normally.</p>
+  </div>
+
+  <h2>2. Caesar ciphers</h2>
+  <div class="box">
+    <p>A Caesar cipher shifts every letter forward (or back) by the same fixed amount through the alphabet. <code>A</code> shifted by 3 becomes <code>D</code>, <code>B</code> becomes <code>E</code>, and so on. There are only 25 possible shifts — try them until real words appear.</p>
+  </div>
+  <div class="tool">
+    <label>Type something:</label>
+    <input type="text" id="cipherInput" value="hello" autocomplete="off">
+    <label style="margin-top:10px; display:block;">Shift: <span id="shiftVal">3</span></label>
+    <input type="range" id="shiftRange" min="0" max="25" value="3">
+    <output id="cipherOutput">khoor</output>
+  </div>
+
+  <h2>3. Letter-number ciphers</h2>
+  <div class="box">
+    <p>Sometimes letters are represented by their position in the alphabet: <code>A=1, B=2, C=3 ... Z=26</code>. A string of numbers like <code>8-9</code> would spell <code>HI</code>.</p>
+  </div>
+
+  <h2>4. This world is shared</h2>
+  <div class="box">
+    <p>Some things in this game are shared — if someone else figures something out first, it can unlock for everyone. But your own path through the story, and what you find along the way, is yours alone.</p>
+  </div>
+
+  <p style="margin-top:30px; opacity:0.6; font-size:13px;">That's it. Everything else, you find on your own.</p>
+</main>
+
+<script src="tutorial.js"></script>
+</body>
+</html>
