@@ -33,7 +33,11 @@
       font-size:11px; white-space:nowrap; opacity:0.75; letter-spacing:1px;
   }
   /* the hidden star -- visually identical to background decoration */
-  #hiddenStar{ width:2px; height:2px; opacity:0.5; }
+  #hiddenStar{ width:2px; height:2px; opacity:0.5; position:relative; }
+  #hiddenStar::after{
+      content:""; position:absolute;
+      top:-14px; left:-14px; right:-14px; bottom:-14px;
+  }
 
   #revealPanel{
       display:none; max-width:900px; margin:16px auto 0; text-align:center;
