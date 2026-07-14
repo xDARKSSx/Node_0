@@ -45,8 +45,6 @@
                 position: "fixed", inset: "0", zIndex: "99998",
                 cursor: "not-allowed", background: "transparent",
             });
-            blockOverlay.addEventListener("click", e => e.stopPropagation());
-            blockOverlay.addEventListener("mousedown", e => e.stopPropagation());
             document.body.appendChild(blockOverlay);
 
             let unlocked = false;
@@ -58,14 +56,31 @@
 
             const yawn = new Audio("yawn-sfx.mp3");
             const voiceover = new Audio("wake-voiceover.mp3");
+            let voiceoverStarted = false;
+
+            function tryPlayVoiceover() {
+                if (voiceoverStarted) return;
+                voiceoverStarted = true;
+                voiceover.addEventListener("ended", unlock);
+                voiceover.play().catch(() => {
+                    voiceoverStarted = false; // allow a retry on next click
+                });
+            }
 
             yawn.play().catch(() => {});
 
+            /* if autoplay is blocked, the very first click anywhere
+               (on this full-screen overlay) retries both sounds */
+            blockOverlay.addEventListener("click", e => {
+                e.stopPropagation();
+                yawn.currentTime === 0 && yawn.play().catch(() => {});
+                tryPlayVoiceover();
+            });
+            blockOverlay.addEventListener("mousedown", e => e.stopPropagation());
+
             setTimeout(() => {
-                voiceover.addEventListener("ended", unlock);
-                voiceover.play().catch(() => {
-                    setTimeout(unlock, 2500); // audio missing/blocked -- unlock anyway
-                });
+                tryPlayVoiceover();
+                if (!voiceoverStarted) setTimeout(unlock, 2500); // still blocked -- unlock anyway
             }, 2400);
 
             /* absolute safety net: never leave a player stuck, even
