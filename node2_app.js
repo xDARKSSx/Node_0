@@ -148,7 +148,7 @@ playerRef.once("value", snap => {
     setTimeout(() => {
         drawSignature(sigCanvas, playerId);
         document.getElementById("scratch1Text").textContent = "the subject believes they are in control.";
-        document.getElementById("scratch2Text").textContent = "recommendation: clearance override 3391. do not log this number elsewhere.";
+        document.getElementById("scratch2Text").textContent = "recommendation: escalate to tier review. case reference 3391-A. do not circulate outside this file.";
         initScratch(document.getElementById("scratch1"));
         initScratch(document.getElementById("scratch2"));
     }, offset + 3200);
@@ -195,7 +195,7 @@ updateCodeUI();
 
 codeSubmit.addEventListener("click", () => {
     const attempt = codeInput.value.trim();
-    if (attempt === CLEARANCE_CODE) {
+    if (attempt === CLEARANCE_CODE || attempt.toUpperCase() === CLEARANCE_CODE + "-A") {
         codeMsg.style.color = "#4fd18a";
         codeMsg.textContent = "> access granted. notifying the network...";
         db.ref("world/node2CodeSolvedBy").set(playerId);
