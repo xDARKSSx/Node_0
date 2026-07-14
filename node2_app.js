@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
 const lockedEl = document.getElementById("locked");
-const dossierEl = document.getElementById("dossier");
+const dossierEl = document.getElementById("dashboard");
 const textlog = document.getElementById("textlog");
 const sigCanvas = document.getElementById("sigCanvas");
 const finalQuestion = document.getElementById("finalQuestion");

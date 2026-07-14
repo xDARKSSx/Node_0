@@ -6,7 +6,7 @@ const btn = document.getElementById("send");
 const tellCountEl = document.getElementById("tellCount");
 const buryCountEl = document.getElementById("buryCount");
 const lockedEl = document.getElementById("locked");
-const unlockedEl = document.getElementById("unlocked");
+const unlockedEl = document.getElementById("dashboard");
 
 /* switch between the two views based on the GLOBAL,
    shared chapter state -- not something local to this browser */
