@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const lockedEl = document.getElementById("locked");
 const letterView = document.getElementById("letterView");
-const letterText = document.getElementById("letterText");
 const brokenView = document.getElementById("brokenView");
 const aiMsg = document.getElementById("aiMsg");
 const voteRow = document.getElementById("voteRow");
@@ -135,9 +134,7 @@ const letterParagraphs = [
     "Whatever you choose — thank you for being the kind of person who read this far instead of closing the tab.",
 ];
 
-const READ_UNTIL_MS = 4 * 60 * 1000;      // fully readable
-const GLITCH_LIGHT_MS = 4.5 * 60 * 1000;  // light glitch
-const BROKEN_MS = 5 * 60 * 1000;          // permanent breakdown
+/* pacing is now entirely reader-controlled -- no wall-clock timer */
 
 function typewriteChar(el, text, speed = 30) {
     return new Promise(resolve => {
@@ -154,74 +151,59 @@ function typewriteChar(el, text, speed = 30) {
     });
 }
 
-async function renderLetter() {
-    letterText.innerHTML = "";
-    for (const paraText of letterParagraphs) {
-        const para = document.createElement("p");
-        letterText.appendChild(para);
-        await typewriteChar(para, paraText, 28);
-        await new Promise(r => setTimeout(r, 450));
-    }
-    const sig = document.createElement("p");
-    sig.className = "sig";
-    letterText.appendChild(sig);
-    await typewriteChar(sig, "— E.", 70);
+function waitForClick(el) {
+    return new Promise(resolve => {
+        el.style.display = "inline-block";
+        el.addEventListener("click", function handler() {
+            el.removeEventListener("click", handler);
+            el.style.display = "none";
+            resolve();
+        });
+    });
 }
 
-/* instead of digital glitch, the page itself tears --
-   jagged clip-path eating into the paragraph, slight
-   rotation/skew jitter, increasing with intensity */
-function applyTear(rate) {
-    letterText.querySelectorAll("p").forEach(p => {
-        if (rate <= 0) {
-            p.style.clipPath = "none";
-            p.style.transform = "none";
+const letterPages = [
+    { textEl: "ltext1", pageEl: "lpage1", contEl: "cont1", paras: letterParagraphs.slice(0, 3) },
+    { textEl: "ltext2", pageEl: "lpage2", contEl: "cont2", paras: letterParagraphs.slice(3, 6) },
+    { textEl: "ltext3", pageEl: "lpage3", contEl: "cont3", paras: letterParagraphs.slice(6, 9), isLast: true },
+];
+
+async function renderLetter() {
+    for (let i = 0; i < letterPages.length; i++) {
+        const page = letterPages[i];
+        const textEl = document.getElementById(page.textEl);
+        const pageEl = document.getElementById(page.pageEl);
+        const contEl = document.getElementById(page.contEl);
+        textEl.innerHTML = "";
+
+        for (const paraText of page.paras) {
+            const para = document.createElement("p");
+            textEl.appendChild(para);
+            await typewriteChar(para, paraText, 28);
+            await new Promise(r => setTimeout(r, 350));
+        }
+
+        if (page.isLast) {
+            const sig = document.createElement("p");
+            sig.className = "sig";
+            textEl.appendChild(sig);
+            await typewriteChar(sig, "— E.", 70);
+            /* the reader decides when they're ready -- then the
+               page itself tears loose, instead of a timer doing it */
+            contEl.textContent = "...";
+            await waitForClick(contEl);
+            triggerBreakdown(pageEl);
             return;
         }
-        const tearDepth = 100 - rate * 55; // how much of the paragraph remains visible
-        const jag1 = tearDepth - Math.random() * 10 * rate;
-        const jag2 = tearDepth - Math.random() * 15 * rate;
-        p.style.clipPath = `polygon(0 0, 100% 0, 100% ${jag1}%, 60% ${tearDepth}%, 30% ${jag2}%, 0 ${tearDepth}%)`;
-        const skew = (Math.random() * 4 - 2) * rate;
-        const rot = (Math.random() * 3 - 1.5) * rate;
-        p.style.transform = `skewX(${skew}deg) rotate(${rot}deg)`;
-    });
-}
 
-function restoreText() {
-    letterText.querySelectorAll("p").forEach(p => {
-        p.style.clipPath = "none";
-        p.style.transform = "none";
-    });
-}
-
-let breakdownTriggered = false;
-
-function tickLetter(arrivedAt) {
-    const elapsed = Date.now() - arrivedAt;
-
-    if (elapsed >= BROKEN_MS) {
-        if (!breakdownTriggered) {
-            breakdownTriggered = true;
-            localStorage.setItem("recognition_broken", "true");
-            triggerBreakdown();
-        }
-        return;
+        /* wait for the reader -- never a timer, always their own pace */
+        await waitForClick(contEl);
+        pageEl.classList.add("turning");
+        await new Promise(r => setTimeout(r, 1500));
     }
-
-    if (elapsed >= GLITCH_LIGHT_MS) {
-        const progress = (elapsed - GLITCH_LIGHT_MS) / (BROKEN_MS - GLITCH_LIGHT_MS);
-        applyTear(0.15 + progress * 0.85);
-    } else if (elapsed >= READ_UNTIL_MS) {
-        applyTear(0.08);
-    } else {
-        restoreText();
-    }
-
-    requestAnimationFrame(() => tickLetter(arrivedAt));
 }
 
-function triggerBreakdown() {
+function triggerBreakdown(finalPageEl) {
     /* the music fades out with the page -- silence, then the AI's voice */
     const music = document.getElementById("letterMusic");
     if (music && !music.paused) {
@@ -237,7 +219,7 @@ function triggerBreakdown() {
 
     /* the whole page tears loose and falls, before revealing what's left */
     const fallingPage = document.getElementById("fallingPage");
-    const pageRect = document.getElementById("letterPage").getBoundingClientRect();
+    const pageRect = finalPageEl.getBoundingClientRect();
     fallingPage.style.left = (pageRect.left + pageRect.width / 2 - 110) + "px";
     fallingPage.style.top = (pageRect.top + pageRect.height / 2 - 40) + "px";
     fallingPage.style.display = "block";
@@ -259,6 +241,7 @@ function triggerBreakdown() {
         letterView.style.display = "none";
         fallingPage.style.display = "none";
         brokenView.style.display = "block";
+        localStorage.setItem("recognition_broken", "true");
         showAiMessage();
     }, 2000);
 }
@@ -488,14 +471,6 @@ function beginExperience() {
 
     letterView.style.display = "block";
     renderLetter();
-
-    let arrivedAt = parseInt(localStorage.getItem("recognition_arrivedAt") || "0", 10);
-    if (!arrivedAt) {
-        arrivedAt = Date.now();
-        localStorage.setItem("recognition_arrivedAt", String(arrivedAt));
-    }
-
-    requestAnimationFrame(() => tickLetter(arrivedAt));
 }
 
 /* browsers often block audio with sound until the visitor

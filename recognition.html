@@ -46,24 +46,39 @@
       background: linear-gradient(90deg, rgba(0,0,0,0.38), rgba(0,0,0,0.04) 42%, rgba(0,0,0,0.04) 58%, rgba(0,0,0,0.38));
   }
   #letterPage{
-      position:relative; flex:1; padding:46px 44px 46px 38px;
+      position:relative; flex:1; height:70vh; perspective:1800px;
+  }
+  .page{
+      position:absolute; inset:0; padding:46px 44px 46px 38px;
+      overflow-y:auto;
       background:
         radial-gradient(circle at 25% 22%, rgba(120,90,50,0.11), transparent 40%),
         radial-gradient(circle at 78% 72%, rgba(120,90,50,0.09), transparent 45%),
         #f2e6c9;
       font-family:'Caveat', cursive; color:#2c2214;
+      backface-visibility:hidden; transform-origin:left center;
+      transition: transform 1.4s cubic-bezier(.6,0,.4,1);
   }
-  #letterPage::before{
+  .page::before{
       content:""; position:absolute; inset:14px;
       box-shadow: 0 0 0 1px rgba(120,90,50,0.35), 0 0 0 5px rgba(120,90,50,0.12);
       pointer-events:none;
   }
-  #letterPage::after{
+  .page::after{
       content:"❦"; position:absolute; bottom:16px; right:26px;
       font-size:20px; color:#8a6d3f; opacity:0.4; pointer-events:none;
   }
-  #letterView p{ font-size:22px; line-height:1.65; margin-bottom:18px; transition: transform 0.4s ease, clip-path 0.4s ease; }
+  #lpage1{ z-index:3; }
+  #lpage2{ z-index:2; }
+  #lpage3{ z-index:1; }
+  .page.turning{ transform: rotateY(-165deg); }
+  #letterView p{ font-size:22px; line-height:1.65; margin-bottom:18px; }
   #letterView .sig{ margin-top:20px; opacity:0.9; }
+  .continuePrompt{
+      display:none; margin-top:10px; font-family:'Courier New', monospace;
+      font-size:12px; color:#8a6d3f; cursor:pointer; opacity:0.75;
+  }
+  .continuePrompt:hover{ opacity:1; }
 
   #fallingPage{
       display:none; position:fixed; top:20%; left:50%;
@@ -103,7 +118,9 @@
         <div class="letterLeftPage">❦</div>
         <div class="letterGutter"></div>
         <div id="letterPage">
-          <div id="letterText"></div>
+          <div class="page" id="lpage1"><div id="ltext1"></div><div class="continuePrompt" id="cont1">...turn the page</div></div>
+          <div class="page" id="lpage2"><div id="ltext2"></div><div class="continuePrompt" id="cont2">...turn the page</div></div>
+          <div class="page" id="lpage3"><div id="ltext3"></div><div class="continuePrompt" id="cont3">...</div></div>
         </div>
       </div>
     </div>
