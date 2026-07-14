@@ -94,6 +94,14 @@ function openDoc(doc) {
             db.ref("world/jamesFragmentFoundBy").set(playerId);
             db.ref("world/jamesFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
+        const note = document.createElement("p");
+        note.style.marginTop = "20px";
+        note.style.paddingTop = "14px";
+        note.style.borderTop = "1px dashed rgba(255,255,255,0.15)";
+        note.style.fontSize = "12px";
+        note.style.opacity = "0.6";
+        note.textContent = "(something about this just changed elsewhere. check the Personnel directory.)";
+        readerBody.appendChild(note);
     }
 }
 

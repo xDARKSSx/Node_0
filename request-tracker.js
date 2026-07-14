@@ -100,6 +100,14 @@ function openTicket(t) {
             db.ref("world/priyaFragmentFoundBy").set(playerId);
             db.ref("world/priyaFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
+        const note = document.createElement("p");
+        note.style.marginTop = "16px";
+        note.style.paddingTop = "12px";
+        note.style.borderTop = "1px dashed #e2e6ef";
+        note.style.fontSize = "11px";
+        note.style.opacity = "0.6";
+        note.textContent = "(something about this just changed elsewhere. check the Personnel directory.)";
+        readerResponse.appendChild(note);
     }
 }
 

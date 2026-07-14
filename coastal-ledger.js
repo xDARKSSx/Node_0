@@ -241,6 +241,15 @@ function openArticle(year, article) {
             db.ref("world/sarahFragmentFoundBy").set(playerId);
             db.ref("world/sarahFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
+        const note = document.createElement("p");
+        note.style.marginTop = "20px";
+        note.style.paddingTop = "14px";
+        note.style.borderTop = "1px dashed rgba(0,0,0,0.15)";
+        note.style.fontSize = "11px";
+        note.style.opacity = "0.6";
+        note.style.fontFamily = "'Courier New', monospace";
+        note.textContent = "(something about this just changed elsewhere. check the Personnel directory.)";
+        readerBody.appendChild(note);
     }
 }
 

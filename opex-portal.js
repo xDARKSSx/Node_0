@@ -159,6 +159,14 @@ function openExpense(year, exp) {
             db.ref("world/marcusFragmentFoundBy").set(playerId);
             db.ref("world/marcusFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
+        const note = document.createElement("p");
+        note.style.marginTop = "20px";
+        note.style.paddingTop = "14px";
+        note.style.borderTop = "1px dashed #d0cbb8";
+        note.style.fontSize = "11px";
+        note.style.opacity = "0.6";
+        note.textContent = "(something about this just changed elsewhere. check the Personnel directory.)";
+        readerBody.appendChild(note);
     } else {
         readerBody.innerHTML = `<p><strong>Approval note:</strong> ${exp.note}</p>`;
     }

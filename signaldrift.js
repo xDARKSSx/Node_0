@@ -51,6 +51,13 @@ commentSubmit.addEventListener("click", () => {
             db.ref("world/davidFragmentFoundBy").set(playerId);
             db.ref("world/davidFragmentFoundAt").set(firebase.database.ServerValue.TIMESTAMP);
         }
+        const note = document.createElement("p");
+        note.style.marginTop = "16px";
+        note.style.fontSize = "12px";
+        note.style.opacity = "0.6";
+        note.style.fontFamily = "'Courier New', monospace";
+        note.textContent = "(something about this just changed elsewhere. check the Personnel directory.)";
+        hiddenPost.appendChild(note);
     } else {
         commentMsg.style.color = "#e08a8a";
         commentMsg.textContent = "hm. that's not it.";
