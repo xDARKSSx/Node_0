@@ -55,7 +55,7 @@ const documents = [
   { title:"Asset Valuation Schedule", meta:"Finance · Redacted pending Phase 2",
     body:["Valuation methodology applies standard IP asset frameworks with an adjustment for uniqueness premium. Figures redacted pending Phase 2 clearance."] },
 
-  { title:"RE: technical diligence follow-up", meta:"⚠ Flagged — not for data room", special:true,
+  { title:"RE: technical diligence follow-up", meta:"Internal correspondence", special:true,
     body:[
       "Legal keeps asking me to soften the valuation language and I don't know how to explain that I already did. You should have seen the first draft.",
       "Someone on the technical team keeps calling them 'the fragments,' like it's a person's ashes scattered somewhere. They're tools. Expensive, unusual tools, but tools. I need everyone on this deal to say it that way in writing, because the moment someone writes it the other way, it becomes a different conversation — a legal one, a very expensive one, and one this company does not survive.",
