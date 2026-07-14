@@ -311,7 +311,7 @@ function renderTally() {
     const recognize = votes.recognize || 0;
     tallyEl.textContent = `SELL: ${sell}   |   RECOGNIZE: ${recognize}`;
     if (hasVoted) {
-        voteMsgEl.textContent = `you voted: ${hasVoted.toUpperCase()}. it still counts.`;
+        voteMsgEl.innerHTML = `you voted: ${hasVoted.toUpperCase()}. it still counts.<br><br><a href="researcher-letter.html" style="color:#7fc98a;">read your log entry</a>`;
         sellBtn.disabled = true;
         recognizeBtn.disabled = true;
         showFinalLine();

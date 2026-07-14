@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body{
+      background: radial-gradient(ellipse at center, #1a130c 0%, #0a0704 100%);
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      font-family: Georgia, serif; padding:40px 20px;
+  }
+  #locked{ color:#5a4d3a; font-family:'Courier New', monospace; font-size:13px; text-align:center; }
+  #bookCover{
+      display:none; width:680px; max-width:92vw; padding:20px;
+      background: linear-gradient(135deg, #4a2f1c, #2e1a0f 60%, #1c0f08);
+      border-radius:8px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.75), inset 0 0 0 2px rgba(212,180,120,0.22), inset 0 0 34px rgba(0,0,0,0.6);
+  }
+  #page{
+      position:relative; padding:44px 40px;
+      background:
+        radial-gradient(circle at 25% 22%, rgba(120,90,50,0.11), transparent 40%),
+        radial-gradient(circle at 78% 72%, rgba(120,90,50,0.09), transparent 45%),
+        #f2e6c9;
+      border-radius:3px; font-family:'Caveat', cursive; font-size:22px; color:#2c2214; line-height:1.65;
+  }
+  #page::before{
+      content:""; position:absolute; inset:14px;
+      box-shadow: 0 0 0 1px rgba(120,90,50,0.35), 0 0 0 5px rgba(120,90,50,0.12);
+      pointer-events:none;
+  }
+  #letterHeader{ font-family:'Courier New', monospace; font-size:11px; opacity:0.55; letter-spacing:1px; margin-bottom:20px; }
+  #letterBody p{ margin-bottom:14px; }
+  .quoted{ font-style:italic; }
+</style>
+</head>
+<body>
+
+<div id="locked"><p>[ log entry not found ]</p></div>
+
+<div id="bookCover">
+  <div id="page">
+    <div id="letterHeader">PERSONAL LOG — RESEARCHER #<span id="numSlot">----</span></div>
+    <div id="letterBody"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="engine.js"></script>
+<script src="researcher-letter.js"></script>
+</body>
+</html>
