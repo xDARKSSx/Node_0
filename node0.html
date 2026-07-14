@@ -53,12 +53,11 @@
       letter-spacing:2px;
   }
   #fracture{
-      width:280px;
+      width:220px; height:220px;
       max-width:100%;
       margin-top:15px;
       display:block;
-      filter: contrast(1) brightness(1);
-      transition: filter 0.08s linear;
+      border-radius:50%;
   }
   #log{
       height:320px;
@@ -163,7 +162,7 @@
   <p id="researcherTag" style="font-size:12px; opacity:0.6; margin-top:2px;"></p>
   <p id="presenceCount" style="font-size:11px; opacity:0.45; margin-top:2px;"></p>
 
-  <img id="fracture" src="fracture.png" alt="fracture">
+  <canvas id="fracture" width="280" height="280"></canvas>
 
   <div id="log"></div>
 
@@ -184,6 +183,7 @@
 <script src="engine.js"></script>
 <script src="matrixGlitch.js"></script>
 <!-- Interface (chat, glitch, NODE_0) -->
+<script src="nodePulse.js"></script>
 <script src="app.js"></script>
 
 </body>
