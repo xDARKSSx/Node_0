@@ -15,18 +15,6 @@ const codeMsg = document.getElementById("codeMsg");
 
 const CLEARANCE_CODE = "3391";
 
-function updateVisibility() {
-    if (window.getChapter() >= 3) {
-        lockedEl.style.display = "none";
-        dossierEl.style.display = "block";
-    } else {
-        lockedEl.style.display = "block";
-        dossierEl.style.display = "none";
-    }
-}
-document.addEventListener("state-updated", updateVisibility);
-updateVisibility();
-
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -36,6 +24,22 @@ if (!playerId) {
     localStorage.setItem("node0_playerId", playerId);
 }
 const playerRef = db.ref("players/" + playerId);
+
+let myChapter = 1;
+function updateVisibility() {
+    playerRef.child("personalChapter").once("value", snap => {
+        myChapter = snap.val() || 1;
+        if (myChapter >= 3) {
+            lockedEl.style.display = "none";
+            dossierEl.style.display = "block";
+        } else {
+            lockedEl.style.display = "block";
+            dossierEl.style.display = "none";
+        }
+    });
+}
+document.addEventListener("state-updated", updateVisibility);
+updateVisibility();
 
 function addLine(text) {
     const p = document.createElement("p");
@@ -179,7 +183,7 @@ confirmBtn.addEventListener("click", () => {
 });
 
 function updateCodeUI() {
-    if (window.getChapter() >= 4) {
+    if (myChapter >= 4) {
         codeInput.disabled = true;
         codeSubmit.disabled = true;
         codeMsg.style.color = "#4fd18a";
@@ -195,8 +199,9 @@ codeSubmit.addEventListener("click", () => {
         codeMsg.style.color = "#4fd18a";
         codeMsg.textContent = "> access granted. notifying the network...";
         db.ref("world/node2CodeSolvedBy").set(playerId);
-        if (window.getChapter() === 3) {
-            window.unlockNextChapter();
+        if (myChapter === 3) {
+            playerRef.child("personalChapter").set(4);
+            myChapter = 4;
         }
         setTimeout(() => {
             codeMsg.innerHTML += " a separate access point just came online: <a href='lsa-portal.html' style='color:#4fd18a;'>lsa-portal.html</a>";

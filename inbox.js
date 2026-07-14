@@ -63,14 +63,17 @@ function formatRealTimestamp(ms) {
 }
 
 function updateVisibility() {
-    if (window.getChapter() >= 4) {
-        lockedEl.style.display = "none";
-        appEl.style.display = "block";
-        handleVisitAndRender();
-    } else {
-        lockedEl.style.display = "block";
-        appEl.style.display = "none";
-    }
+    playerRef.child("personalChapter").once("value", snap => {
+        const myChapter = snap.val() || 1;
+        if (myChapter >= 4) {
+            lockedEl.style.display = "none";
+            appEl.style.display = "block";
+            handleVisitAndRender();
+        } else {
+            lockedEl.style.display = "block";
+            appEl.style.display = "none";
+        }
+    });
 }
 document.addEventListener("state-updated", updateVisibility);
 updateVisibility();

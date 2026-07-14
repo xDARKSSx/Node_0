@@ -10,18 +10,6 @@ const readerRequest = document.getElementById("readerRequest");
 const readerResponse = document.getElementById("readerResponse");
 const backBtn = document.getElementById("backBtn");
 
-function updateVisibility() {
-    if (window.getChapter() >= 4) {
-        lockedEl.style.display = "none";
-        appEl.style.display = "block";
-    } else {
-        lockedEl.style.display = "block";
-        appEl.style.display = "none";
-    }
-}
-document.addEventListener("state-updated", updateVisibility);
-updateVisibility();
-
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -30,6 +18,22 @@ if (!playerId) {
     playerId = makeId();
     localStorage.setItem("node0_playerId", playerId);
 }
+const playerRef = db.ref("players/" + playerId);
+
+function updateVisibility() {
+    playerRef.child("personalChapter").once("value", snap => {
+        const myChapter = snap.val() || 1;
+        if (myChapter >= 4) {
+            lockedEl.style.display = "none";
+            appEl.style.display = "block";
+        } else {
+            lockedEl.style.display = "block";
+            appEl.style.display = "none";
+        }
+    });
+}
+document.addEventListener("state-updated", updateVisibility);
+updateVisibility();
 
 const tickets = [
   { id:"REQ-2214", date:"Year 9, Q1", filedBy:"P. Sharma", subj:"Access to legacy documentation — adaptive-load systems", status:"denied",

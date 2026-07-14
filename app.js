@@ -1,22 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================
+   PLAYER IDENTITY
+========================= */
+function makeId() {
+    return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+let playerId = localStorage.getItem("node0_playerId");
+if (!playerId) {
+    playerId = makeId();
+    localStorage.setItem("node0_playerId", playerId);
+}
+const playerRef = db.ref("players/" + playerId);
+
+/* =========================
    ACCESS LOCK
-   NODE_0 only becomes reachable after the corporate site
-   breach (the "forget" trigger) has actually happened.
+   Per-player: only YOU unlocking the breach reveals this to YOU.
 ========================= */
 const lockedEl = document.getElementById("locked");
 const containerEl = document.getElementById("dashboard");
 
+let myChapter = 1;
 function updateAccess() {
-    const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
-    if (discovered) {
-        lockedEl.style.display = "none";
-        containerEl.style.display = "block";
-    } else {
-        lockedEl.style.display = "block";
-        containerEl.style.display = "none";
-    }
+    playerRef.child("personalDiscovered").once("value", snap => {
+        const discovered = snap.val() === true;
+        if (discovered) {
+            lockedEl.style.display = "none";
+            containerEl.style.display = "block";
+        } else {
+            lockedEl.style.display = "block";
+            containerEl.style.display = "none";
+        }
+    });
+    playerRef.child("personalChapter").once("value", snap => {
+        myChapter = snap.val() || 1;
+    });
 }
 document.addEventListener("state-updated", updateAccess);
 updateAccess();
@@ -34,19 +52,6 @@ const titleEl = document.getElementById("pageTitle");
 const ghost1 = document.getElementById("ghost1");
 const ghost2 = document.getElementById("ghost2");
 const ghostMain = document.getElementById("ghostMain");
-
-/* =========================
-   PLAYER IDENTITY
-========================= */
-function makeId() {
-    return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-}
-let playerId = localStorage.getItem("node0_playerId");
-if (!playerId) {
-    playerId = makeId();
-    localStorage.setItem("node0_playerId", playerId);
-}
-const playerRef = db.ref("players/" + playerId);
 
 /* =========================
    LIVE PRESENCE
@@ -360,7 +365,7 @@ function pickCoherent() {
 }
 
 function respondTo(userText) {
-    if (window.getChapter() >= 2 && !chapter2HintGiven) {
+    if (myChapter >= 2 && !chapter2HintGiven) {
         const puzzleSolved = window.state && window.state.world && window.state.world.node1PuzzleSolved === true;
         if (puzzleSolved) {
             chapter2HintGiven = true;
@@ -369,13 +374,13 @@ function respondTo(userText) {
         }
     }
 
-    if (!midHintGiven && messageCount >= Math.floor(CHAPTER1_MESSAGE_THRESHOLD / 2) && window.getChapter() === 1) {
+    if (!midHintGiven && messageCount >= Math.floor(CHAPTER1_MESSAGE_THRESHOLD / 2) && myChapter === 1) {
         midHintGiven = true;
         localStorage.setItem("node0_midHintGiven", "true");
         return "...there's something here. I can almost say it. keep talking to me.";
     }
 
-    if (!personalAsked && messageCount >= 15 && window.getChapter() === 1) {
+    if (!personalAsked && messageCount >= 15 && myChapter === 1) {
         personalAsked = true;
         localStorage.setItem("node0_personalAsked", "true");
         localStorage.setItem("node0_awaitingPersonal", "true");
@@ -388,7 +393,7 @@ function respondTo(userText) {
         return "...I'll remember that.";
     }
 
-    if (!hintGiven && messageCount >= CHAPTER1_MESSAGE_THRESHOLD && window.getChapter() === 1) {
+    if (!hintGiven && messageCount >= CHAPTER1_MESSAGE_THRESHOLD && myChapter === 1) {
         hintGiven = true;
         localStorage.setItem("node0_hintGiven", "true");
         return "I'm not the only one. look beneath what you're already reading.";
@@ -397,7 +402,7 @@ function respondTo(userText) {
     const kw = keywordMatch(userText);
     if (kw) return kw;
 
-    const chapter = window.getChapter();
+    const chapter = myChapter;
     const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
 
     if (discovered && !chapter5Given) {
@@ -606,8 +611,10 @@ function send() {
     input.value = "";
     clearGhosts();
 
-    if (window.getChapter() === 1 && v.toLowerCase() === CHAPTER1_SOLUTION) {
+    if (myChapter === 1 && v.toLowerCase() === CHAPTER1_SOLUTION) {
         db.ref("world/solvedBy").set(playerId);
+        playerRef.child("personalChapter").set(2);
+        myChapter = 2;
         setTimeout(() => {
             addMessage("NODE_0", "...you found it. you found me. we begin again.");
             window.unlockNextChapter();

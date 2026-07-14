@@ -13,10 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("node0_playerId", playerId);
     }
 
+    const playerRef = db.ref("players/" + playerId);
+
     /* the trigger is a normal-looking word in Elena's bio. */
     trigger.addEventListener("click", () => {
-        const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
-        triggerBreach(discovered);
+        playerRef.child("personalDiscovered").once("value", snap => {
+            triggerBreach(snap.val() === true);
+        });
     });
 
     function addLine(text, delay) {
@@ -47,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         db.ref("world/node0Discovered").set(true);
         db.ref("world/solvedBy3").set(playerId);
+        db.ref("players/" + playerId + "/personalDiscovered").set(true);
 
         setTimeout(() => {
             addLine("> access granted.", 300);

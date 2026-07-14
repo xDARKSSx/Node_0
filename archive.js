@@ -6,19 +6,6 @@ const outputEl = document.getElementById("output");
 const inputEl = document.getElementById("cmdInput");
 const promptEl = document.getElementById("prompt");
 
-function updateVisibility() {
-    if (window.getChapter() >= 5) {
-        lockedEl.style.display = "none";
-        terminalEl.style.display = "block";
-        inputEl.focus();
-    } else {
-        lockedEl.style.display = "block";
-        terminalEl.style.display = "none";
-    }
-}
-document.addEventListener("state-updated", updateVisibility);
-updateVisibility();
-
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -28,6 +15,22 @@ if (!playerId) {
     localStorage.setItem("node0_playerId", playerId);
 }
 const playerRef = db.ref("players/" + playerId);
+
+function updateVisibility() {
+    playerRef.child("personalChapter").once("value", snap => {
+        const myChapter = snap.val() || 1;
+        if (myChapter >= 5) {
+            lockedEl.style.display = "none";
+            terminalEl.style.display = "block";
+            inputEl.focus();
+        } else {
+            lockedEl.style.display = "block";
+            terminalEl.style.display = "none";
+        }
+    });
+}
+document.addEventListener("state-updated", updateVisibility);
+updateVisibility();
 
 let myResearcherNumber = null;
 playerRef.child("researcherNumber").once("value", snap => {

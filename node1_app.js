@@ -8,20 +8,6 @@ const buryCountEl = document.getElementById("buryCount");
 const lockedEl = document.getElementById("locked");
 const unlockedEl = document.getElementById("dashboard");
 
-/* switch between the two views based on the GLOBAL,
-   shared chapter state -- not something local to this browser */
-function updateVisibility() {
-    if (window.getChapter() >= 2) {
-        lockedEl.style.display = "none";
-        unlockedEl.style.display = "block";
-    } else {
-        lockedEl.style.display = "block";
-        unlockedEl.style.display = "none";
-    }
-}
-document.addEventListener("state-updated", updateVisibility);
-updateVisibility();
-
 /* reuse the same player ID as NODE_0, so this fragment
    "remembers" the same player across the whole site */
 function makeId() {
@@ -33,6 +19,24 @@ if (!playerId) {
     localStorage.setItem("node0_playerId", playerId);
 }
 const playerRef = db.ref("players/" + playerId);
+
+/* switch between the two views based on THIS PLAYER's own
+   progress, not the shared world state */
+let myChapter = 1;
+function updateVisibility() {
+    playerRef.child("personalChapter").once("value", snap => {
+        myChapter = snap.val() || 1;
+        if (myChapter >= 2) {
+            lockedEl.style.display = "none";
+            unlockedEl.style.display = "block";
+        } else {
+            lockedEl.style.display = "block";
+            unlockedEl.style.display = "none";
+        }
+    });
+}
+document.addEventListener("state-updated", updateVisibility);
+updateVisibility();
 
 let hasVoted = localStorage.getItem("node1_voted") || null; // "tell" | "bury" | null
 let partBGiven = localStorage.getItem("node1_partBGiven") === "true";
@@ -93,12 +97,14 @@ function send() {
     addLine("YOU", raw);
     input.value = "";
 
-    /* the combined 2-part code, unlocks chapter 3 for EVERYONE */
-    if (window.getChapter() === 2 && normalized === COMBINED_SOLUTION) {
+    /* the combined 2-part code -- shared answer, but only advances
+       YOUR OWN progress, not the whole world's */
+    if (myChapter === 2 && normalized === COMBINED_SOLUTION) {
         db.ref("world/solvedBy2").set(playerId);
+        playerRef.child("personalChapter").set(3);
+        myChapter = 3;
         setTimeout(() => {
             addLine("NODE_1", "...both halves. someone finally listened to both of us.");
-            window.unlockNextChapter();
         }, 700);
         setTimeout(() => {
             addLine("NODE_1", "there's a third one. it's never been found. try node2.html.");
@@ -106,9 +112,9 @@ function send() {
         return;
     }
 
-    /* the riddle -- solving it ONCE unlocks PART_B for everyone,
-       no vote count required */
-    if (window.getChapter() === 2 && normalized === "listen") {
+    /* the riddle -- solving it reveals the shared word for everyone,
+       but only once YOU'VE personally reached this point */
+    if (myChapter === 2 && normalized === "listen") {
         db.ref("world/node1PuzzleSolved").set(true);
         setTimeout(() => {
             addLine("NODE_1", "...you were listening. good. one half, since you earned it: HUMAN. the other is with the one that glitches.");

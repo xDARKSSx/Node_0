@@ -7,18 +7,6 @@ const passInput = document.getElementById("passInput");
 const loginBtn = document.getElementById("loginBtn");
 const resultMsg = document.getElementById("resultMsg");
 
-function updateVisibility() {
-    if (window.getChapter() >= 4) {
-        lockedEl.style.display = "none";
-        portalEl.style.display = "block";
-    } else {
-        lockedEl.style.display = "block";
-        portalEl.style.display = "none";
-    }
-}
-document.addEventListener("state-updated", updateVisibility);
-updateVisibility();
-
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -28,6 +16,22 @@ if (!playerId) {
     localStorage.setItem("node0_playerId", playerId);
 }
 const playerRef = db.ref("players/" + playerId);
+
+let myChapter = 1;
+function updateVisibility() {
+    playerRef.child("personalChapter").once("value", snap => {
+        myChapter = snap.val() || 1;
+        if (myChapter >= 4) {
+            lockedEl.style.display = "none";
+            portalEl.style.display = "block";
+        } else {
+            lockedEl.style.display = "block";
+            portalEl.style.display = "none";
+        }
+    });
+}
+document.addEventListener("state-updated", updateVisibility);
+updateVisibility();
 
 const PASSWORD = "onlyone";
 let alreadyAccessed = localStorage.getItem("researchers_access") === "true";
@@ -52,8 +56,9 @@ loginBtn.addEventListener("click", () => {
             resultMsg.innerHTML = "ACCESS GRANTED. Case file transferred to the network.<br><br>Staff systems: <a href='hr-home.html'>hr-home.html</a>";
             db.ref("world/solvedBy4").set(playerId);
             playerRef.child("portalAccessAt").set(firebase.database.ServerValue.TIMESTAMP);
-            if (window.getChapter() === 4) {
-                window.unlockNextChapter();
+            if (myChapter === 4) {
+                playerRef.child("personalChapter").set(5);
+                myChapter = 5;
             }
         } else if (!numOk) {
             resultMsg.className = "error";

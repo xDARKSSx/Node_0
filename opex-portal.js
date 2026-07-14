@@ -11,18 +11,6 @@ const readerBody = document.getElementById("readerBody");
 const backBtn = document.getElementById("backBtn");
 const yearButtons = document.querySelectorAll("nav.years button");
 
-function updateVisibility() {
-    if (window.getChapter() >= 4) {
-        lockedEl.style.display = "none";
-        appEl.style.display = "block";
-    } else {
-        lockedEl.style.display = "block";
-        appEl.style.display = "none";
-    }
-}
-document.addEventListener("state-updated", updateVisibility);
-updateVisibility();
-
 function makeId() {
     return "p_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -31,6 +19,22 @@ if (!playerId) {
     playerId = makeId();
     localStorage.setItem("node0_playerId", playerId);
 }
+const playerRef = db.ref("players/" + playerId);
+
+function updateVisibility() {
+    playerRef.child("personalChapter").once("value", snap => {
+        const myChapter = snap.val() || 1;
+        if (myChapter >= 4) {
+            lockedEl.style.display = "none";
+            appEl.style.display = "block";
+        } else {
+            lockedEl.style.display = "block";
+            appEl.style.display = "none";
+        }
+    });
+}
+document.addEventListener("state-updated", updateVisibility);
+updateVisibility();
 
 const expenses = {
 7: [

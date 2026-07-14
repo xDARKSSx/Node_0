@@ -15,9 +15,12 @@ if (!playerId) {
     playerId = makeId();
     localStorage.setItem("node0_playerId", playerId);
 }
+const playerRef = db.ref("players/" + playerId);
 
 /* =========================
    MILESTONES -- each tied to a real, existing Firebase flag.
+   These stay GLOBAL on purpose: this map shows the whole
+   world's shared progress, not just your own.
    Positions are percentages within #sky.
 ========================= */
 const milestones = [
@@ -31,14 +34,17 @@ const milestones = [
 
 function updateVisibility() {
     if (!window.ready) return;
-    if (window.getChapter() >= 5) {
-        lockedEl.style.display = "none";
-        mapWrapEl.style.display = "block";
-        render();
-    } else {
-        lockedEl.style.display = "block";
-        mapWrapEl.style.display = "none";
-    }
+    playerRef.child("personalChapter").once("value", snap => {
+        const myChapter = snap.val() || 1;
+        if (myChapter >= 5) {
+            lockedEl.style.display = "none";
+            mapWrapEl.style.display = "block";
+            render();
+        } else {
+            lockedEl.style.display = "block";
+            mapWrapEl.style.display = "none";
+        }
+    });
 }
 document.addEventListener("state-updated", updateVisibility);
 updateVisibility();
