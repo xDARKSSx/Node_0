@@ -97,6 +97,12 @@ function send() {
     addLine("YOU", raw);
     input.value = "";
 
+    if (/\bnode[\s_]?0\b/.test(raw.toLowerCase()) || /\bnode[\s_]?2\b/.test(raw.toLowerCase())) {
+        setTimeout(() => addLine("NODE_1", "don't bring that up right now."), 500);
+        setTimeout(() => addLine("NODE_1", "...I don't know why I said that. what was the question."), 2000);
+        return;
+    }
+
     /* the combined 2-part code -- shared answer, but only advances
        YOUR OWN progress, not the whole world's */
     if (myChapter === 2 && normalized === COMBINED_SOLUTION) {

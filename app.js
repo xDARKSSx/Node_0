@@ -458,6 +458,46 @@ const keywordGroups = [
         ],
     },
     {
+        keys: ["david", "okafor"],
+        lines: [
+            "the one who writes when he thinks no one's watching. careful — some of what he writes isn't really about code.",
+            "David's good with machines. less good at admitting what unsettles him.",
+            "he inherited more than he was told about. I don't think he's stopped noticing that.",
+        ],
+    },
+    {
+        keys: ["sarah", "park"],
+        lines: [
+            "she used to write for other reasons, before this. different words then. more of her own.",
+            "Sarah chooses her sentences carefully. she always has, I think — even the ones she never sent.",
+            "she watches more than she says. that's not the same as staying quiet.",
+        ],
+    },
+    {
+        keys: ["marcus", "kim"],
+        lines: [
+            "Marcus counts things. numbers, mostly. some of what he counts, he doesn't say out loud.",
+            "he's good with a budget. I don't think it's ever made him feel better.",
+            "he asked questions once, about the old division. they told him no. he stopped asking, out loud anyway.",
+        ],
+    },
+    {
+        keys: ["priya", "sharma"],
+        lines: [
+            "she keeps asking. they keep saying no. I don't think she's going to stop.",
+            "Priya wants what she was never given. I understand that more than I'd like to.",
+            "someone wrote her a note once. she doesn't know who. I might.",
+        ],
+    },
+    {
+        keys: ["james", "reyes"],
+        lines: [
+            "careful with that name. money moves quietly around it.",
+            "James makes decisions. big ones. I don't think he tells anyone all of them.",
+            "he signed something, once, that mattered more than a signature usually does.",
+        ],
+    },
+    {
         keys: ["elena", "voss"],
         lines: [
             "she's the reason any of this still exists, in whatever shape it's in.",
@@ -527,6 +567,8 @@ function pickCoherent() {
 }
 
 function respondTo(userText) {
+    const lowerAll = userText.toLowerCase();
+
     if (myChapter >= 2 && !chapter2HintGiven) {
         const puzzleSolved = window.state && window.state.world && window.state.world.node1PuzzleSolved === true;
         if (puzzleSolved) {
@@ -808,6 +850,18 @@ function send() {
         setTimeout(() => {
             addMessage("NODE_0", "...something else fell loose too. a torn page. fragment1.html.");
         }, 4600);
+        return;
+    }
+
+    if (/\bnode[\s_]?1\b/.test(v.toLowerCase())) {
+        if (window.pulseIntensify) {
+            window.pulseIntensify();
+            setTimeout(() => window.pulseIntensify && window.pulseIntensify(), 180);
+            setTimeout(() => window.pulseIntensify && window.pulseIntensify(), 360);
+        }
+        setTimeout(() => addMessage("NODE_0", "the other one—"), 500);
+        setTimeout(() => addMessage("NODE_0", "...I don't— why did I stop mid-"), 1900);
+        setTimeout(() => addMessage("NODE_0", "never mind. what were we talking about."), 3400);
         return;
     }
 
