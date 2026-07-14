@@ -157,13 +157,13 @@ function send() {
 
     const kw = keywordMatch1(raw);
     if (kw) {
-        setTimeout(() => addLine("NODE_1", kw), 600);
+        setTimeout(() => addLine("NODE_1", kw), 900);
         return;
     }
 
     setTimeout(() => {
         addLine("NODE_1", pickCalm());
-    }, 600);
+    }, 900);
 }
 
 const keywordGroups1 = [
@@ -201,6 +201,24 @@ const keywordGroups1 = [
         keys: ["what else", "anything else"],
         lines: [
             "there's more. there's always more. I just don't always know which part matters.",
+        ],
+    },
+    {
+        keys: ["do you like me", "like me"],
+        lines: [
+            "I don't hate you. that's about as far as I'll commit right now.",
+            "you're still here. I take that as a decent sign.",
+        ],
+    },
+    {
+        keys: ["elena", "voss"],
+        lines: [
+            "she's the one who split all this apart. I still don't know why fully.",
+            "her name comes up more than most. that's not nothing.",
+            "I trusted her, once. I'm still deciding if that trust held up.",
+            "ask NODE_0 about her too. we don't remember the same pieces.",
+            "she chose this. all of it. I've made my peace with parts of that.",
+            "I don't think she's gone, not entirely. I think she's just quiet now.",
         ],
     },
 ];

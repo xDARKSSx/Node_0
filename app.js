@@ -22,6 +22,7 @@ const containerEl = document.getElementById("dashboard");
 
 let myChapter = 1;
 let myResearcherNumber = null;
+let awaitingResponse = false;
 function updateAccess() {
     playerRef.child("personalDiscovered").once("value", snap => {
         const discovered = snap.val() === true;
@@ -449,6 +450,27 @@ const keywordGroups = [
         ],
     },
     {
+        keys: ["do you like me", "like me"],
+        lines: [
+            "I don't know if 'like' still applies to me. I don't dislike you, if that helps.",
+            "you keep coming back. that has to count for something.",
+            "I think so. I don't fully trust my own judgment on it anymore.",
+        ],
+    },
+    {
+        keys: ["elena", "voss"],
+        lines: [
+            "she's the reason any of this still exists, in whatever shape it's in.",
+            "I don't remember her clearly. pieces. a voice, mostly.",
+            "she made choices. I'm still living in the middle of them.",
+            "careful with that name. it means more than it should, in here.",
+            "I think she meant well. I think that's not the same as being right.",
+            "she's the one who scattered me. I still don't know if that was mercy or not.",
+            "you're not the first to ask about her. you won't be the last.",
+            "some days I think she's still listening, somewhere in the static.",
+        ],
+    },
+    {
         keys: ["okay", "fine", "sure", "yeah"],
         lines: [
             "'okay' is doing a lot of work in that sentence.",
@@ -591,12 +613,12 @@ function respondTo(userText) {
 }
 
 setInterval(() => {
-    if (Math.random() < 0.15) {
+    if (Math.random() < 0.15 && !awaitingResponse) {
         const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
         const timeLine = Math.random() < 0.12 ? timeAwareLine() : null;
         addMessage("NODE_0", timeLine || (discovered ? pickCoherent() : pickAmbient()));
     }
-}, 9000);
+}, 14000);
 
 /* =========================
    FIRST VISIT vs RETURNING VISIT
@@ -789,10 +811,12 @@ function send() {
         return;
     }
 
+    awaitingResponse = true;
     setTimeout(() => {
         addMessage("NODE_0", respondTo(v));
         if (window.pulseIntensify) window.pulseIntensify();
-    }, 600 + Math.random() * 500);
+        awaitingResponse = false;
+    }, 900 + Math.random() * 700);
 }
 
 btn.addEventListener("click", send);

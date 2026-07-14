@@ -64,7 +64,7 @@
     }
 
     function scheduleNextLockdown() {
-        const delay = (20 + Math.random() * 100) * 1000; // 20s to 2min, fully random
+        const delay = (60 + Math.random() * 180) * 1000; // 1 to 4 minutes, less frequent
         setTimeout(() => {
             attemptLockdown();
             scheduleNextLockdown();

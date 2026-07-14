@@ -177,7 +177,7 @@
             Object.assign(band.style, {
                 position: "absolute", left: "0", right: "0",
                 top: y + "%", height: h + "%",
-                background: Math.random() < 0.5 ? "#ff2b6d" : "#00eaff",
+                background: Math.random() < 0.25 ? "#ff2b6d" : "#00eaff",
                 opacity: (0.15 + Math.random() * 0.25).toFixed(2),
                 mixBlendMode: "screen",
                 transform: `translateX(${shift}px)`,
