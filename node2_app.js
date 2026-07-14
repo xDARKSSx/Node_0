@@ -206,6 +206,9 @@ codeSubmit.addEventListener("click", () => {
         setTimeout(() => {
             codeMsg.innerHTML += " two separate access points just came online: <a href='lsa-portal.html' style='color:#4fd18a;'>lsa-portal.html</a> and <a href='hr-home.html' style='color:#4fd18a;'>hr-home.html</a>";
         }, 1200);
+        setTimeout(() => {
+            codeMsg.innerHTML += "<br><br>...also. something torn was left behind here. <a href='fragment2.html' style='color:#4fd18a;'>fragment2.html</a>";
+        }, 2600);
     } else {
         codeMsg.style.color = "#ff6a6a";
         codeMsg.textContent = "incorrect. look again.";

@@ -53,7 +53,7 @@ loginBtn.addEventListener("click", () => {
         if (numOk && passOk) {
             localStorage.setItem("researchers_access", "true");
             resultMsg.className = "success";
-            resultMsg.innerHTML = "ACCESS GRANTED. Case file transferred to the network.<br><br>Staff systems: <a href='hr-home.html'>hr-home.html</a>";
+            resultMsg.innerHTML = "ACCESS GRANTED. Case file transferred to the network.<br><br>Staff systems: <a href='hr-home.html'>hr-home.html</a><br><br>...one more page, torn loose: <a href='fragment3.html'>fragment3.html</a>";
             db.ref("world/solvedBy4").set(playerId);
             playerRef.child("portalAccessAt").set(firebase.database.ServerValue.TIMESTAMP);
             if (myChapter === 4) {

@@ -717,6 +717,9 @@ function send() {
         setTimeout(() => {
             addMessage("NODE_0", "go back to where you found the cipher. it isn't the same page anymore.");
         }, 2600);
+        setTimeout(() => {
+            addMessage("NODE_0", "...something else fell loose too. a torn page. fragment1.html.");
+        }, 4600);
         return;
     }
 
