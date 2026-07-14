@@ -94,9 +94,9 @@
     ];
 
     const forgetHints = [
-        () => `she hid something in her own words. read slowly.`,
-        () => `not every door is a card. sometimes it's a sentence.`,
-        () => `look at the team page again. someone doesn't fit.`,
+        () => `go to the team page. read every bio carefully.`,
+        () => `one word on the team page isn't like the others.`,
+        () => `Elena's bio has something clickable in it. find it.`,
     ];
 
     function pickLine() {

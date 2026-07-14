@@ -13,18 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("node0_playerId", playerId);
     }
 
-    /* the trigger is a normal-looking word in Elena's bio.
-       it only does anything if the player has already visited
-       the Research page -- two separate pages need to connect. */
+    /* the trigger is a normal-looking word in Elena's bio. */
     trigger.addEventListener("click", () => {
         const discovered = window.state && window.state.world && window.state.world.node0Discovered === true;
-        if (discovered) {
-            triggerBreach(true);
-            return;
-        }
-        const visitedResearch = localStorage.getItem("visited_research") === "true";
-        if (!visitedResearch) return; // silently does nothing -- no hint given
-        triggerBreach(false);
+        triggerBreach(discovered);
     });
 
     function addLine(text, delay) {
