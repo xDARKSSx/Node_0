@@ -15,94 +15,77 @@
 -->
 <style>
   * { box-sizing: border-box; }
-  body{
-      background:#0a0e0d;
-      color:#cfe8e0;
-      font-family:'Courier New', monospace;
-      display:flex;
-      justify-content:center;
-      margin:0;
-      padding:20px;
+  html, body {
+      background:#0c0605; margin:0; padding:0; min-height:100vh;
+      font-family:'Courier New', monospace; color:#f0d4c8;
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
   }
-  #container{
-      width:100%;
-      max-width:720px;
-      margin-top:60px;
-      text-align:center;
+
+  #scene{ position:fixed; inset:0; z-index:0; }
+
+  #locked{ display:none; text-align:center; opacity:0.6; position:relative; z-index:2; margin:auto; }
+
+  #dashboard{
+      display:none; position:relative; z-index:2;
+      width:100%; max-width:560px; margin:0 auto 40px;
+      padding:18px 20px 16px;
+      background: rgba(18,8,7,0.7);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,140,110,0.28);
+      border-top:1px solid rgba(255,190,160,0.5);
+      border-radius:10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(255,140,110,0.06);
   }
   h1{
-      letter-spacing:6px;
-      font-weight:normal;
-      opacity:0.9;
+      font-size:16px; letter-spacing:4px; margin:0 0 8px; font-weight:normal;
+      color:#ffd9c9; text-align:center;
   }
-  #status{
-      color:#4fd1c5;
-      font-size:13px;
-      letter-spacing:2px;
-  }
+  #status2{ color:#ff8f6b; font-size:11px; letter-spacing:2px; text-align:center; display:block; margin-bottom:10px; }
 
-  /* chapter 1 state: not unlocked yet for anyone */
-  #locked p{ opacity:0.7; }
-
-  /* chapter 2 state: NODE_1's real interface */
-  #unlocked{ display:none; text-align:left; }
   #log{
-      height:300px;
-      overflow-y:auto;
-      border:1px solid #4fd1c530;
-      padding:12px;
-      margin-top:20px;
-      background:#060908;
-      line-height:1.5;
+      height:180px; overflow-y:auto;
+      border:1px solid rgba(255,140,110,0.2);
+      padding:10px; background:#0a0403; border-radius:3px;
+      font-size:13px;
   }
   #log p{ margin:6px 0; word-wrap:break-word; }
-  #log p.node1{ color:#cfe8e0; }
+  #log p.node1{ color:#f0d4c8; }
   #log p.you{ color:#7fb3ff; }
 
   #tally{
-      margin-top:14px;
-      font-size:13px;
-      opacity:0.85;
-      display:flex;
-      justify-content:space-between;
+      margin-top:10px; font-size:12px; opacity:0.85;
+      display:flex; justify-content:space-between;
   }
 
   input,button{
-      width:100%;
-      padding:10px;
-      background:#0a0e0d;
-      color:#cfe8e0;
-      border:1px solid #4fd1c540;
-      font-family:'Courier New', monospace;
-      font-size:14px;
-      margin-top:10px;
+      width:100%; padding:9px;
+      background:black; color:#f0d4c8;
+      border:1px solid rgba(255,140,110,0.3);
+      font-family:'Courier New', monospace; font-size:13px;
+      margin-top:8px;
   }
   button{ cursor:pointer; }
-  button:hover{ background:#4fd1c515; }
+  button:hover{ background:rgba(255,140,110,0.12); }
 </style>
 </head>
 <body>
 
-<div id="container">
+<canvas id="scene"></canvas>
+
+<div id="locked">
+  <p id="status">connection unstable...</p>
+</div>
+
+<div id="dashboard">
   <h1>NODE_1</h1>
-  <canvas id="pulse1" width="220" height="220" style="width:180px; height:180px; display:block; border-radius:50%; margin-top:10px;"></canvas>
-
-  <!-- shown only while chapter 1 is still unsolved for everyone -->
-  <div id="locked">
-    <p id="status">connection unstable...</p>
+  <p id="status2">connection stable</p>
+  <div id="log"></div>
+  <div id="tally">
+    <span>TELL: <span id="tellCount">0</span></span>
+    <span>BURY: <span id="buryCount">0</span></span>
   </div>
-
-  <!-- shown once chapter 1 has been solved by anyone, for everyone -->
-  <div id="unlocked">
-    <p id="status2">connection stable</p>
-    <div id="log"></div>
-    <div id="tally">
-      <span>TELL: <span id="tellCount">0</span></span>
-      <span>BURY: <span id="buryCount">0</span></span>
-    </div>
-    <input id="input" placeholder="type TELL or BURY..." autocomplete="off">
-    <button id="send">SEND</button>
-  </div>
+  <input id="input" placeholder="type TELL or BURY..." autocomplete="off">
+  <button id="send">SEND</button>
 </div>
 
 <!-- Firebase -->
@@ -111,7 +94,7 @@
 
 <!-- Shared engine (Firebase connection) -->
 <script src="engine.js"></script>
-<script src="node1Pulse.js"></script>
+<script src="node1Scene.js"></script>
 <!-- NODE_1's own interface -->
 <script src="node1_app.js"></script>
 

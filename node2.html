@@ -6,159 +6,135 @@
 <title>NODE_2</title>
 <style>
   * { box-sizing: border-box; }
-  body{
-      background:#0d0605;
-      color:#e8c79a;
-      font-family:'Courier New', monospace;
-      display:flex;
-      justify-content:center;
-      margin:0;
-      padding:20px;
+  html, body {
+      background:#050709; margin:0; padding:0; min-height:100vh;
+      font-family:'Courier New', monospace; color:#cdd8e2;
+      display:flex; align-items:center; justify-content:center;
   }
-  #container{
-      width:100%;
-      max-width:720px;
-      margin-top:50px;
+
+  #bigIris{ position:fixed; inset:0; z-index:0; }
+
+  #locked{ display:none; text-align:center; opacity:0.6; position:relative; z-index:2; }
+
+  #dashboard{
+      display:none; position:relative; z-index:2;
+      width:100%; max-width:640px; margin:60px auto;
+      padding:26px 24px 20px;
+      background: rgba(8,14,20,0.68);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(140,170,200,0.28);
+      border-top:1px solid rgba(190,215,240,0.5);
+      border-radius:10px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(140,170,200,0.06);
+      max-height:80vh; overflow-y:auto;
   }
   h1{
-      letter-spacing:6px;
-      font-weight:normal;
-      color:#ff6a3d;
+      font-size:19px; letter-spacing:5px; margin:0 0 14px; font-weight:normal;
+      color:#dce8f5;
   }
-  #locked{ opacity:0.6; }
-  #dossier{ display:none; }
 
-  .doctitle{ opacity:0.7; margin-bottom:14px; }
-  #textlog p{ margin:6px 0; }
+  .doctitle{ opacity:0.7; margin-bottom:14px; font-size:13px; color:#ff9d6a; }
+  #textlog p{ margin:6px 0; font-size:13px; }
 
   #sigCanvas{
-      display:block;
-      margin-top:16px;
-      border:1px solid #ff6a3d33;
-      background:#0a0403;
-      width:100%;
-      height:70px;
+      display:block; margin-top:16px;
+      border:1px solid rgba(140,170,200,0.3);
+      background:#050709; width:100%; height:70px;
   }
-  .caption{
-      font-size:11px;
-      opacity:0.5;
-      margin-top:4px;
-      letter-spacing:1px;
-  }
+  .caption{ font-size:11px; opacity:0.5; margin-top:4px; letter-spacing:1px; }
 
   .scratchWrap{ margin-top:20px; }
   .scratchLabel{ font-size:13px; opacity:0.75; margin-bottom:6px; }
   .scratchBox{
-      position:relative;
-      height:44px;
-      border:1px solid #ff6a3d33;
+      position:relative; height:44px;
+      border:1px solid rgba(140,170,200,0.3);
       overflow:hidden;
   }
   .scratchText{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      padding:0 10px;
-      font-size:13px;
-      color:#e8c79a;
+      position:absolute; inset:0; display:flex; align-items:center;
+      padding:0 10px; font-size:13px; color:#cdd8e2;
   }
   .scratchCanvas{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      cursor:crosshair;
-      touch-action:none;
+      position:absolute; inset:0; width:100%; height:100%;
+      cursor:crosshair; touch-action:none;
   }
 
   #finalQuestion{ margin-top:26px; }
   #questionText{ font-size:14px; margin-bottom:14px; }
   .sliderRow{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-size:11px;
-      letter-spacing:1px;
-      opacity:0.8;
+      display:flex; align-items:center; gap:10px;
+      font-size:11px; letter-spacing:1px; opacity:0.8;
   }
-  .sliderRow input[type=range]{
-      flex:1;
-      accent-color:#ff6a3d;
+  .sliderRow input[type=range]{ flex:1; accent-color:#8caac8; }
+
+  input, button{
+      width:100%; padding:9px;
+      background:black; color:#cdd8e2;
+      border:1px solid rgba(140,170,200,0.3);
+      font-family:'Courier New', monospace; font-size:13px;
+      margin-top:8px;
   }
-  button{
-      width:100%;
-      padding:10px;
-      margin-top:14px;
-      background:#0a0403;
-      color:#e8c79a;
-      border:1px solid #ff6a3d40;
-      font-family:'Courier New', monospace;
-      font-size:14px;
-      cursor:pointer;
-  }
-  button:hover{ background:#ff6a3d15; }
+  button{ cursor:pointer; }
+  button:hover{ background:rgba(140,170,200,0.12); }
   #afterAnswer{ margin-top:16px; opacity:0.8; font-size:13px; }
 </style>
 </head>
 <body>
 
-<div id="container">
-  <h1>NODE_2</h1>
-  <canvas id="pulse2" width="220" height="220" style="width:180px; height:180px; display:block; border-radius:50%; margin-top:10px;"></canvas>
+<canvas id="bigIris"></canvas>
 
-  <div id="locked">
-    <p>ACCESS DENIED — insufficient clearance.</p>
+<div id="locked">
+  <p>ACCESS DENIED — insufficient clearance.</p>
+</div>
+
+<div id="dashboard">
+  <h1>NODE_2</h1>
+  <p class="doctitle">SUBJECT FILE — AUTOMATED OBSERVATION LOG</p>
+
+  <div id="textlog"></div>
+
+  <canvas id="sigCanvas" width="400" height="70"></canvas>
+  <p class="caption">subject signature — unique to this identity</p>
+
+  <div class="scratchWrap">
+    <div class="scratchLabel">internal assessment (scratch to reveal):</div>
+    <div class="scratchBox">
+      <div class="scratchText" id="scratch1Text"></div>
+      <canvas class="scratchCanvas" id="scratch1"></canvas>
+    </div>
   </div>
 
-  <div id="dossier">
-    <p class="doctitle">SUBJECT FILE — AUTOMATED OBSERVATION LOG</p>
-
-    <div id="textlog"></div>
-
-    <canvas id="sigCanvas" width="400" height="70"></canvas>
-    <p class="caption">subject signature — unique to this identity</p>
-
-    <div class="scratchWrap">
-      <div class="scratchLabel">internal assessment (scratch to reveal):</div>
-      <div class="scratchBox">
-        <div class="scratchText" id="scratch1Text"></div>
-        <canvas class="scratchCanvas" id="scratch1"></canvas>
-      </div>
+  <div class="scratchWrap">
+    <div class="scratchLabel">recommendation (scratch to reveal):</div>
+    <div class="scratchBox">
+      <div class="scratchText" id="scratch2Text"></div>
+      <canvas class="scratchCanvas" id="scratch2"></canvas>
     </div>
+  </div>
 
-    <div class="scratchWrap">
-      <div class="scratchLabel">recommendation (scratch to reveal):</div>
-      <div class="scratchBox">
-        <div class="scratchText" id="scratch2Text"></div>
-        <canvas class="scratchCanvas" id="scratch2"></canvas>
-      </div>
+  <div id="finalQuestion" style="display:none;">
+    <p id="questionText"></p>
+    <div class="sliderRow">
+      <span>I AM WATCHED</span>
+      <input type="range" id="stanceSlider" min="0" max="100" value="50">
+      <span>I AM WATCHING</span>
     </div>
+    <button id="confirmBtn">CONFIRM</button>
+  </div>
+  <p id="afterAnswer" style="display:none;"></p>
 
-    <div id="finalQuestion" style="display:none;">
-      <p id="questionText"></p>
-      <div class="sliderRow">
-        <span>I AM WATCHED</span>
-        <input type="range" id="stanceSlider" min="0" max="100" value="50">
-        <span>I AM WATCHING</span>
-      </div>
-      <button id="confirmBtn">CONFIRM</button>
-    </div>
-    <p id="afterAnswer" style="display:none;"></p>
-
-    <div id="codeEntry" style="margin-top:26px;">
-      <p style="font-size:13px; opacity:0.75; margin-bottom:6px;">clearance override (scratch both cards to find it):</p>
-      <input id="codeInput" placeholder="enter code..." autocomplete="off">
-      <button id="codeSubmit">SUBMIT</button>
-      <p id="codeMsg" style="margin-top:8px; font-size:13px;"></p>
-    </div>
+  <div id="codeEntry" style="margin-top:26px;">
+    <p style="font-size:13px; opacity:0.75; margin-bottom:6px;">clearance override (scratch both cards to find it):</p>
+    <input id="codeInput" placeholder="enter code..." autocomplete="off">
+    <button id="codeSubmit">SUBMIT</button>
+    <p id="codeMsg" style="margin-top:8px; font-size:13px;"></p>
   </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="engine.js"></script>
-<script src="node2Pulse.js"></script>
+<script src="node2BigIris.js"></script>
 <script src="node2_app.js"></script>
 
 </body>
