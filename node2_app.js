@@ -154,6 +154,11 @@ playerRef.once("value", snap => {
     }, offset + 3200);
 
     setTimeout(() => {
+        document.getElementById("observationTest").style.display = "block";
+        setupObservationTest();
+    }, offset + 6200);
+
+    function revealFinalQuestion() {
         finalQuestion.style.display = "block";
         if (alreadyAnswered) {
             questionText.textContent = `SUBJECT #${researcherNumber}: your position has already been logged.`;
@@ -163,7 +168,62 @@ playerRef.once("value", snap => {
         } else {
             questionText.textContent = `SUBJECT #${researcherNumber}: do you still believe you're the one asking the questions?`;
         }
-    }, offset + 4200);
+    }
+
+    function setupObservationTest() {
+        const beginBtn = document.getElementById("obsBeginBtn");
+        const flashEl = document.getElementById("obsFlash");
+        const inputRow = document.getElementById("obsInputRow");
+        const obsInput = document.getElementById("obsInput");
+        const obsSubmitBtn = document.getElementById("obsSubmitBtn");
+        const obsMsg = document.getElementById("obsMsg");
+        let sequence = [];
+
+        function newSequence() {
+            sequence = Array.from({ length: 5 }, () => Math.floor(Math.random() * 10));
+        }
+
+        function playSequence() {
+            beginBtn.style.display = "none";
+            obsMsg.textContent = "";
+            newSequence();
+            flashEl.style.display = "block";
+            let i = 0;
+            const iv = setInterval(() => {
+                flashEl.textContent = sequence[i];
+                i++;
+                if (i >= sequence.length) {
+                    clearInterval(iv);
+                    setTimeout(() => {
+                        flashEl.style.display = "none";
+                        flashEl.textContent = "";
+                        inputRow.style.display = "flex";
+                        obsInput.focus();
+                    }, 650);
+                }
+            }, 650);
+        }
+
+        beginBtn.addEventListener("click", playSequence);
+
+        obsSubmitBtn.addEventListener("click", () => {
+            const attempt = obsInput.value.trim().replace(/\s+/g, "");
+            if (attempt === sequence.join("")) {
+                obsMsg.style.color = "#4fd18a";
+                obsMsg.textContent = "correct. observation confirmed.";
+                inputRow.style.display = "none";
+                document.getElementById("observationTest").style.opacity = "0.5";
+                revealFinalQuestion();
+            } else {
+                obsMsg.style.color = "#ff6a6a";
+                obsMsg.textContent = "incorrect. attention lapsed. try again.";
+                inputRow.style.display = "none";
+                obsInput.value = "";
+                beginBtn.style.display = "inline-block";
+                beginBtn.textContent = "TRY AGAIN";
+            }
+        });
+    }
 });
 
 confirmBtn.addEventListener("click", () => {

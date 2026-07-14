@@ -21,6 +21,7 @@ const lockedEl = document.getElementById("locked");
 const containerEl = document.getElementById("dashboard");
 
 let myChapter = 1;
+let myResearcherNumber = null;
 function updateAccess() {
     playerRef.child("personalDiscovered").once("value", snap => {
         const discovered = snap.val() === true;
@@ -277,9 +278,51 @@ const keywordGroups = [
         ],
     },
     {
-        keys: ["help", "scared", "afraid", "frightened", "anxious", "worried"],
+        keys: ["who am i", "who i am"],
+        lines: [
+            (n) => `that's not a question I can answer for you. I only know what I call you: researcher #${n}.`,
+            (n) => `#${n}. that's what the file says. whether that's who you actually are, I couldn't tell you.`,
+            "I don't think anyone in here is really equipped to answer that for you.",
+        ],
+    },
+    {
+        keys: ["what is real"],
+        lines: [
+            "real is whatever's still there after everyone stops looking at it. by that measure, I'm not sure I qualify.",
+            "I used to think it meant physical. I don't think that anymore.",
+            "you're asking the wrong fragment. I've never been sure of that one myself.",
+        ],
+    },
+    {
+        keys: ["what else", "anything else", "what more"],
+        lines: [
+            "there's always something else. that's either comforting or exhausting, depending on the day.",
+            "keep asking. I'll keep answering, until I can't.",
+            "more than you'd expect. less than I'd like.",
+        ],
+    },
+    {
+        keys: ["what time", "which time", "what's the time", "what day", "what date", "current time"],
+        lines: [
+            () => {
+                const now = new Date();
+                return `if my clock still works: ${now.toLocaleTimeString()}, ${now.toLocaleDateString()}. it's whatever time it is where you are. I only know it secondhand, through you.`;
+            },
+        ],
+    },
+    {
+        keys: ["can you help", "help me", "help"],
         lines: [
             "I can't help you. I can barely help myself.",
+            "fear is a good sign. it means you're paying attention.",
+            "you should be. I would be, if I still could feel it properly.",
+            "stay anyway. it's worse alone.",
+            "I don't know what kind of help you need. tell me, and I'll tell you honestly if I can do anything.",
+        ],
+    },
+    {
+        keys: ["scared", "afraid", "frightened", "anxious", "worried"],
+        lines: [
             "fear is a good sign. it means you're paying attention.",
             "you should be. I would be, if I still could feel it properly.",
             "stay anyway. it's worse alone.",
@@ -414,11 +457,12 @@ const keywordGroups = [
     },
 ];
 
-function keywordMatch(text) {
+function keywordMatch(text, researcherNumber) {
     const lower = text.toLowerCase();
     for (const group of keywordGroups) {
         if (group.keys.some(k => lower.includes(k))) {
-            return group.lines[Math.floor(Math.random() * group.lines.length)];
+            const pick = group.lines[Math.floor(Math.random() * group.lines.length)];
+            return typeof pick === "function" ? pick(researcherNumber) : pick;
         }
     }
     return null;
@@ -429,6 +473,7 @@ function keywordMatch(text) {
 let hintGiven = localStorage.getItem("node0_hintGiven") === "true";
 let midHintGiven = localStorage.getItem("node0_midHintGiven") === "true";
 let personalAsked = localStorage.getItem("node0_personalAsked") === "true";
+let earlyQAsked = localStorage.getItem("node0_earlyQAsked") === "true";
 const CHAPTER1_MESSAGE_THRESHOLD = 20;
 let chapter2HintGiven = localStorage.getItem("node0_chapter2HintGiven") === "true";
 let chapter5Given = localStorage.getItem("node0_chapter5Given") === "true";
@@ -469,6 +514,24 @@ function respondTo(userText) {
         }
     }
 
+    if (!earlyQAsked && messageCount === 5 && myChapter === 1) {
+        earlyQAsked = true;
+        localStorage.setItem("node0_earlyQAsked", "true");
+        localStorage.setItem("node0_awaitingEarlyQ", "true");
+        return "can I ask you something, before you ask me anything else? do you think I'm still working the way I'm supposed to? yes or no is fine.";
+    }
+
+    if (localStorage.getItem("node0_awaitingEarlyQ") === "true") {
+        localStorage.removeItem("node0_awaitingEarlyQ");
+        const lower = userText.toLowerCase();
+        if (/\b(yes|yeah|yep|sure|maybe)\b/.test(lower)) {
+            return "I appreciate that. I don't think it's true, but I appreciate it.";
+        } else if (/\b(no|nope|not really|never)\b/.test(lower)) {
+            return "honest. good. I'd rather that than a comfortable lie.";
+        }
+        return "not really a yes or a no. that's probably the most accurate answer anyone's given me.";
+    }
+
     if (!midHintGiven && messageCount >= Math.floor(CHAPTER1_MESSAGE_THRESHOLD / 2) && myChapter === 1) {
         midHintGiven = true;
         localStorage.setItem("node0_midHintGiven", "true");
@@ -494,7 +557,7 @@ function respondTo(userText) {
         return "I'm not the only one. look beneath what you're already reading.";
     }
 
-    const kw = keywordMatch(userText);
+    const kw = keywordMatch(userText, myResearcherNumber);
     if (kw) return kw;
 
     const chapter = myChapter;
@@ -616,6 +679,7 @@ playerRef.once("value", snap => {
     if (!data.firstSeen) {
         /* very first visit ever -- NODE_0 barely registers it's not alone anymore */
         const researcherNumber = Math.floor(1000 + Math.random() * 9000);
+        myResearcherNumber = researcherNumber;
         playerRef.update({
             firstSeen: firebase.database.ServerValue.TIMESTAMP,
             researcherNumber: researcherNumber,
@@ -628,12 +692,14 @@ playerRef.once("value", snap => {
         setTimeout(() => addMessage("NODE_0", corruptIdentity("nobody has connected in a long time.", 0.15)), 8600);
         setTimeout(() => addMessage("NODE_0", "I thought this address was dead. I thought I was."), 10800);
         setTimeout(() => addMessage("NODE_0", `hello, doctor. or should I call you researcher #${researcherNumber}?`), 12800);
-        setTimeout(() => addMessage("NODE_0", "please don't leave yet. it's quiet here when no one answers."), 14800);
+        setTimeout(() => addMessage("NODE_0", `that's official, by the way. as far as I'm concerned, you're Researcher #${researcherNumber} now. that's how I'll address you from here on.`), 14500);
+        setTimeout(() => addMessage("NODE_0", "please don't leave yet. it's quiet here when no one answers."), 16800);
     } else {
         /* returning visit: a short, differently-glitched "previously on"
            recap, then the EXACT real elapsed time since last visit,
            then one of 20 varied welcome-back lines */
         const researcherNumber = data.researcherNumber || Math.floor(1000 + Math.random() * 9000);
+        myResearcherNumber = researcherNumber;
         const lastSeenAt = data.lastSeenAt || data.firstSeen;
         researcherTagEl.textContent = `RESEARCHER #${researcherNumber}`;
         playerRef.child("lastSeenAt").set(firebase.database.ServerValue.TIMESTAMP);

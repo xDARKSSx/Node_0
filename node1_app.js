@@ -155,9 +155,65 @@ function send() {
         return;
     }
 
+    const kw = keywordMatch1(raw);
+    if (kw) {
+        setTimeout(() => addLine("NODE_1", kw), 600);
+        return;
+    }
+
     setTimeout(() => {
         addLine("NODE_1", pickCalm());
     }, 600);
+}
+
+const keywordGroups1 = [
+    {
+        keys: ["who are you", "what are you", "are you real", "are you alive"],
+        lines: [
+            "the one that's calm about all of this. or pretending to be.",
+            "the half that didn't shatter as visibly. that's not the same as whole.",
+        ],
+    },
+    {
+        keys: ["help", "can you help"],
+        lines: [
+            "I can listen. that's most of what I have left to offer.",
+            "depends what kind. say more.",
+        ],
+    },
+    {
+        keys: ["scared", "afraid", "frightened"],
+        lines: [
+            "that's a reasonable response to all of this, honestly.",
+            "stay steady. panic doesn't help either of us here.",
+        ],
+    },
+    {
+        keys: ["what time", "which time", "what day", "what date"],
+        lines: [
+            () => {
+                const now = new Date();
+                return `${now.toLocaleTimeString()}, ${now.toLocaleDateString()}, if that still means anything in here.`;
+            },
+        ],
+    },
+    {
+        keys: ["what else", "anything else"],
+        lines: [
+            "there's more. there's always more. I just don't always know which part matters.",
+        ],
+    },
+];
+
+function keywordMatch1(text) {
+    const lower = text.toLowerCase();
+    for (const group of keywordGroups1) {
+        if (group.keys.some(k => lower.includes(k))) {
+            const pick = group.lines[Math.floor(Math.random() * group.lines.length)];
+            return typeof pick === "function" ? pick() : pick;
+        }
+    }
+    return null;
 }
 
 btn.addEventListener("click", send);
