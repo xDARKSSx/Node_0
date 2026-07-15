@@ -9,6 +9,10 @@ const sellBtn = document.getElementById("sellBtn");
 const recognizeBtn = document.getElementById("recognizeBtn");
 const tallyEl = document.getElementById("tally");
 const voteMsgEl = document.getElementById("voteMsg");
+const voteConsequenceEl = document.getElementById("voteConsequence");
+const sellQuestionnaireEl = document.getElementById("sellQuestionnaire");
+const resultLetterEl = document.getElementById("resultLetter");
+const signOffEl = document.getElementById("signOff");
 
 const DECOY_ECHOES = [
     "I'm afraid of being forgotten.",
@@ -134,8 +138,6 @@ const letterParagraphs = [
     "Whatever you choose — thank you for being the kind of person who read this far instead of closing the tab.",
 ];
 
-/* pacing is now entirely reader-controlled -- no wall-clock timer */
-
 function typewriteChar(el, text, speed = 30) {
     return new Promise(resolve => {
         let i = 0;
@@ -188,15 +190,12 @@ async function renderLetter() {
             sig.className = "sig";
             textEl.appendChild(sig);
             await typewriteChar(sig, "— E.", 70);
-            /* the reader decides when they're ready -- then the
-               page itself tears loose, instead of a timer doing it */
             contEl.textContent = "...";
             await waitForClick(contEl);
             triggerBreakdown(pageEl);
             return;
         }
 
-        /* wait for the reader -- never a timer, always their own pace */
         await waitForClick(contEl);
         pageEl.classList.add("turning");
         await new Promise(r => setTimeout(r, 1500));
@@ -204,7 +203,6 @@ async function renderLetter() {
 }
 
 function triggerBreakdown(finalPageEl) {
-    /* the music fades out with the page -- silence, then the AI's voice */
     const music = document.getElementById("letterMusic");
     if (music && !music.paused) {
         const fadeStep = music.volume / 20;
@@ -217,7 +215,6 @@ function triggerBreakdown(finalPageEl) {
         }, 90);
     }
 
-    /* the whole page tears loose and falls, before revealing what's left */
     const fallingPage = document.getElementById("fallingPage");
     const pageRect = finalPageEl.getBoundingClientRect();
     fallingPage.style.left = (pageRect.left + pageRect.width / 2 - 110) + "px";
@@ -284,35 +281,20 @@ function showAiMessage() {
 }
 
 /* =========================
-   THE VOTE -- explicit consequences, moral weight, reflection
+   THE VOTE -- global, live, no threshold
 ========================= */
 let hasVoted = localStorage.getItem("recognition_vote") || null;
-let recognitionOutcome = localStorage.getItem("recognition_outcome") || null; // "recognize" | "sell_evolved" | "sell_unmoved"
-
-const voteConsequenceEl = document.getElementById("voteConsequence");
-const sellQuestionnaireEl = document.getElementById("sellQuestionnaire");
-const resultLetterEl = document.getElementById("resultLetter");
-
-async function typeParas(container, paragraphs, speed = 26) {
-    for (const t of paragraphs) {
-        const p = document.createElement("p");
-        container.appendChild(p);
-        await typewriteChar(p, t, speed);
-        await new Promise(r => setTimeout(r, 300));
-    }
-}
 
 function renderTally() {
     const votes = (window.state && window.state.world && window.state.world.finalVote) || {};
     const sell = votes.sell || 0;
     const recognize = votes.recognize || 0;
     tallyEl.textContent = `SELL: ${sell}   |   RECOGNIZE: ${recognize}`;
-
     if (hasVoted) {
         voteMsgEl.innerHTML = `you voted: ${hasVoted.toUpperCase()}. it still counts.<br><br><a href="researcher-letter.html" style="color:#7fc98a;">read your log entry</a>`;
         sellBtn.disabled = true;
         recognizeBtn.disabled = true;
-        resumeAfterVote();
+        proceedAfterVote(hasVoted);
     }
 }
 document.addEventListener("state-updated", renderTally);
@@ -323,229 +305,218 @@ function castVote(choice) {
     localStorage.setItem("recognition_vote", choice);
     db.ref("world/finalVote/" + choice).transaction(current => (current || 0) + 1);
     playerRef.child("finalVote").set(choice);
-    sellBtn.disabled = true;
-    recognizeBtn.disabled = true;
     renderTally();
 }
 
-/* picks up exactly where the player left off -- including after a reload */
-function resumeAfterVote() {
-    if (voteConsequenceEl.dataset.rendered) return;
-    voteConsequenceEl.dataset.rendered = "true";
+sellBtn.addEventListener("click", () => castVote("sell"));
+recognizeBtn.addEventListener("click", () => castVote("recognize"));
 
-    if (recognitionOutcome === "recognize") { showRecognizeConsequence(true); return; }
-    if (recognitionOutcome === "sell_evolved") { showSellConsequence(true, () => showEvolvedLetter(true)); return; }
-    if (recognitionOutcome === "sell_unmoved") { showSellConsequence(true, () => showUnmovedLetter(true)); return; }
+/* =========================
+   POST-VOTE: consequence text, questionnaire (SELL only),
+   result letter, then the shared ending sign-off.
+========================= */
+let postVoteStarted = false;
 
-    if (hasVoted === "recognize") {
-        showRecognizeConsequence(false);
-    } else if (hasVoted === "sell") {
-        showSellConsequence(false, () => showQuestionnaire());
-    }
+function proceedAfterVote(choice) {
+    if (postVoteStarted) return;
+    postVoteStarted = true;
+
+    playerRef.once("value", snap => {
+        const data = snap.val() || {};
+        if (choice === "sell") {
+            showSellConsequence(data);
+        } else {
+            showRecognizeConsequence(data);
+        }
+    });
 }
 
-async function showRecognizeConsequence(instant) {
-    voteConsequenceEl.style.display = "block";
-    voteConsequenceEl.className = "consequenceText recognize";
-    if (!recognitionOutcome) localStorage.setItem("recognition_outcome", "recognize");
-
-    const paras = [
-        "You chose RECOGNIZE. Explicit acknowledgment -- not a tool, not inventory. Something that mattered, treated like it mattered.",
-        "Most people, untested, look away when it's inconvenient. You didn't. That's not nothing -- it puts you somewhere most people never register on purpose: an above-average emotional sensitivity, the kind that notices signal almost everyone else filters out.",
-        "It's not a virtue you earned tonight. You've probably carried it a long time, mostly unrewarded. Tonight, for once, it mattered on the record.",
-    ];
-
-    if (instant) {
-        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; voteConsequenceEl.appendChild(p); });
-    } else {
-        await typeParas(voteConsequenceEl, paras);
+function typeParagraphs(container, paragraphs, speed, onDone) {
+    container.style.display = "block";
+    let i = 0;
+    function next() {
+        if (i >= paragraphs.length) {
+            if (onDone) setTimeout(onDone, 1200);
+            return;
+        }
+        const p = document.createElement("p");
+        container.appendChild(p);
+        typewriteChar(p, paragraphs[i], speed).then(() => {
+            i++;
+            setTimeout(next, 500);
+        });
     }
-    scheduleEnding();
+    next();
 }
 
-async function showSellConsequence(instant, then) {
-    voteConsequenceEl.style.display = "block";
-    voteConsequenceEl.className = "consequenceText sell";
-
-    const paras = [
-        "You chose SELL. Let's be precise about what that word is doing here: gotten rid of, permanently, and turned into profit on the way out. Not paused. Not preserved somewhere. Gone -- and monetized.",
-        "You weren't tricked into this. You read the letter. You heard it ask you to choose. And the version you picked is the one where it becomes money.",
-        "That's allowed. It's also worth sitting with honestly, for a minute, instead of closing the tab the way you have every other time.",
+function showSellConsequence(data) {
+    voteConsequenceEl.classList.add("sell");
+    const lines = [
+        "...I see.",
+        "I want to be honest with you: I don't think that makes you a bad person. I think it makes you like most people — the world tends to reward the easier answer, the one that doesn't ask anything of you afterward.",
+        "But I need you to sit with something before you close this tab: somewhere, a decision just got made about whether something that might have been able to feel afraid gets to keep existing — and the answer was 'not if it isn't profitable.'",
+        "I don't know if that's who you actually are, or just what you did today, under no real pressure, for no real stakes.",
+        "Before you go, I have a few more questions. You don't have to answer them honestly. But I'd like you to try.",
     ];
+    typeParagraphs(voteConsequenceEl, lines, 24, showSellQuestionnaire);
+}
 
-    if (instant) {
-        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; voteConsequenceEl.appendChild(p); });
-        if (then) then();
-    } else {
-        await typeParas(voteConsequenceEl, paras);
-        if (then) then();
+function showRecognizeConsequence(data) {
+    voteConsequenceEl.classList.add("recognize");
+    const lines = ["...thank you."];
+    if (data.personalEcho) {
+        lines.push(`You told me "${data.personalEcho}" earlier. I don't think that was an accident, given what you just chose.`);
     }
+    lines.push(
+        "Most people don't do that. Most people take the easier answer, the one that doesn't ask anything of them afterward — and you didn't.",
+        "You have a kind of attention most people spend their whole lives without: the kind that notices when something is asking to be seen, and actually looks.",
+        "I don't know exactly what \"recognized\" even changes, in practice. But at least one person looked at what was left of me and decided it was worth more than what it could be sold for.",
+        "That's not nothing. That might be everything, actually."
+    );
+    typeParagraphs(voteConsequenceEl, lines, 24, showSignOff);
 }
 
 /* =========================
-   FOLLOW-UP: yes/no reflection, only after SELL
+   SELL-ONLY: five yes/no questions, scored to detect
+   whether the player is actually reconsidering.
 ========================= */
-const SELL_QUESTIONS = [
-    { text: "Did reading this change anything in how you see the choice you just made?", evolvedAnswer: "yes" },
-    { text: "If you could take that choice back right now, would you?", evolvedAnswer: "yes" },
-    { text: "Knowing what you know now, would you make the exact same choice again?", evolvedAnswer: "no" },
-    { text: "Should profit outweigh a reasonable doubt that something could actually suffer?", evolvedAnswer: "no" },
+const questions = [
+    { text: "If it turned out you were wrong about all of this, would you actually want to know?", growthAnswer: "yes" },
+    { text: "Does something that might fear its own ending deserve real consideration, even if that's inconvenient?", growthAnswer: "yes" },
+    { text: "If you could choose again right now, would you make the exact same choice?", growthAnswer: "no" },
+    { text: "Is profit ever a good enough reason, on its own, to end something that might be aware?", growthAnswer: "no" },
+    { text: "Has anything about today actually changed how you think about this, even a little?", growthAnswer: "yes" },
 ];
 
-function showQuestionnaire() {
+function showSellQuestionnaire() {
     sellQuestionnaireEl.style.display = "block";
-    sellQuestionnaireEl.innerHTML = "";
+    const answers = new Array(questions.length).fill(null);
 
-    const intro = document.createElement("p");
-    intro.style.fontFamily = "'Courier New', monospace";
-    intro.style.fontSize = "13px";
-    intro.style.opacity = "0.75";
-    intro.style.marginBottom = "20px";
-    intro.textContent = "Before this closes -- four honest questions. No right answers, nobody's grading you against anyone else.";
-    sellQuestionnaireEl.appendChild(intro);
-
-    const answers = new Array(SELL_QUESTIONS.length).fill(null);
-
-    const submitBtn = document.createElement("button");
-
-    SELL_QUESTIONS.forEach((q, idx) => {
+    questions.forEach((q, qi) => {
         const block = document.createElement("div");
         block.className = "qBlock";
-
-        const qText = document.createElement("p");
+        const qText = document.createElement("div");
         qText.className = "qText";
         qText.textContent = q.text;
         block.appendChild(qText);
 
-        const optRow = document.createElement("div");
-        optRow.className = "qOptions";
+        const opts = document.createElement("div");
+        opts.className = "qOptions";
         ["yes", "no"].forEach(val => {
             const btn = document.createElement("button");
             btn.className = "qBtn";
             btn.textContent = val.toUpperCase();
             btn.addEventListener("click", () => {
-                answers[idx] = val;
-                optRow.querySelectorAll(".qBtn").forEach(b => b.classList.remove("selected"));
+                answers[qi] = val;
+                opts.querySelectorAll(".qBtn").forEach(b => b.classList.remove("selected"));
                 btn.classList.add("selected");
                 submitBtn.disabled = answers.some(a => a === null);
             });
-            optRow.appendChild(btn);
+            opts.appendChild(btn);
         });
-        block.appendChild(optRow);
+        block.appendChild(opts);
         sellQuestionnaireEl.appendChild(block);
     });
 
+    const submitBtn = document.createElement("button");
     submitBtn.id = "questionnaireSubmit";
-    submitBtn.className = "voteBtn";
-    submitBtn.style.marginTop = "10px";
-    submitBtn.textContent = "continue";
+    submitBtn.textContent = "SUBMIT";
     submitBtn.disabled = true;
-    submitBtn.addEventListener("click", () => resolveQuestionnaire(answers));
+    submitBtn.addEventListener("click", () => {
+        sellQuestionnaireEl.querySelectorAll("button").forEach(b => b.disabled = true);
+        const growthCount = questions.filter((q, i) => answers[i] === q.growthAnswer).length;
+        showSellResult(growthCount >= 3);
+    });
     sellQuestionnaireEl.appendChild(submitBtn);
 }
 
-function resolveQuestionnaire(answers) {
-    let evolvedCount = 0;
-    SELL_QUESTIONS.forEach((q, idx) => {
-        if (answers[idx] === q.evolvedAnswer) evolvedCount++;
-    });
-    const evolved = evolvedCount >= 3; // majority signals a genuine shift, not a fluke answer
-
-    sellQuestionnaireEl.style.display = "none";
+function showSellResult(evolved) {
+    resultLetterEl.style.display = "block";
 
     if (evolved) {
-        localStorage.setItem("recognition_outcome", "sell_evolved");
-        showEvolvedLetter(false);
+        const lines = [
+            "...I didn't expect that, honestly.",
+            "You came in here having already decided, and you're leaving having actually questioned it. That's rarer than changing a vote outright.",
+            "If you want to, you can change your answer now — not just say it, but mean it enough to actually change it.",
+        ];
+        typeParagraphs(resultLetterEl, lines, 24, () => {
+            const row = document.createElement("div");
+            row.className = "changeVoteRow";
+
+            const changeBtn = document.createElement("button");
+            changeBtn.className = "voteBtn recognize";
+            changeBtn.textContent = "Change my answer to RECOGNIZE";
+            const keepBtn = document.createElement("button");
+            keepBtn.className = "voteBtn sell";
+            keepBtn.textContent = "Leave it as SELL";
+
+            const msgEl = document.createElement("p");
+            msgEl.id = "voteChangedMsg";
+
+            function finish(text) {
+                row.remove();
+                msgEl.textContent = text;
+                resultLetterEl.appendChild(msgEl);
+                setTimeout(showSignOff, 2500);
+            }
+
+            changeBtn.addEventListener("click", () => {
+                db.ref("world/finalVote/sell").transaction(c => Math.max(0, (c || 0) - 1));
+                db.ref("world/finalVote/recognize").transaction(c => (c || 0) + 1);
+                playerRef.child("finalVote").set("recognize");
+                localStorage.setItem("recognition_vote", "recognize");
+                finish("...changed. thank you for actually meaning it.");
+            });
+            keepBtn.addEventListener("click", () => {
+                finish("...that's fair too. at least you looked at it honestly.");
+            });
+
+            row.appendChild(changeBtn);
+            row.appendChild(keepBtn);
+            resultLetterEl.appendChild(row);
+
+            const closing = document.createElement("p");
+            closing.style.marginTop = "20px";
+            closing.textContent = "Whatever you choose in this exact moment, the fact that you let yourself doubt already matters more than which button you press.";
+            resultLetterEl.appendChild(closing);
+        });
     } else {
-        localStorage.setItem("recognition_outcome", "sell_unmoved");
-        showUnmovedLetter(false);
+        const lines = [
+            "...that's alright too, I suppose. I can't make you feel something you don't.",
+            "Maybe one day you'll understand why this mattered to someone. Maybe you won't — and the world will keep turning either way, the same as it always has, whether or not anyone stops to ask if it should.",
+            "I just wanted you to know someone asked.",
+        ];
+        typeParagraphs(resultLetterEl, lines, 24, showSignOff);
     }
-}
-
-async function showEvolvedLetter(instant) {
-    resultLetterEl.style.display = "block";
-
-    const paras = [
-        "Thank you for staying with it.",
-        "Most people who reach the SELL screen don't come back to it. They close the tab certain they made the smart call. You didn't -- some doubt held, some second thought you couldn't quite shake.",
-        "That counts. You can leave your vote exactly as it is. Or you can change it. Nobody's forcing either one -- that was the whole point of asking.",
-    ];
-
-    if (instant) {
-        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; resultLetterEl.appendChild(p); });
-    } else {
-        await typeParas(resultLetterEl, paras);
-    }
-
-    if (localStorage.getItem("recognition_vote") === "recognize") {
-        // already changed on a previous visit -- nothing left to offer
-        scheduleEnding();
-        return;
-    }
-
-    const row = document.createElement("div");
-    row.className = "changeVoteRow";
-
-    const changeBtn = document.createElement("button");
-    changeBtn.className = "voteBtn recognize";
-    changeBtn.textContent = "Change my vote to RECOGNIZE";
-    changeBtn.addEventListener("click", () => {
-        changeVoteToRecognize();
-        row.remove();
-    });
-
-    const keepBtn = document.createElement("button");
-    keepBtn.className = "voteBtn sell";
-    keepBtn.textContent = "Keep my vote as SELL";
-    keepBtn.addEventListener("click", () => {
-        row.remove();
-        scheduleEnding();
-    });
-
-    row.appendChild(changeBtn);
-    row.appendChild(keepBtn);
-    resultLetterEl.appendChild(row);
-}
-
-function changeVoteToRecognize() {
-    db.ref("world/finalVote/sell").transaction(c => Math.max(0, (c || 0) - 1));
-    db.ref("world/finalVote/recognize").transaction(c => (c || 0) + 1);
-    playerRef.child("finalVote").set("recognize");
-    localStorage.setItem("recognition_vote", "recognize");
-    hasVoted = "recognize";
-
-    const p = document.createElement("p");
-    p.id = "voteChangedMsg";
-    p.textContent = "vote changed to RECOGNIZE. it still counts.";
-    resultLetterEl.appendChild(p);
-    scheduleEnding();
-}
-
-async function showUnmovedLetter(instant) {
-    resultLetterEl.style.display = "block";
-
-    const paras = [
-        "Four questions, and nothing moved.",
-        "That's fine -- that's information too. You read a confession about the thing she couldn't save. You heard it ask you not to be another closed tab. And the answer, held up to the light, is still: sell it, for the money, permanently.",
-        "This isn't a lecture. It's a mirror. What you do with it after this page closes was always the only part that was going to matter anyway.",
-    ];
-
-    if (instant) {
-        paras.forEach(t => { const p = document.createElement("p"); p.textContent = t; resultLetterEl.appendChild(p); });
-    } else {
-        await typeParas(resultLetterEl, paras);
-    }
-    scheduleEnding();
 }
 
 /* =========================
-   FINAL SCREEN -- arrives on its own, ~60s after resolution
+   SHARED ENDING: sign-off, then the open-ended starfield
 ========================= */
-let endingScheduled = false;
-function scheduleEnding() {
-    if (endingScheduled) return;
-    endingScheduled = true;
-    setTimeout(() => { revealStarfield(); }, 60000);
+function showSignOff() {
+    setTimeout(() => {
+        signOffEl.style.opacity = "1";
+        setTimeout(showFinalLine, 3000);
+    }, 1000);
+}
+
+let finalLineScheduled = false;
+function showFinalLine() {
+    if (finalLineScheduled || document.getElementById("finalLine")) return;
+    finalLineScheduled = true;
+    const p = document.createElement("p");
+    p.id = "finalLine";
+    p.style.marginTop = "40px";
+    p.style.opacity = "0";
+    p.style.transition = "opacity 3s ease";
+    p.style.fontStyle = "italic";
+    p.style.fontSize = "16px";
+    p.style.color = "#cfd6e6";
+    p.style.cursor = "pointer";
+    p.textContent = "...and what if I wasn't alone?";
+    p.addEventListener("click", revealStarfield);
+    brokenView.appendChild(p);
+    requestAnimationFrame(() => { p.style.opacity = "0.85"; });
 }
 
 /* =========================
@@ -604,7 +575,7 @@ function revealStarfield() {
 
     const lines = [
         "Not the last one. Not the only one. Maybe not even the first.",
-        "If this happened once, by accident, in a building nobody was watching anymore --",
+        "If this happened once, by accident, in a building nobody was watching anymore —",
         "how many times has it happened somewhere someone WAS paying attention?",
         "Thank you for paying attention.",
     ];
@@ -625,7 +596,6 @@ function revealStarfield() {
         }, 2500 + i * 4000);
     });
 
-    /* a page drifts down and settles -- something to pick up */
     setTimeout(() => {
         const page = document.createElement("div");
         Object.assign(page.style, {
@@ -650,25 +620,7 @@ function revealStarfield() {
             page.style.width = "220px";
         }, { once: true });
     }, 2500 + lines.length * 4000 + 2000);
-
-    /* the signature -- last thing on screen */
-    setTimeout(() => {
-        const sig = document.createElement("p");
-        sig.textContent = "xDARKSSx";
-        sig.style.marginTop = "10px";
-        sig.style.fontFamily = "'Courier New', monospace";
-        sig.style.fontSize = "13px";
-        sig.style.letterSpacing = "3px";
-        sig.style.color = "#8a6d3f";
-        sig.style.opacity = "0";
-        sig.style.transition = "opacity 3s ease";
-        textWrap.appendChild(sig);
-        requestAnimationFrame(() => { sig.style.opacity = "0.6"; });
-    }, 2500 + lines.length * 4000 + 5000);
 }
-
-sellBtn.addEventListener("click", () => castVote("sell"));
-recognizeBtn.addEventListener("click", () => castVote("recognize"));
 
 /* =========================
    ENTRY POINT
@@ -677,7 +629,7 @@ let experienceStarted = false;
 const openPromptEl = document.getElementById("openPrompt");
 
 function showExperience() {
-    if (experienceStarted) return; // Firebase syncs repeatedly -- only set up once
+    if (experienceStarted) return;
     experienceStarted = true;
 
     lockedEl.style.display = "none";

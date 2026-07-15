@@ -126,6 +126,10 @@
   }
   .qBtn:hover{ border-color:#e8e4d8; }
   .qBtn.selected{ border-color:#7fc98a; color:#7fc98a; }
+  #questionnaireSubmit{
+      margin-top:10px; background:#141414; border:1px solid #555; color:#e8e4d8;
+      font-family:'Courier New', monospace; font-size:13px; padding:10px 24px; cursor:pointer;
+  }
   #questionnaireSubmit:disabled{ opacity:0.3; cursor:default; }
 
   .resultLetter{
@@ -135,6 +139,13 @@
   .changeVoteRow{ margin-top:26px; display:flex; gap:14px; flex-wrap:wrap; }
   .changeVoteRow .voteBtn{ min-width:0; }
   #voteChangedMsg{ margin-top:16px; font-family:'Courier New', monospace; font-size:13px; color:#7fc98a; }
+
+  #signOff{
+      margin-top:60px; text-align:center; opacity:0; transition:opacity 3s ease;
+      font-family: Georgia, serif; color:#e6ceA0;
+  }
+  #signOff .thanks{ font-size:20px; margin-bottom:10px; }
+  #signOff .sig{ font-family:'Caveat', cursive; font-size:28px; opacity:0.85; }
 </style>
 </head>
 <body>
@@ -170,14 +181,14 @@
     <div id="tally"></div>
     <div id="voteMsg"></div>
 
-    <!-- immediate consequence text, branches by vote -->
     <div id="voteConsequence" class="consequenceText" style="display:none;"></div>
-
-    <!-- SELL-only: yes/no reflection questionnaire -->
     <div id="sellQuestionnaire" style="display:none;"></div>
-
-    <!-- final letter: thank-you (+ option to change vote) or harsher -->
     <div id="resultLetter" class="resultLetter" style="display:none;"></div>
+
+    <div id="signOff">
+      <div class="thanks">Thank you for playing.</div>
+      <div class="sig">— xDARKSSx</div>
+    </div>
   </div>
 </div>
 
