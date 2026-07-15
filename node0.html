@@ -199,7 +199,7 @@
 (function(){
     const a = document.getElementById("nodeAmbient");
     if (!a) return;
-    a.volume = 0.18;
+    a.volume = 1.0;
     a.play().catch(() => {
         document.addEventListener("click", () => a.play().catch(() => {}), { once: true });
     });
