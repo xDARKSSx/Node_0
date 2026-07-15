@@ -96,5 +96,18 @@
 <!-- NODE_1's own interface -->
 <script src="node1_app.js"></script>
 
+<audio id="nodeAmbient" loop preload="auto">
+  <source src="node1-ambient.mp3" type="audio/mpeg">
+</audio>
+<script>
+(function(){
+    const a = document.getElementById("nodeAmbient");
+    if (!a) return;
+    a.volume = 0.18;
+    a.play().catch(() => {
+        document.addEventListener("click", () => a.play().catch(() => {}), { once: true });
+    });
+})();
+</script>
 </body>
 </html>
